@@ -1,43 +1,75 @@
 "use client";
 
-import { usePathname } from "next/navigation";
-import GitHubIcon from "@/icons/github";
+import { ExternalLink, Search } from "lucide-react";
+
+const items = [
+  { name: "Features", href: "#features", external: false },
+  { name: "Workflow", href: "#workflow", external: false },
+  { name: "Plugins", href: "#plugins", external: false },
+  { name: "Docs", href: "https://docs.jolter.dev" },
+  { name: "Plugins", href: "https://plugins.jolter.dev" },
+  { name: "GitHub", href: "https://github.com/jolterjs/jolter" },
+];
 
 export default function Header() {
-  const pathname = usePathname();
-
-  const items = [
-    { name: "Homepage", href: "/" },
-    { name: "Docs", href: "/docs" },
-    { name: "Guides", href: "/guides" }
-  ];
-    
   return (
-    <>
-      <div className="absolute z-9999999 top-0 left-1/2 -translate-x-1/2 py-4 items-center justify-center w-auto">
-        <nav className="flex flex-row items-center justify-center gap-2 w-auto bg-white/5 backdrop-blur-lg p-1.5 rounded-full">
-            {items.map((item, index) => {
-                const isActive = pathname === item.href;
-                return (
-                    <button type="button" className={`px-4 py-2 text-sm font-medium rounded-full cursor-pointer ${isActive ? "text-background bg-white hover:opacity-80" : "bg-transparent text-white hover:bg-white/5"} transition-all`}>
-                        {item.name}
-                    </button>
-                );
+    <header className="fixed top-0 z-50 w-full border-b border-white/[0.08] bg-black/82 backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4">
+        <div className="flex min-w-0 items-center gap-8">
+          <a
+            href="#top"
+            className="flex shrink-0 items-center gap-3 transition hover:opacity-80"
+            aria-label="Jolter home"
+          >
+            <span className="text-xl font-semibold text-white">Jolter</span>
+          </a>
+
+          <nav className="hidden items-center gap-6 lg:flex">
+            {items.map((item) => {
+              const external = item.href.startsWith("http");
+              return (
+                <a
+                  key={item.name}
+                  href={item.href}
+                  target={external ? "_blank" : undefined}
+                  rel={external ? "noreferrer" : undefined}
+                  className="group inline-flex items-center gap-1.5 text-sm font-medium text-white/48 transition hover:text-white"
+                >
+                  {item.name}
+                  {external && (
+                    <ExternalLink className="size-3 text-white/28 transition group-hover:text-white/65" />
+                  )}
+                </a>
+              );
             })}
-        </nav>
+          </nav>
+        </div>
+
+        <div className="flex shrink-0 items-center gap-2">
+          <a
+            href="https://docs.jolter.dev"
+            target="_blank"
+            rel="noreferrer"
+            className="hidden h-9 w-72 items-center justify-between rounded-lg border border-white/[0.08] bg-white/[0.05] px-3 text-sm text-white/36 transition hover:border-white/[0.16] hover:text-white/56 xl:flex"
+          >
+            <span className="flex items-center gap-2">
+              <Search className="size-4" />
+              Search documentation...
+            </span>
+            <kbd className="rounded border border-white/[0.12] bg-black px-1.5 py-0.5 font-mono text-[11px] text-white/55">
+              Ctrl K
+            </kbd>
+          </a>
+          <a
+            href="https://docs.jolter.dev/quickstart"
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex h-9 items-center justify-center rounded-lg bg-white px-3.5 text-sm font-medium text-black transition hover:bg-white/90"
+          >
+            Learn
+          </a>
+        </div>
       </div>
-      <header className="absolute z-99999 flex w-full flex-row items-center justify-between px-58 py-4">
-        <div className="flex flex-row items-center justify-center gap-0.5 select-none hover:opacity-80 cursor-pointer transition-all">
-          <img src="/logo.png" className="size-10"></img>
-          <h1 className="text-2xl font-semibold">Jolter</h1>
-        </div>
-        <div className="flex flex-row items-center justify-center">
-          <button className="flex cursor-pointer flex-row items-center justify-center gap-2 rounded-full bg-white/7.5 px-6 py-3.5 text-sm text-white backdrop-blur-lg transition-all hover:bg-white/12.5">
-            <GitHubIcon className="size-5 invert" />
-            Star on GitHub
-          </button>
-        </div>
-      </header>
-    </>
+    </header>
   );
 }
