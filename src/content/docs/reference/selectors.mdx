@@ -1,0 +1,87 @@
+---
+title: "Selectors"
+description: "Version selector grammar for runtimes, built-in tools, plugin tools, and plugins."
+---
+
+Selectors describe the versions Jolter may resolve.
+
+## Supported forms
+
+| Selector   | Meaning                                   |
+| ---------- | ----------------------------------------- |
+| `24`       | Highest stable `24.*.*` release           |
+| `24.x`     | Same major-line intent as `24`            |
+| `24.5`     | Highest stable `24.5.*` release           |
+| `24.5.x`   | Same minor-line intent as `24.5`          |
+| `24.5.0`   | Exact semantic version                    |
+| `x` or `*` | Any stable version                        |
+| `latest`   | Highest stable release from the provider  |
+| `lts`      | Highest current LTS release, Node.js only |
+
+Leading `v` is accepted in direct requests and normalized.
+
+## Unsupported forms
+
+Jolter does not support:
+
+```text
+>=20
+^20
+~20
+20 || 22
+20 - 24
+24.0.0-beta.1
+24.5.0.1
+```
+
+Whitespace, embedded `@`, ranges, unions, prerelease syntax, and more than three numeric components are rejected.
+
+## Runtime support
+
+| Runtime | Numeric | `latest` | `lts` |
+| ------- | ------- | -------- | ----- |
+| Node.js | Yes     | Yes      | Yes   |
+| Bun     | Yes     | Yes      | No    |
+| Deno    | Yes     | Yes      | No    |
+
+## Tool support
+
+Built-in tools and plugin tools support numeric selectors, wildcards, and `latest`. They do not support `lts`.
+
+```bash
+jolter use pnpm@10
+jolter use yarn@4.x
+jolter use eslint@8
+```
+
+## Corepack-style hashes
+
+Exact built-in tool versions can include an archive hash:
+
+```text
+pnpm@10.12.1+sha224.<56-hex-characters>
+```
+
+Supported algorithms:
+
+```text
+sha1
+sha224
+sha256
+sha384
+sha512
+```
+
+Hashes are accepted only with exact stable semantic versions. Jolter verifies them in addition to npm registry integrity.
+
+## Stability policy
+
+Broad selectors can move when provider metadata changes. Use exact versions for:
+
+- release jobs;
+- pinned build images;
+- regulated reproducibility;
+- offline cache preparation;
+- incident rollbacks.
+
+Use major or minor selectors for normal application development when you want compatible movement.

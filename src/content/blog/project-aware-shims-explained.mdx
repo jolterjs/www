@@ -1,0 +1,40 @@
+---
+title: "Project-aware shims explained"
+description: "How Jolter keeps command dispatch simple while still switching runtimes and tools per project."
+date: "2026-07-11"
+category: "engineering"
+authorName: "Jolter Team"
+authorAvatarUrl: "https://github.com/jolterjs.png"
+---
+
+Directory-change hooks are fragile in editors, subshells, CI runners, and task executors. Jolter avoids that class of problem by putting the decision at command dispatch time.
+
+The generated `node`, `pnpm`, `yarn`, `npm`, `bun`, `deno`, and plugin command shims resolve the current working directory when the command starts. If the current project declares requirements, those requirements win. Outside a configured project, the global fallback selected with `jolter use` can run.
+
+## Why dispatch-time resolution works
+
+Project-aware shims keep the shell setup stable. Once the shim directory is on `PATH`, Jolter does not need to mutate shell state every time you move between repositories.
+
+```bash
+cd app-a
+node --version
+
+cd ../app-b
+node --version
+```
+
+Each command resolves against the current directory. That means terminal tabs, IDE tasks, and automation jobs all follow the same model.
+
+## What the shim checks
+
+At a high level, dispatch is intentionally boring:
+
+```text
+resolve current project upward
+read project requirements
+select a complete installation
+fall back to a global active version when allowed
+launch the selected executable
+```
+
+That boring shape is useful. It leaves version selection in source control, keeps automation predictable, and avoids hidden per-shell state.

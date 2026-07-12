@@ -1,0 +1,92 @@
+---
+title: "Team onboarding"
+description: "Roll Jolter out across a repository without surprising contributors."
+---
+
+Jolter adoption works best when the repository tells developers exactly what to install, what to commit, and how to verify their environment.
+
+## Add project configuration
+
+Start with a root `jolter.json`:
+
+```bash
+jolter pin node@24
+jolter pin pnpm@10
+jolter sync
+jolter doctor
+```
+
+Commit the file:
+
+```bash
+git add jolter.json
+git commit -m "Add Jolter toolchain configuration"
+```
+
+## Update your repository README
+
+Add a short setup section:
+
+````md
+## Toolchain
+
+Install Jolter:
+
+```bash
+curl -fsSL https://get.jolter.dev/install.sh | sh
+jolter setup
+jolter sync
+jolter doctor
+```
+
+Windows users can install with:
+
+```powershell
+irm https://get.jolter.dev/install.ps1 | iex
+```
+````
+
+Use the same commands in contributor docs, onboarding scripts, and issue templates.
+
+## Prepare CI before requiring it locally
+
+Add `jolter setup-ci` to CI before enforcing Jolter locally:
+
+```yaml
+- name: Install Jolter
+  run: |
+    curl -fsSL https://get.jolter.dev/install.sh | sh
+    jolter setup-ci --no-progress
+```
+
+Once CI proves the repository declaration works, ask contributors to run:
+
+```bash
+jolter setup
+jolter sync
+jolter doctor
+```
+
+## Communicate PATH expectations
+
+Tell contributors that Jolter shims should appear before other Node.js managers on `PATH`.
+
+```bash
+jolter doctor
+```
+
+Doctor will identify common conflicts with nvm, fnm, Volta, Corepack, system Node.js, or package-manager global bins.
+
+## Keep rollback simple
+
+Jolter does not modify package manager lockfiles or project source. A rollback usually means reverting `jolter.json` and removing the CI setup step.
+
+Installed data under `JOLTER_HOME` is rebuildable state. Contributors can keep it or remove it after uninstalling Jolter.
+
+## Adoption checklist
+
+<Check>
+  A good rollout has a committed `jolter.json`, a passing CI `setup-ci` step,
+  README instructions, a known support contact, and a clear policy for when
+  selectors may be changed.
+</Check>

@@ -1,0 +1,113 @@
+---
+title: "Diagnostics"
+description: "Use `jolter list` and `jolter doctor` to inspect storage, project resolution, shims, plugins, and environment health."
+---
+
+Jolter has two non-destructive inspection commands:
+
+```bash
+jolter list
+jolter doctor
+```
+
+Use `list` to see what exists. Use `doctor` to evaluate whether the current project and shell are usable.
+
+## Inventory
+
+```bash
+jolter list
+```
+
+Inventory includes runtimes, built-in tools, plugin tools, and plugins. `*` marks a globally active version. `ready` means the expected executable or entry point exists. `incomplete` means a semantic-version directory exists but is not usable.
+
+JSON:
+
+```bash
+jolter list --json
+```
+
+Use JSON for automation. Human table wording and spacing can change.
+
+## Health checks
+
+```bash
+jolter doctor
+```
+
+Doctor checks include:
+
+- storage location and writability;
+- operating system and architecture support;
+- project configuration and compatibility files;
+- required runtime, built-in tool, plugin, and plugin-tool availability;
+- bounded `--version` probes;
+- installation manifests and executable permissions;
+- shim presence and PATH precedence;
+- shadowing by common version managers;
+- cache entries and offline readiness;
+- proxy and certificate configuration.
+
+Statuses:
+
+| Status    | Meaning                                               |
+| --------- | ----------------------------------------------------- |
+| `pass`    | The checked condition is ready                        |
+| `warning` | A risk or non-blocking concern was found              |
+| `fail`    | The environment or project cannot be used as expected |
+
+Warnings do not fail the process. Any failed check produces a nonzero exit status.
+
+## Remediation order
+
+Apply fixes in this order:
+
+1. storage and permission failures;
+2. invalid project configuration;
+3. missing or incomplete runtime requirements;
+4. missing or incompatible tools and plugin tools;
+5. missing plugins;
+6. shims and PATH precedence;
+7. cache, proxy, and certificate warnings.
+
+Rerun `jolter doctor` after each environmental change.
+
+## Probe safety
+
+Doctor can execute already-installed runtimes and tools with `--version`. Probes:
+
+- never execute a downloaded archive during installation;
+- have a five-second timeout;
+- capture bounded output;
+- set `JOLTER_DOCTOR=1` for the child process.
+
+Do not run doctor against a restored storage root from an untrusted source without treating installed executables as potentially hostile.
+
+## Common workflows
+
+New machine:
+
+```bash
+jolter setup
+jolter doctor
+```
+
+Project onboarding:
+
+```bash
+jolter sync
+jolter doctor
+```
+
+Suspected corruption:
+
+```bash
+jolter list
+jolter repair
+jolter doctor
+```
+
+Automation evidence:
+
+```bash
+jolter doctor --json --no-color > jolter-doctor.json
+```

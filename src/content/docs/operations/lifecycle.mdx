@@ -1,0 +1,101 @@
+---
+title: "Lifecycle operations"
+description: "Repair, uninstall, prune, clean cache, back up, and move Jolter storage."
+---
+
+Jolter storage is rebuildable machine state. Use lifecycle commands instead of manual deletion whenever possible.
+
+## Repair
+
+```bash
+jolter repair
+jolter repair --yes
+```
+
+Repair runs project synchronization in repair mode. Complete reusable installations are retained. Incomplete runtime, tool, and plugin-tool project requirements are replaced.
+
+Use `--yes` when missing declared project plugins may be installed.
+
+## Uninstall exact versions
+
+```bash
+jolter uninstall node@24.5.0
+jolter uninstall pnpm@10.12.1
+jolter uninstall eslint@8.57.0
+```
+
+Aliases:
+
+```bash
+jolter remove node@24.5.0
+jolter rm node@24.5.0
+```
+
+Active versions are protected:
+
+```bash
+jolter uninstall node@24.5.0 --force
+```
+
+`--force` removes the version and clears global activation when it matches. Project files are not changed.
+
+## Prune
+
+Preview:
+
+```bash
+jolter prune --dry-run
+```
+
+Apply default retention:
+
+```bash
+jolter prune
+```
+
+Keep two newest complete versions per kind:
+
+```bash
+jolter prune --keep 2
+```
+
+Prune protects active versions, current project requirements, and retained newest complete versions.
+
+## Cache
+
+```bash
+jolter cache status
+jolter cache clean
+```
+
+Cache cleaning removes downloaded artifacts and provider metadata. It does not remove installed versions, shims, project configuration, active selections, or lock files.
+
+## Backups
+
+Project declarations belong in source control. `JOLTER_HOME` is rebuildable.
+
+For workstation backup:
+
+1. stop Jolter operations;
+2. preserve `config/active.json` only if global defaults matter;
+3. preserve the cache only if offline recovery matters;
+4. treat runtime, tool, and plugin-tool directories as platform-specific executables;
+5. restore only onto a compatible OS and architecture.
+
+After restoration:
+
+```bash
+jolter setup
+jolter doctor
+```
+
+## Manual recovery
+
+If manual cleanup is unavoidable:
+
+1. stop all Jolter processes;
+2. back up `JOLTER_HOME`;
+3. make the smallest targeted change;
+4. run `jolter list`;
+5. run `jolter setup`;
+6. run `jolter doctor`.

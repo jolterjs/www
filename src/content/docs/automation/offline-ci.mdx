@@ -1,0 +1,83 @@
+---
+title: "Offline CI"
+description: "Prepare caches so Jolter can synchronize projects without network access."
+---
+
+Offline CI works when Jolter can reuse complete local installations or cached metadata and verified artifacts.
+
+## When to use offline mode
+
+Use `JOLTER_OFFLINE=1` for:
+
+- isolated runners with prewarmed caches;
+- release pipelines that must not contact providers;
+- disaster-recovery tests;
+- corporate environments where downloads happen through a separate approved job.
+
+Do not enable offline mode until the cache contains everything the job needs.
+
+## Prepare the cache
+
+On a connected runner with the same operating system and architecture:
+
+```bash
+jolter sync
+jolter doctor
+jolter cache status
+```
+
+Preserve:
+
+```text
+$JOLTER_HOME/cache
+```
+
+Exact versions simplify offline operation:
+
+```json jolter.json
+{
+  "runtime": {
+    "node": "24.5.0"
+  },
+  "tools": {
+    "pnpm": "10.12.1"
+  }
+}
+```
+
+Broad selectors such as `latest` and `lts` require cached provider metadata.
+
+## Run offline
+
+```bash
+export JOLTER_OFFLINE=1
+jolter setup-ci --no-progress
+```
+
+PowerShell:
+
+```powershell
+$env:JOLTER_OFFLINE = "1"
+jolter setup-ci --no-progress
+```
+
+## Cache misses
+
+If offline setup fails:
+
+```bash
+jolter doctor --no-progress
+jolter cache status
+```
+
+Check:
+
+1. `JOLTER_OFFLINE` is set intentionally;
+2. the cache was restored to the same `JOLTER_HOME`;
+3. the cache was built for the same OS and architecture;
+4. broad selectors have cached metadata;
+5. `jolter cache clean` was not run before the offline job.
+
+## Security note
+
+Jolter re-verifies artifact integrity before publication, but writable cache metadata and already-installed executables remain local filesystem state. Do not share writable caches across untrusted repositories or branches.

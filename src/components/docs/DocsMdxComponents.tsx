@@ -1,0 +1,569 @@
+import type {
+  AnchorHTMLAttributes,
+  HTMLAttributes,
+  ReactElement,
+  ReactNode,
+  TableHTMLAttributes,
+} from "react";
+import { isValidElement } from "react";
+import Link from "next/link";
+import {
+  ArrowRight,
+  BookOpen,
+  CircleCheck,
+  Database,
+  Download,
+  FileText,
+  FolderCheck,
+  FolderPlus,
+  Info as InfoIcon,
+  Lightbulb,
+  Map,
+  Pin,
+  Plug,
+  Rocket,
+  Shield,
+  ShieldAlert,
+  ShieldCheck,
+  Stethoscope,
+  TriangleAlert,
+  Workflow,
+  Wrench,
+} from "lucide-react";
+import CopyButton from "@/components/CopyButton";
+import CodeGroupTabs, {
+  type CodeGroupTabItem,
+} from "@/components/docs/CodeGroupTabs";
+
+type CardGroupProps = {
+  children: ReactNode;
+  cols?: 1 | 2 | 3 | 4;
+};
+
+type CardProps = {
+  children: ReactNode;
+  title: string;
+  icon?: string;
+  href?: string;
+};
+
+type CalloutProps = {
+  children: ReactNode;
+};
+
+type StepProps = {
+  children: ReactNode;
+  title: string;
+};
+
+const iconMap = {
+  "book-open": BookOpen,
+  database: Database,
+  download: Download,
+  "folder-check": FolderCheck,
+  "folder-plus": FolderPlus,
+  map: Map,
+  pin: Pin,
+  plug: Plug,
+  rocket: Rocket,
+  shield: Shield,
+  "shield-alert": ShieldAlert,
+  "shield-check": ShieldCheck,
+  stethoscope: Stethoscope,
+  workflow: Workflow,
+  wrench: Wrench,
+};
+
+function normalizeDocsHref(href: string) {
+  if (
+    href.startsWith("/docs") ||
+    href.startsWith("#") ||
+    href.startsWith("/_next") ||
+    href.startsWith("/api")
+  ) {
+    return href;
+  }
+
+  if (href === "/") {
+    return "/docs";
+  }
+
+  if (href.startsWith("/")) {
+    return `/docs${href}`;
+  }
+
+  return href;
+}
+
+function DocsLink({
+  href = "",
+  children,
+  className = "",
+  ...props
+}: AnchorHTMLAttributes<HTMLAnchorElement>) {
+  const normalizedHref = normalizeDocsHref(href);
+  const external =
+    normalizedHref.startsWith("http") || normalizedHref.startsWith("mailto:");
+  const anchorOnly = normalizedHref.startsWith("#");
+  const linkClassName = anchorOnly
+    ? `text-inherit no-underline ${className}`
+    : `docs-link ${className}`;
+
+  if (!normalizedHref) {
+    return (
+      <a className={linkClassName} {...props}>
+        {children}
+      </a>
+    );
+  }
+
+  if (external) {
+    return (
+      <a
+        href={normalizedHref}
+        className={linkClassName}
+        target="_blank"
+        rel="noreferrer"
+        {...props}
+      >
+        {children}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={normalizedHref} className={linkClassName} {...props}>
+      {children}
+    </Link>
+  );
+}
+
+function CardGroup({ children, cols = 2 }: CardGroupProps) {
+  const gridClassName =
+    cols === 1
+      ? "grid-cols-1"
+      : cols === 3
+        ? "sm:grid-cols-2 xl:grid-cols-3"
+        : cols === 4
+          ? "sm:grid-cols-2 xl:grid-cols-4"
+          : "sm:grid-cols-2";
+
+  return (
+    <div
+      className={`docs-card-grid my-8 grid gap-px border border-white/[0.09] bg-white/[0.09] ${gridClassName}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+function Card({ children, title, icon, href }: CardProps) {
+  const Icon = iconMap[icon as keyof typeof iconMap] ?? FileText;
+  const content = (
+    <>
+      <div className="flex items-start justify-between gap-5">
+        <Icon className="size-5 text-white/72" />
+        {href && (
+          <ArrowRight className="size-4 text-white/32 transition group-hover:translate-x-0.5 group-hover:text-white/70" />
+        )}
+      </div>
+      <h3 className="mt-6 text-base font-semibold text-white">{title}</h3>
+      <div className="mt-2 text-sm leading-6 text-white/50">{children}</div>
+    </>
+  );
+
+  if (!href) {
+    return (
+      <div className="docs-card border border-white/[0.09] bg-black p-5">
+        {content}
+      </div>
+    );
+  }
+
+  const normalizedHref = normalizeDocsHref(href);
+  const external = normalizedHref.startsWith("http");
+
+  if (external) {
+    return (
+      <a
+        href={normalizedHref}
+        target="_blank"
+        rel="noreferrer"
+        className="docs-card group block border border-white/[0.09] bg-black p-5 transition hover:bg-[#050505]"
+      >
+        {content}
+      </a>
+    );
+  }
+
+  return (
+    <Link
+      href={normalizedHref}
+      className="docs-card group block border border-white/[0.09] bg-black p-5 transition hover:bg-[#050505]"
+    >
+      {content}
+    </Link>
+  );
+}
+
+function CodeGroup({ children }: { children: ReactNode }) {
+  const childItems = ReactChildrenToArray(children).filter(
+    (child) => !(typeof child === "string" && child.trim() === ""),
+  );
+  const tabItems = childItems
+    .map((child, index) => createCodeGroupTab(child, index))
+    .filter((item): item is CodeGroupTabItem => item !== null);
+
+  if (tabItems.length > 1) {
+    return <CodeGroupTabs items={sortCodeGroupTabs(tabItems)} />;
+  }
+
+  return <div className="my-7 space-y-4">{children}</div>;
+}
+
+function Steps({ children }: { children: ReactNode }) {
+  return <div className="docs-steps my-8 space-y-0">{children}</div>;
+}
+
+function Step({ children, title }: StepProps) {
+  return (
+    <section className="docs-step relative border-l border-white/[0.11] pb-8 pl-7 last:pb-0">
+      <h3 className="text-lg font-semibold text-white">{title}</h3>
+      <div className="mt-3 space-y-4 text-white/58">{children}</div>
+    </section>
+  );
+}
+
+function Callout({
+  children,
+  tone,
+}: CalloutProps & { tone: "info" | "tip" | "warning" | "check" }) {
+  const config = {
+    check: {
+      icon: CircleCheck,
+      className: "border-white/[0.1] bg-[#050505]",
+      accentClassName: "bg-emerald-300/70",
+      iconClassName: "text-emerald-300",
+    },
+    info: {
+      icon: InfoIcon,
+      className: "border-white/[0.1] bg-[#050505]",
+      accentClassName: "bg-sky-300/70",
+      iconClassName: "text-sky-200",
+    },
+    tip: {
+      icon: Lightbulb,
+      className: "border-white/[0.1] bg-[#050505]",
+      accentClassName: "bg-amber-300/70",
+      iconClassName: "text-amber-200",
+    },
+    warning: {
+      icon: TriangleAlert,
+      className: "border-white/[0.1] bg-[#050505]",
+      accentClassName: "bg-orange-300/70",
+      iconClassName: "text-orange-200",
+    },
+  }[tone];
+  const Icon = config.icon;
+
+  return (
+    <div
+      className={`docs-callout relative my-7 flex overflow-hidden rounded-md border p-4 text-sm leading-6 text-white/62 ${config.className}`}
+    >
+      <div
+        className={`absolute inset-y-0 left-0 w-px ${config.accentClassName}`}
+      />
+      <Icon
+        className={`mt-0.5 size-4 shrink-0 ${config.iconClassName}`}
+        aria-hidden="true"
+      />
+      <div className="min-w-0 space-y-3">{children}</div>
+    </div>
+  );
+}
+
+function extractTextFromNode(node: ReactNode): string {
+  if (typeof node === "string" || typeof node === "number") {
+    return String(node);
+  }
+
+  if (Array.isArray(node)) {
+    return node.map(extractTextFromNode).join("");
+  }
+
+  if (isValidElement<{ children?: ReactNode }>(node)) {
+    return extractTextFromNode(node.props.children);
+  }
+
+  return "";
+}
+
+function ReactChildrenToArray(children: ReactNode) {
+  return Array.isArray(children) ? children : [children];
+}
+
+function createCodeGroupTab(
+  child: ReactNode,
+  index: number,
+): CodeGroupTabItem | null {
+  const pre = findCodePre(child);
+
+  if (!pre) {
+    return null;
+  }
+
+  const props = pre.props as Record<string, unknown>;
+  const language =
+    typeof props["data-language"] === "string" ? props["data-language"] : "";
+  const code = extractTextFromNode(props.children as ReactNode);
+  const label = inferCodeGroupLabel(language, code, index);
+
+  return {
+    content: child,
+    icon: inferCodeGroupIcon(label),
+    label,
+  };
+}
+
+function findCodePre(node: ReactNode): ReactElement | null {
+  if (Array.isArray(node)) {
+    for (const child of node) {
+      const match = findCodePre(child);
+
+      if (match) {
+        return match;
+      }
+    }
+
+    return null;
+  }
+
+  if (!isValidElement<Record<string, unknown>>(node)) {
+    return null;
+  }
+
+  if (typeof node.props["data-language"] === "string") {
+    return node;
+  }
+
+  return findCodePre(node.props.children as ReactNode);
+}
+
+function inferCodeGroupLabel(language: string, code: string, index: number) {
+  const normalizedLanguage = language.toLowerCase();
+  const normalizedCode = code.toLowerCase();
+
+  if (
+    normalizedLanguage.includes("powershell") ||
+    normalizedCode.includes("install.ps1") ||
+    normalizedCode.includes("uninstall.ps1") ||
+    normalizedCode.includes("invoke-webrequest") ||
+    normalizedCode.includes("get-filehash")
+  ) {
+    return "Windows";
+  }
+
+  if (normalizedCode.includes("shasum -a 256")) {
+    return "macOS";
+  }
+
+  if (normalizedCode.includes("sha256sum")) {
+    return "Linux";
+  }
+
+  if (
+    normalizedCode.includes("install.sh") ||
+    normalizedCode.includes("uninstall.sh")
+  ) {
+    return "Linux and macOS";
+  }
+
+  if (normalizedLanguage === "bash" || normalizedLanguage === "shellscript") {
+    return "Shell";
+  }
+
+  if (normalizedLanguage === "yaml" || normalizedLanguage === "yml") {
+    return "YAML";
+  }
+
+  if (normalizedLanguage === "json") {
+    return "JSON";
+  }
+
+  if (normalizedLanguage) {
+    return (
+      normalizedLanguage.charAt(0).toUpperCase() + normalizedLanguage.slice(1)
+    );
+  }
+
+  return `Example ${index + 1}`;
+}
+
+function inferCodeGroupIcon(label: string): CodeGroupTabItem["icon"] {
+  const normalizedLabel = label.toLowerCase();
+
+  if (normalizedLabel.includes("windows")) {
+    return "windows";
+  }
+
+  if (normalizedLabel.includes("linux") && normalizedLabel.includes("macos")) {
+    return "unix";
+  }
+
+  if (normalizedLabel.includes("linux")) {
+    return "linux";
+  }
+
+  if (normalizedLabel.includes("macos")) {
+    return "macos";
+  }
+
+  return "code";
+}
+
+function sortCodeGroupTabs(items: CodeGroupTabItem[]) {
+  const hasUnixInstall =
+    items.some((item) => item.label === "Linux and macOS") &&
+    items.some((item) => item.label === "Windows");
+
+  if (!hasUnixInstall) {
+    return items;
+  }
+
+  const rank = {
+    "Linux and macOS": 0,
+    Linux: 1,
+    macOS: 2,
+    Windows: 3,
+  } as Record<string, number>;
+
+  return [...items].sort(
+    (a, b) => (rank[a.label] ?? 10) - (rank[b.label] ?? 10),
+  );
+}
+
+function DocsPre({
+  children,
+  className = "",
+  ...props
+}: HTMLAttributes<HTMLPreElement>) {
+  const rawCode = extractTextFromNode(children).replace(/\n$/, "");
+  const language =
+    typeof (props as Record<string, unknown>)["data-language"] === "string"
+      ? String((props as Record<string, unknown>)["data-language"])
+      : "code";
+
+  return (
+    <div className="docs-code-body group relative">
+      <CopyButton
+        code={rawCode}
+        label={`${language} code block`}
+        className="docs-code-copy absolute top-2 right-2 z-10 bg-black/70 opacity-0 backdrop-blur group-hover:opacity-100 focus:opacity-100"
+      />
+      <pre
+        className={`docs-code-pre overflow-x-auto bg-transparent px-4 py-3 pr-12 font-mono text-[13px] leading-6 ${className}`}
+        {...props}
+      >
+        {children}
+      </pre>
+    </div>
+  );
+}
+
+function DocsTable({
+  className = "",
+  ...props
+}: TableHTMLAttributes<HTMLTableElement>) {
+  return (
+    <div className="my-8 overflow-x-auto border border-white/[0.09]">
+      <table className={`w-full text-left text-sm ${className}`} {...props} />
+    </div>
+  );
+}
+
+const paragraphClassName = "my-5 leading-7 text-white/58";
+const headingBaseClassName = "scroll-mt-24 font-semibold text-white";
+
+export const docsMdxComponents = {
+  a: DocsLink,
+  blockquote: ({ className = "", ...props }: HTMLAttributes<HTMLElement>) => (
+    <blockquote
+      className={`my-7 border-l border-white/[0.18] pl-5 text-white/60 ${className}`}
+      {...props}
+    />
+  ),
+  Card,
+  CardGroup,
+  Check: (props: CalloutProps) => <Callout tone="check" {...props} />,
+  CodeGroup,
+  h1: ({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) => (
+    <h1
+      className={`mt-12 mb-5 text-4xl leading-tight ${headingBaseClassName} ${className}`}
+      {...props}
+    />
+  ),
+  h2: ({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) => (
+    <h2
+      className={`mt-12 border-t border-white/[0.09] pt-10 text-2xl leading-tight ${headingBaseClassName} ${className}`}
+      {...props}
+    />
+  ),
+  h3: ({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) => (
+    <h3
+      className={`mt-9 text-xl leading-snug ${headingBaseClassName} ${className}`}
+      {...props}
+    />
+  ),
+  h4: ({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) => (
+    <h4
+      className={`mt-8 text-base ${headingBaseClassName} ${className}`}
+      {...props}
+    />
+  ),
+  hr: ({ className = "", ...props }: HTMLAttributes<HTMLHRElement>) => (
+    <hr className={`my-10 border-white/[0.09] ${className}`} {...props} />
+  ),
+  Info: (props: CalloutProps) => <Callout tone="info" {...props} />,
+  li: ({ className = "", ...props }: HTMLAttributes<HTMLLIElement>) => (
+    <li className={`pl-1 leading-7 text-white/58 ${className}`} {...props} />
+  ),
+  ol: ({ className = "", ...props }: HTMLAttributes<HTMLOListElement>) => (
+    <ol
+      className={`my-5 list-decimal space-y-2 pl-5 marker:text-white/35 ${className}`}
+      {...props}
+    />
+  ),
+  p: ({ className = "", ...props }: HTMLAttributes<HTMLParagraphElement>) => (
+    <p className={`${paragraphClassName} ${className}`} {...props} />
+  ),
+  pre: DocsPre,
+  Step,
+  Steps,
+  table: DocsTable,
+  tbody: ({ className = "", ...props }: HTMLAttributes<HTMLElement>) => (
+    <tbody className={`divide-y divide-white/[0.08] ${className}`} {...props} />
+  ),
+  td: ({ className = "", ...props }: HTMLAttributes<HTMLTableCellElement>) => (
+    <td
+      className={`min-w-48 px-4 py-3 align-top text-white/55 ${className}`}
+      {...props}
+    />
+  ),
+  th: ({ className = "", ...props }: HTMLAttributes<HTMLTableCellElement>) => (
+    <th
+      className={`bg-white/[0.035] px-4 py-3 font-semibold text-white ${className}`}
+      {...props}
+    />
+  ),
+  Tip: (props: CalloutProps) => <Callout tone="tip" {...props} />,
+  thead: ({ className = "", ...props }: HTMLAttributes<HTMLElement>) => (
+    <thead className={`border-b border-white/[0.09] ${className}`} {...props} />
+  ),
+  ul: ({ className = "", ...props }: HTMLAttributes<HTMLUListElement>) => (
+    <ul
+      className={`my-5 list-disc space-y-2 pl-5 marker:text-white/28 ${className}`}
+      {...props}
+    />
+  ),
+  Warning: (props: CalloutProps) => <Callout tone="warning" {...props} />,
+};

@@ -1,0 +1,116 @@
+---
+title: "Updating toolchains"
+description: "Update active versions, change project policy, and safely remove old installations."
+---
+
+Jolter separates installed versions, global active versions, and project requirements. Updating one does not silently rewrite the others.
+
+## Update a global active version
+
+Update within the active major line:
+
+```bash
+jolter update node
+jolter update pnpm
+```
+
+Move to an explicit selector:
+
+```bash
+jolter update node@26
+jolter update pnpm@latest
+```
+
+Update every active runtime and tool:
+
+```bash
+jolter update --all
+```
+
+`update --all` is sequential. If a later target fails, earlier successful updates remain active. Fix the issue and rerun the command.
+
+## Change project policy
+
+Edit requirements with `pin`:
+
+```bash
+jolter pin node@26
+jolter pin pnpm@11
+jolter sync
+jolter doctor
+```
+
+Review the diff before committing:
+
+```bash
+git diff -- jolter.json
+```
+
+## Update plugin tools
+
+Update a plugin itself:
+
+```bash
+jolter plugin update eslint
+jolter plugin update --all
+```
+
+Update an active plugin-provided tool:
+
+```bash
+jolter update eslint
+jolter update eslint@latest
+```
+
+If multiple installed plugins provide the same tool, declare the provider in `jolter.json#plugins`.
+
+## Remove old exact versions
+
+Remove one exact runtime or tool:
+
+```bash
+jolter uninstall node@24.5.0
+jolter uninstall pnpm@10.12.1
+```
+
+Active versions are protected. To intentionally remove an active version and clear the fallback:
+
+```bash
+jolter uninstall node@24.5.0 --force
+```
+
+## Prune storage
+
+Preview first:
+
+```bash
+jolter prune --dry-run
+```
+
+Keep the newest complete version of each kind:
+
+```bash
+jolter prune
+```
+
+Keep two newest complete versions:
+
+```bash
+jolter prune --keep 2
+```
+
+Prune protects global active versions, current project requirements, and the newest kept versions per kind. Run prune from the project whose requirements must be protected.
+
+## Clean cache
+
+```bash
+jolter cache status
+jolter cache clean
+```
+
+Cache cleaning removes metadata and downloaded archives. It does not remove installed runtimes, tools, plugin tools, shims, or active selections.
+
+<Warning>
+  Cleaning the cache can break offline readiness until required metadata and
+  artifacts are downloaded again.
+</Warning>

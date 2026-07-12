@@ -1,0 +1,131 @@
+---
+title: "Configuration"
+description: "Reference for `jolter.json` schema v2, runtimes, tools, plugins, and legacy compatibility."
+---
+
+Jolter projects use `jolter.json`. Schema version 2 supports one runtime, multiple tools, and optional plugin requirements.
+
+## Complete schema example
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24.x"
+  },
+  "tools": {
+    "npm": "11.x",
+    "pnpm": "10.x",
+    "yarn": "4.x",
+    "eslint": "8.x"
+  },
+  "plugins": {
+    "@eslint/eslint": "1.x"
+  }
+}
+```
+
+All fields are optional, but `sync`, `repair`, and `setup-ci` require a resolvable runtime from `jolter.json`, `.node-version`, or `.nvmrc`.
+
+## Top-level fields
+
+| Field           | Type    | Meaning                                  |
+| --------------- | ------- | ---------------------------------------- |
+| `$schema`       | string  | Optional JSON Schema URL                 |
+| `schemaVersion` | integer | Current schema version, `2`              |
+| `runtime`       | object  | Zero or one of `node`, `bun`, or `deno`  |
+| `tools`         | object  | Built-in tools and plugin-provided tools |
+| `plugins`       | object  | Plugin provider requirements             |
+
+Unknown fields fail validation. Unknown schema versions fail closed.
+
+## Runtime rules
+
+Valid:
+
+```json
+{
+  "runtime": {
+    "bun": "1.x"
+  }
+}
+```
+
+Invalid:
+
+```json
+{
+  "runtime": {
+    "node": "24",
+    "deno": "2"
+  }
+}
+```
+
+A project can configure only one runtime.
+
+## Tool rules
+
+Built-in tools:
+
+```json
+{
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10",
+    "yarn": "4"
+  }
+}
+```
+
+Plugin tools:
+
+```json
+{
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "eslint": "8"
+  },
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+Plugin versions and tool versions are separate.
+
+## Legacy input compatibility
+
+Schema version 1 and the earlier map-valued `packageManager` key remain accepted as input compatibility. When Jolter rewrites configuration, it emits the canonical `tools` key.
+
+This is different from the standard string-valued `package.json#packageManager` field:
+
+```json package.json
+{
+  "packageManager": "pnpm@10.12.1"
+}
+```
+
+## Creating and updating config
+
+Use `pin`:
+
+```bash
+jolter pin node@24
+jolter pin pnpm@10
+jolter pin eslint@8
+```
+
+Then validate:
+
+```bash
+jolter sync
+jolter doctor
+```
+
+Commit `jolter.json`. Do not commit `JOLTER_HOME` or installed runtime directories.

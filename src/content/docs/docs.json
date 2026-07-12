@@ -1,0 +1,154 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "name": "Jolter",
+  "description": "Fast, reliable JavaScript runtime and toolchain management for local development and CI.",
+  "colors": {
+    "primary": "#5B46F8",
+    "light": "#8B6EFF",
+    "dark": "#2B8FFF"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg",
+    "href": "https://jolter.dev"
+  },
+  "appearance": {
+    "default": "system"
+  },
+  "icons": {
+    "library": "lucide"
+  },
+  "navigation": {
+    "pages": [
+      {
+        "group": "Start here",
+        "pages": [
+          "index",
+          "quickstart",
+          "installation",
+          "first-project",
+          "mental-model"
+        ]
+      },
+      {
+        "group": "Guides",
+        "pages": [
+          "guides/runtimes",
+          "guides/tools",
+          "guides/project-pinning",
+          "guides/automatic-switching",
+          "guides/monorepos",
+          "guides/updating-toolchains",
+          "guides/team-onboarding"
+        ]
+      },
+      {
+        "group": "Automation",
+        "pages": [
+          "automation/ci",
+          "automation/github-actions",
+          "automation/setup-jolter-action",
+          "automation/gitlab-ci",
+          "automation/offline-ci",
+          "automation/json-output"
+        ]
+      },
+      {
+        "group": "Plugins",
+        "pages": [
+          "plugins/overview",
+          "plugins/using-plugins",
+          "plugins/project-plugins",
+          "plugins/build-a-plugin",
+          "plugins/publish-a-plugin",
+          "plugins/plugin-security",
+          "plugins/plugin-api-reference"
+        ]
+      },
+      {
+        "group": "Reference",
+        "pages": [
+          "reference/commands",
+          "reference/configuration",
+          "reference/selectors",
+          "reference/environment",
+          "reference/storage",
+          "reference/compatibility"
+        ]
+      },
+      {
+        "group": "Operations and security",
+        "pages": [
+          "operations/diagnostics",
+          "operations/troubleshooting",
+          "operations/networking-and-offline",
+          "operations/lifecycle",
+          "security/model",
+          "security/reporting"
+        ]
+      },
+      {
+        "group": "Maintainers",
+        "pages": [
+          "maintainers/architecture",
+          "maintainers/development",
+          "maintainers/releasing"
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "GitHub",
+          "href": "https://github.com/jolterjs/jolter",
+          "icon": "github"
+        },
+        {
+          "anchor": "Install",
+          "href": "/installation",
+          "icon": "download"
+        }
+      ]
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "GitHub",
+        "href": "https://github.com/jolterjs/jolter"
+      },
+      {
+        "label": "Security",
+        "href": "/security/reporting"
+      }
+    ],
+    "primary": {
+      "type": "button",
+      "label": "Install Jolter",
+      "href": "/installation"
+    }
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/jolterjs/jolter"
+    }
+  },
+  "feedback": {
+    "thumbsRating": true,
+    "suggestEdit": true,
+    "raiseIssue": true
+  }
+}

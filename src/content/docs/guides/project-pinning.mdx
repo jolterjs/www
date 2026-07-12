@@ -1,0 +1,89 @@
+---
+title: "Project pinning"
+description: "Design a version policy for applications, libraries, CI jobs, and release images."
+---
+
+Project pinning is how Jolter turns local choices into shared repository policy.
+
+## Use `pin` for normal edits
+
+```bash
+jolter pin node@24
+jolter pin pnpm@10
+jolter pin yarn@4
+```
+
+`pin` writes `jolter.json` atomically in the current directory. Runtime pinning replaces the runtime entry. Tool pinning preserves the runtime and other tools.
+
+## Pick the right selector
+
+| Workflow                      | Recommended selector                        |
+| ----------------------------- | ------------------------------------------- |
+| Developer workstation default | `node@lts`                                  |
+| Application repository        | `node@24`, `pnpm@10`                        |
+| Strict release image          | `node@24.5.0`, `pnpm@10.12.1`               |
+| Experimental sandbox          | `node@latest`, `bun@latest`                 |
+| Organization plugin tool      | `eslint@8` plus `plugins["@eslint/eslint"]` |
+
+Selectors express allowed versions. They are not a lockfile. A broad selector can resolve differently as providers publish new releases.
+
+## Major-line policy
+
+Major lines are a good default for application teams:
+
+```json jolter.json
+{
+  "runtime": {
+    "node": "24.x"
+  },
+  "tools": {
+    "pnpm": "10.x"
+  }
+}
+```
+
+This lets a team receive patch and minor updates while avoiding surprise major-version jumps.
+
+## Exact policy
+
+Use exact versions when the build must not move:
+
+```json jolter.json
+{
+  "runtime": {
+    "node": "24.5.0"
+  },
+  "tools": {
+    "pnpm": "10.12.1"
+  }
+}
+```
+
+Exact versions are best for container images, release jobs, reproducibility audits, and offline cache preparation.
+
+## Corepack-style tool hashes
+
+Exact built-in tool versions can include a Corepack-style hash:
+
+```json jolter.json
+{
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10.12.1+sha224.<56-hex-characters>"
+  }
+}
+```
+
+Supported algorithms are `sha1`, `sha224`, `sha256`, `sha384`, and `sha512`. Jolter verifies the hash in addition to the registry's required SHA-512 integrity metadata.
+
+## Validate before committing
+
+```bash
+jolter sync
+jolter doctor
+git diff -- jolter.json
+```
+
+Commit `jolter.json` with the same care as build configuration. A changed runtime or tool selector can change every developer and CI job that uses the repository.

@@ -1,0 +1,120 @@
+---
+title: "Jolter"
+description: "One fast, reliable home for your JavaScript runtimes and tools."
+---
+
+Jolter keeps Node.js, Bun, Deno, npm, pnpm, Yarn, and plugin-provided tools consistent across your machine, your team, and CI. Pin what a project needs once, enter the directory, and run the right toolchain without manually switching versions.
+
+<CardGroup cols={2}>
+  <Card title="Start in 5 minutes" icon="rocket" href="/quickstart">
+    Install Jolter, enable shims, select Node.js, pin pnpm, and run a project
+    sync.
+  </Card>
+  <Card
+    title="Create your first project"
+    icon="folder-plus"
+    href="/first-project"
+  >
+    Add `jolter.json`, commit it, and give every contributor the same toolchain.
+  </Card>
+  <Card title="Automate CI" icon="workflow" href="/automation/ci">
+    Use `jolter setup-ci` today and the planned setup action when it ships.
+  </Card>
+  <Card title="Build a plugin" icon="plug" href="/plugins/build-a-plugin">
+    Package new ecosystem tools behind verified Jolter plugin commands.
+  </Card>
+</CardGroup>
+
+## Why teams use Jolter
+
+Jolter solves the part of JavaScript tooling that quietly breaks builds: local runtime drift, different package-manager versions, CI jobs that resolve differently from laptops, and command routing that depends on shell state.
+
+| Problem                                                | Jolter behavior                                                                          |
+| ------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Developers keep switching Node.js versions by hand     | Shims resolve the project on every command invocation                                    |
+| CI installs a different runtime than local development | `jolter.json` and `jolter setup-ci` use the same resolver                                |
+| Package managers move unexpectedly                     | Tools can be pinned by major, minor, exact version, or verified hash                     |
+| Missing or broken installations are hard to diagnose   | `jolter doctor` reports storage, PATH, project, cache, proxy, and compatibility findings |
+| Tool downloads need verification                       | Runtime archives and tool tarballs are checked before publication                        |
+
+## Supported toolchains
+
+| Category       | Supported                                                |
+| -------------- | -------------------------------------------------------- |
+| Runtimes       | Node.js, Bun, Deno                                       |
+| Built-in tools | npm, pnpm, Yarn                                          |
+| Plugin tools   | Registry-backed tool providers through schema v2 plugins |
+| Platforms      | Windows x64, Linux x64, macOS x64, macOS ARM64, WSL      |
+| Shells         | PowerShell, Command Prompt, Bash, Zsh, Fish              |
+
+## The short version
+
+<CodeGroup>
+
+```powershell Windows
+irm https://get.jolter.dev/install.ps1 | iex
+jolter setup
+jolter use node@lts
+jolter use pnpm@10
+jolter doctor
+```
+
+```bash Linux and macOS
+curl -fsSL https://get.jolter.dev/install.sh | sh
+jolter setup
+jolter use node@lts
+jolter use pnpm@10
+jolter doctor
+```
+
+</CodeGroup>
+
+Then add project requirements:
+
+```bash
+jolter pin node@24
+jolter pin pnpm@10
+jolter sync
+```
+
+Jolter writes a small `jolter.json` file that belongs in source control:
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10"
+  }
+}
+```
+
+## Documentation map
+
+<CardGroup cols={2}>
+  <Card title="Guides" icon="map" href="/guides/runtimes">
+    Practical workflows for runtimes, tools, monorepos, automatic switching,
+    updates, and team onboarding.
+  </Card>
+  <Card title="Reference" icon="book-open" href="/reference/commands">
+    Exact command syntax, selectors, configuration fields, environment
+    variables, and storage contracts.
+  </Card>
+  <Card title="Operations" icon="stethoscope" href="/operations/diagnostics">
+    Diagnose broken PATH entries, incomplete installs, cache misses, proxy
+    problems, and lifecycle tasks.
+  </Card>
+  <Card title="Security" icon="shield-check" href="/security/model">
+    Review Jolter's trust boundaries, integrity checks, archive safety, plugin
+    verification, and reporting flow.
+  </Card>
+</CardGroup>
+
+<Tip>
+  If you only read one page, use the <a href="/quickstart">quickstart</a>. If
+  you are preparing a repository for a team, continue with{" "}
+  <a href="/first-project">first project</a>.
+</Tip>

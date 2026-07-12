@@ -1,0 +1,82 @@
+---
+title: "Security model"
+description: "Trust boundaries, transport, integrity, archive extraction, plugins, cache, and telemetry."
+---
+
+Jolter installs and executes developer toolchains. Its primary security goal is to prevent unverified network or archive content from becoming a published managed installation.
+
+## Trust boundaries
+
+Jolter treats these as untrusted input:
+
+- provider metadata and HTTP headers;
+- redirects and artifact URLs;
+- downloaded archives and package tarballs;
+- plugin release manifests and WASM artifacts;
+- archive entry paths, links, permissions, and expanded size;
+- project configuration and compatibility files;
+- environment variables affecting storage, proxies, certificates, registries, and output;
+- existing files under a writable `JOLTER_HOME`.
+
+Official provider status does not bypass validation.
+
+## Bootstrap boundary
+
+The one-line installers execute code obtained from:
+
+```text
+https://get.jolter.dev/install.ps1
+https://get.jolter.dev/install.sh
+```
+
+That bootstrap is separate from Jolter's runtime and tool installer. Security-sensitive environments should download and review the script first or install a verified release archive.
+
+## Transport and integrity
+
+Jolter accepts only HTTPS metadata and artifact URLs. Redirect targets must remain HTTPS.
+
+Runtime archives are verified with provider integrity data. Built-in tools require npm registry SHA-512 integrity. Optional Corepack-style hashes add another exact-version constraint.
+
+Plugins verify release manifest identity, WASM size, and WASM SHA-256.
+
+## Archive extraction
+
+Extraction rejects:
+
+- absolute paths;
+- parent-directory traversal;
+- unsupported entry types;
+- unsafe parent symlinks;
+- links escaping the staging root;
+- excessive entry counts;
+- excessive expanded size.
+
+Extraction occurs in staging directories. Publication happens only after verification and payload checks succeed.
+
+## Execution
+
+Jolter does not execute downloaded runtimes or tools as part of installation.
+
+Normal shims execute the runtime or tool selected by project resolution. `jolter doctor` may execute already-installed runtimes and tools with `--version` using bounded probes.
+
+## Filesystem permissions
+
+`JOLTER_HOME` should be writable only by the user or automation identity that owns it. Another principal with write access can affect future command execution.
+
+Do not share one writable home between mutually untrusted CI jobs, repositories, or users.
+
+## Telemetry
+
+Jolter has no usage telemetry. Download progress is calculated locally from byte counts and elapsed time.
+
+Commands can print local paths, provider names, versions, and environment-derived diagnostics. Review logs and JSON reports before attaching them to public issues.
+
+## Non-goals
+
+Jolter cannot protect against:
+
+- a compromised operating system or Jolter binary;
+- an attacker with write access to user executable paths or `JOLTER_HOME`;
+- malicious code intentionally published by a trusted provider under valid metadata;
+- arbitrary code run by a selected runtime, package script, project, or tool;
+- secrets exposed by the shell, proxy, CI configuration, or logs.

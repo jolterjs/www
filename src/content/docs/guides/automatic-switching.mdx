@@ -1,0 +1,102 @@
+---
+title: "Automatic switching"
+description: "Use Jolter shims to switch toolchains without shell hooks or manual version changes."
+---
+
+Jolter switches versions through shims. A shim is a small executable under a command name such as `node`, `pnpm`, `yarn`, `bun`, `deno`, or a plugin command. It resolves the current project and launches the selected real command.
+
+## Install shims
+
+```bash
+jolter setup
+```
+
+The command creates or refreshes shims, checks whether the shims directory is on `PATH`, and prints current-session plus persistent setup commands for your shell.
+
+Supported shell setup targets:
+
+```bash
+jolter setup --shell powershell
+jolter setup --shell cmd
+jolter setup --shell bash
+jolter setup --shell zsh
+jolter setup --shell fish
+```
+
+## Shim location
+
+Default paths:
+
+```text
+Windows: %USERPROFILE%\.jolter\shims
+Unix:   $HOME/.jolter/shims
+```
+
+With custom storage:
+
+```text
+$JOLTER_HOME/shims
+```
+
+## PATH precedence
+
+The Jolter shims directory must appear before competing executables from system Node.js installations, nvm, fnm, Volta, Corepack, and package-manager-specific global binary directories.
+
+Check command routing:
+
+<CodeGroup>
+
+```powershell PowerShell
+Get-Command node -All
+Get-Command pnpm -All
+```
+
+```batch Command Prompt
+where node
+where pnpm
+```
+
+```bash Bash and Zsh
+type -a node
+type -a pnpm
+```
+
+```fish Fish
+type -a node
+type -a pnpm
+```
+
+</CodeGroup>
+
+The first result should be inside Jolter's shims directory.
+
+## What happens at runtime
+
+When a shim runs, Jolter:
+
+1. identifies the invoked command;
+2. resolves project requirements from the current directory upward;
+3. selects a complete local installation;
+4. falls back to the global active version when no project requirement applies;
+5. launches the real executable or JavaScript tool entry point.
+
+Shims do not install missing versions. Prepare the project first:
+
+```bash
+jolter sync
+```
+
+## Refresh shims
+
+Run setup again after upgrading or moving Jolter, changing `JOLTER_HOME`, restoring a backup, installing plugins that expose commands, or diagnosing stale shims.
+
+```bash
+jolter setup
+jolter doctor
+```
+
+## IDE terminals
+
+IDEs inherit environment variables from the process that launched them. After changing persistent PATH settings, restart the entire IDE, not only its integrated terminal.
+
+GUI applications on macOS and Linux may not read interactive shell profiles. Configure the environment using the mechanism supported by the application or operating system.

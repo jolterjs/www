@@ -1,0 +1,99 @@
+---
+title: "CI automation"
+description: "Use Jolter in automation with stable logs, exact outputs, and reusable caches."
+---
+
+Jolter uses the same project declaration in development and CI. The production entry point is:
+
+```bash
+jolter setup-ci
+```
+
+`setup-ci` resolves the current project, installs or reuses the runtime and configured tools, activates exact versions, refreshes shims, detects the CI provider, and reports paths needed by later steps.
+
+## Requirements
+
+The repository must provide a runtime requirement through one of:
+
+```text
+jolter.json
+.node-version
+.nvmrc
+```
+
+Tools can come from `jolter.json#tools` or the standard string-valued `package.json#packageManager` compatibility field.
+
+For deterministic builds, prefer exact versions or controlled release lines. Avoid `latest` in release jobs unless provider movement is intended.
+
+## Install and synchronize
+
+<CodeGroup>
+
+```bash Linux and macOS
+curl -fsSL https://get.jolter.dev/install.sh | sh
+jolter setup-ci --no-progress
+```
+
+```powershell Windows
+irm https://get.jolter.dev/install.ps1 | iex
+jolter setup-ci --no-progress
+```
+
+</CodeGroup>
+
+Use `--yes` when a project declares plugins and CI is allowed to install missing plugin code:
+
+```bash
+jolter setup-ci --yes --no-progress
+```
+
+Without `--yes`, missing declared plugins fail with remediation text.
+
+## Output modes
+
+```bash
+jolter setup-ci --no-progress
+jolter setup-ci --quiet
+jolter setup-ci --json --no-color
+jolter setup-ci --verbose --no-progress
+```
+
+| Mode                      | Use when                                 |
+| ------------------------- | ---------------------------------------- |
+| `--no-progress`           | You want readable line-oriented logs     |
+| `--quiet`                 | You only want final results and failures |
+| `--json --no-color`       | A later step parses the result           |
+| `--verbose --no-progress` | You need transfer timing and more detail |
+
+Progress and failures go to standard error. JSON goes to standard output.
+
+## Cache strategy
+
+Cache:
+
+```text
+$JOLTER_HOME/cache
+```
+
+Include operating system and architecture in cache keys. Include project requirement files in the key or restore-key strategy.
+
+Caching the entire `JOLTER_HOME` can be faster but is less portable and includes installed executables and active selections. Do it only between jobs with the same operating system, architecture, trust boundary, and Jolter compatibility line.
+
+## Security guidance
+
+- Treat installer scripts as remote code.
+- Prefer verified release archives in environments that require manual review.
+- Do not share writable caches across untrusted branches or repositories.
+- Keep credentials out of proxy URLs where the CI platform offers secret injection.
+- Keep TLS verification enabled.
+
+## Failure triage
+
+Collect stable logs and machine-readable diagnostics:
+
+```bash
+jolter doctor --json --no-color > jolter-doctor.json
+jolter cache status
+```
+
+Do not merge standard error into the JSON file.

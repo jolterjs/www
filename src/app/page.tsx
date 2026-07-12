@@ -1,20 +1,16 @@
-"use client";
-
-import React from "react";
+import type { ComponentType, ReactNode } from "react";
 import {
   ArrowRight,
   BadgeCheck,
   BookOpen,
   Braces,
+  Workflow,
   CircleCheck,
   Code,
-  Command,
-  Copy,
   Database,
   Download,
   ExternalLink,
   FileCode,
-  GitBranch,
   LockKeyhole,
   PackageCheck,
   Plug,
@@ -22,15 +18,24 @@ import {
   Server,
   ShieldCheck,
   Terminal,
-  Workflow,
   Zap,
 } from "lucide-react";
-import AppleIcon from "@/icons/apple";
-import LinuxIcon from "@/icons/linux";
-import WindowsIcon from "@/icons/windows";
+import CopyableCodePanel from "@/components/CopyableCodePanel";
+import WorkflowSection from "@/components/WorkflowSection";
+import { AutomationClient } from "@/components/AutomationClient";
+import {
+  highlightCode,
+  type HighlightedSnippet,
+  type HighlightLanguage,
+} from "@/lib/highlight";
+import GitHubIcon from "@/icons/github";
 
 type OsChoice = "unix" | "windows";
-type IconComponent = React.ComponentType<{ className?: string }>;
+type IconComponent = ComponentType<{ className?: string }>;
+
+// const JolterPlugin = ({ className = "" }: { className?: string }) => (
+//   <img src="/jnbg.png" className={`size-4 ${className}`} alt="Jolter plugin" />
+// );
 
 const installCommands: Record<OsChoice, string[]> = {
   unix: [
@@ -142,24 +147,33 @@ const securityChecks = [
   "No usage telemetry collected",
 ];
 
-const ecosystem = [
+const ecosystem: Array<{
+  icon: IconComponent;
+  title: string;
+  body: string;
+  command: string;
+  language: HighlightLanguage;
+}> = [
   {
     icon: Code,
     title: "@jolter/jdt",
     body: "Initialize, run, build, validate, and pack WebAssembly plugin providers.",
     command: "npx jdt init\nnpx jdt pack --version 0.1.0",
+    language: "shellscript",
   },
   {
     icon: Plug,
     title: "Registry-backed tools",
     body: "Install a provider, then use plugin commands like any other managed tool.",
     command: "jolter plugin install eslint\njolter use eslint@8",
+    language: "shellscript",
   },
   {
     icon: Workflow,
     title: "Release registration",
     body: "GitHub releases stay the artifact source while the registry stores metadata and URLs.",
     command: "uses: jolterjs/register-release-action@v1",
+    language: "yaml",
   },
 ];
 
@@ -168,13 +182,13 @@ const docsMap = [
     icon: Download,
     title: "Quickstart",
     body: "Install Jolter, enable shims, pin a project, and verify the result.",
-    href: "https://docs.jolter.dev/quickstart",
+    href: "/docs/quickstart",
   },
   {
     icon: BookOpen,
     title: "Documentation",
     body: "Read the mental model, commands, CI guides, troubleshooting, and security model.",
-    href: "https://docs.jolter.dev",
+    href: "/docs",
   },
   {
     icon: Plug,
@@ -183,36 +197,104 @@ const docsMap = [
     href: "https://plugins.jolter.dev",
   },
   {
-    icon: GitBranch,
+    icon: GitHubIcon,
     title: "GitHub",
-    body: "Follow the Rust CLI, release work, and project roadmap.",
+    body: "Follow the project, release work, and project roadmap.",
     href: "https://github.com/jolterjs/jolter",
   },
 ];
 
 const toolchainLogos = [
-  "Node.js",
-  "Bun",
-  "Deno",
-  "npm",
-  "pnpm",
-  "Yarn",
-  "Plugin tools",
+  { name: "Node.js", logo: "/nodejs.svg" },
+  { name: "Bun", logo: "/bun.svg" },
+  { name: "Deno", logo: "/deno.png" },
+  { name: "npm", logo: "/npm.png" },
+  { name: "pnpm", logo: "/pnpm.png" },
+  { name: "Yarn", logo: "/yarn.svg" },
+  { name: "Plugin tools", logo: "/jnbg.png" },
 ];
 
-export default function Home() {
-  const [osSelected, setOsSelected] = React.useState<OsChoice>("unix");
+const projectDeclarationCode = [
+  "{",
+  '  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",',
+  '  "schemaVersion": 2,',
+  '  "runtime": { "node": "24" },',
+  '  "tools": { "pnpm": "10" },',
+  '  "plugins": { "@eslint/eslint": "1" }',
+  "}",
+].join("\n");
+
+const shimResolutionCode = [
+  "$ node --version",
+  "resolve current project upward",
+  "select complete local installation",
+  "fall back to global active version",
+  "launch selected node executable",
+].join("\n");
+
+const automationCode = [
+  "- name: Install and synchronize Jolter",
+  "  env:",
+  "    JOLTER_HOME: ${{ runner.temp }}/jolter-home",
+  "  run: |",
+  "    curl -fsSL https://get.jolter.dev/install.sh | sh",
+  "    jolter setup-ci --no-progress",
+  "",
+  "- run: |",
+  "    node --version",
+  "    pnpm --version",
+  "    pnpm test",
+].join("\n");
+
+const healthCode = [
+  "jolter list --json",
+  "jolter doctor --json --no-color > jolter-doctor.json",
+  "jolter cache status",
+].join("\n");
+
+const pageRailClass = "mx-auto max-w-7xl px-5 sm:px-8";
+const framedGridClass =
+  "grid gap-px border border-white/[0.09] bg-white/[0.09]";
+
+export default async function Home() {
+  const [
+    projectSnippet,
+    shimSnippet,
+    installUnixSnippet,
+    installWindowsSnippet,
+    automationSnippet,
+    healthSnippet,
+    ...ecosystemSnippets
+  ] = await Promise.all([
+    highlightCode(projectDeclarationCode, "json"),
+    highlightCode(shimResolutionCode, "shellscript"),
+    highlightCode(installCommands.unix.join("\n"), "shellscript"),
+    highlightCode(installCommands.windows.join("\n"), "shellscript"),
+    highlightCode(automationCode, "yaml"),
+    highlightCode(healthCode, "shellscript"),
+    ...ecosystem.map((item) => highlightCode(item.command, item.language)),
+  ]);
 
   return (
     <main className="bg-black text-white">
       <Hero />
       <ToolchainStrip />
       <SupportedToolchains />
-      <Mechanics />
-      <WorkflowSection osSelected={osSelected} setOsSelected={setOsSelected} />
-      <Automation />
-      <DiagnosticsAndSecurity />
-      <PluginEcosystem />
+      <Mechanics projectSnippet={projectSnippet} shimSnippet={shimSnippet} />
+      <GridSection id="workflow">
+        <WorkflowSection
+          installSnippets={{
+            unix: installUnixSnippet,
+            windows: installWindowsSnippet,
+          }}
+          workflowSteps={workflowSteps}
+        />
+      </GridSection>
+      <GridSection>
+        <AutomationClient automationSnippet={automationSnippet} />
+      </GridSection>
+      <DiagnosticsAndSecurity healthSnippet={healthSnippet} />
+      <PluginEcosystem snippets={ecosystemSnippets} />
       <FinalCta />
     </main>
   );
@@ -225,7 +307,9 @@ function Hero() {
       className="relative isolate overflow-hidden border-b border-white/[0.08]"
     >
       <HeroGrid />
-      <div className="relative mx-auto flex min-h-screen max-w-7xl flex-col items-center justify-center px-5 pt-28 pb-20 text-center sm:px-8 lg:px-10">
+      <div
+        className={`${pageRailClass} relative flex min-h-screen flex-col items-center justify-center pt-28 pb-20 text-center`}
+      >
         <div className="relative w-full max-w-6xl border-y border-white/[0.1] py-10 sm:py-12 lg:py-14">
           <div className="absolute top-0 left-0 size-1.5 -translate-x-1/2 -translate-y-1/2 bg-white/55" />
           <div className="absolute top-0 right-0 size-1.5 translate-x-1/2 -translate-y-1/2 bg-white/55" />
@@ -245,16 +329,12 @@ function Hero() {
         </div>
 
         <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
-          <PrimaryLink href="https://docs.jolter.dev/quickstart">
-            Get Started
-          </PrimaryLink>
+          <PrimaryLink href="/docs/quickstart">Get Started</PrimaryLink>
         </div>
 
         <a
-          href="https://docs.jolter.dev/installation"
-          target="_blank"
-          rel="noreferrer"
-          className="mt-7 inline-flex max-w-full items-center gap-2 overflow-x-auto rounded-md px-3 py-2 font-mono text-sm text-white/45 transition hover:text-white/70"
+          href="/docs/installation"
+          className="mt-7 inline-flex max-w-full items-center gap-2 overflow-x-auto px-3 py-2 font-mono text-sm text-white/45 transition hover:text-white/70"
         >
           <span className="text-white/28">$</span>
           curl -fsSL https://get.jolter.dev/install.sh | sh
@@ -267,17 +347,25 @@ function Hero() {
 function ToolchainStrip() {
   return (
     <section className="border-b border-white/[0.08]">
-      <div className="mx-auto flex max-w-7xl flex-col gap-7 px-5 py-12 sm:px-8 lg:px-10">
+      <div className={`${pageRailClass} flex flex-col gap-7 py-12`}>
         <p className="text-center text-xs font-medium tracking-normal text-white/35 uppercase">
           Built for the runtime and package-manager drift that breaks builds
         </p>
         <div className="grid grid-cols-2 gap-x-8 gap-y-5 text-center sm:grid-cols-4 lg:grid-cols-7">
           {toolchainLogos.map((item) => (
             <div
-              key={item}
-              className="font-mono text-sm font-semibold text-white/62"
+              key={item.name}
+              className="group flex cursor-default flex-row items-center justify-center gap-2 font-mono text-sm font-semibold text-white/62 transition duration-300 hover:text-white"
             >
-              {item}
+              {item.logo && (
+                <img
+                  src={item.logo}
+                  className={`${item.name !== "Plugin tools" ? "size-8" : "size-6.5"} opacity-50 grayscale transition duration-300 select-none group-hover:opacity-100 group-hover:grayscale-0`}
+                  draggable={false}
+                  alt=""
+                />
+              )}
+              {item.name}
             </div>
           ))}
         </div>
@@ -289,12 +377,16 @@ function ToolchainStrip() {
 function SupportedToolchains() {
   return (
     <GridSection id="features">
-      <SectionHeading
-        eyebrow="What's in Jolter?"
-        title="Everything needed to keep JavaScript toolchains aligned."
-        body="Jolter keeps the core surface small: runtimes, package-manager tools, project discovery, shims, and the platform setup required to make them reliable."
-      />
-      <div className="mt-14 grid border-t border-l border-white/[0.09] md:grid-cols-2 xl:grid-cols-3">
+      <FramedGridBlock
+        gridClassName="md:grid-cols-2 xl:grid-cols-3"
+        intro={
+          <SectionHeading
+            eyebrow="What's in Jolter?"
+            title="Everything needed to keep JavaScript toolchains aligned."
+            body="Jolter keeps the core surface small: runtimes, package-manager tools, project discovery, shims, and the platform setup required to make them reliable."
+          />
+        }
+      >
         {supported.map((item) => (
           <InfoCard
             key={item.title}
@@ -306,7 +398,7 @@ function SupportedToolchains() {
               {item.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="rounded-md border border-white/[0.1] bg-white/[0.03] px-2.5 py-1 font-mono text-xs text-white/50"
+                  className="rounded-lg border border-white/[0.1] bg-white/[0.03] px-2.5 py-1 font-mono text-xs text-white/50"
                 >
                   {tag}
                 </span>
@@ -314,12 +406,18 @@ function SupportedToolchains() {
             </div>
           </InfoCard>
         ))}
-      </div>
+      </FramedGridBlock>
     </GridSection>
   );
 }
 
-function Mechanics() {
+function Mechanics({
+  projectSnippet,
+  shimSnippet,
+}: {
+  projectSnippet: HighlightedSnippet;
+  shimSnippet: HighlightedSnippet;
+}) {
   return (
     <GridSection>
       <div className="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start">
@@ -342,27 +440,16 @@ function Mechanics() {
           </div>
         </div>
         <div className="space-y-4">
-          <CodePanel
+          <CopyableCodePanel
             title="jolter.json"
-            lines={[
-              "{",
-              '  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",',
-              '  "schemaVersion": 2,',
-              '  "runtime": { "node": "24" },',
-              '  "tools": { "pnpm": "10" },',
-              '  "plugins": { "@eslint/eslint": "1" }',
-              "}",
-            ]}
+            code={projectSnippet.code}
+            highlightedHtml={projectSnippet.highlightedHtml}
           />
-          <TerminalWindow
+          <CopyableCodePanel
             title="shim resolution"
-            lines={[
-              "$ node --version",
-              "resolve current project upward",
-              "select complete local installation",
-              "fall back to global active version",
-              "launch selected node executable",
-            ]}
+            code={shimSnippet.code}
+            highlightedHtml={shimSnippet.highlightedHtml}
+            withCommandIcon
           />
         </div>
       </div>
@@ -370,115 +457,11 @@ function Mechanics() {
   );
 }
 
-function WorkflowSection({
-  osSelected,
-  setOsSelected,
+function DiagnosticsAndSecurity({
+  healthSnippet,
 }: {
-  osSelected: OsChoice;
-  setOsSelected: React.Dispatch<React.SetStateAction<OsChoice>>;
+  healthSnippet: HighlightedSnippet;
 }) {
-  return (
-    <GridSection id="workflow">
-      <div className="grid gap-12 lg:grid-cols-[420px_minmax(0,1fr)]">
-        <div>
-          <SectionHeading
-            eyebrow="Install and pin"
-            title="One workflow for laptops, monorepos, and CI."
-            body="Use global versions as fallbacks, then pin project requirements so every contributor and automation job resolves the same toolchain."
-          />
-          <div className="mt-9 rounded-md border border-white/[0.12] bg-[#050505] p-1">
-            <div className="grid grid-cols-2 gap-1">
-              <OsButton
-                active={osSelected === "unix"}
-                onClick={() => setOsSelected("unix")}
-                label="macOS/Linux"
-              >
-                <AppleIcon className="size-4 fill-current" />
-                <LinuxIcon className="size-4 fill-current" />
-              </OsButton>
-              <OsButton
-                active={osSelected === "windows"}
-                onClick={() => setOsSelected("windows")}
-                label="Windows"
-              >
-                <WindowsIcon className="size-4 fill-current" />
-              </OsButton>
-            </div>
-          </div>
-          <CodePanel
-            title="first run"
-            lines={installCommands[osSelected]}
-            className="mt-4"
-          />
-        </div>
-        <div className="grid border-t border-l border-white/[0.09] sm:grid-cols-2">
-          {workflowSteps.map((step) => (
-            <article
-              key={step.command}
-              className="min-h-40 border-r border-b border-white/[0.09] p-6"
-            >
-              <div className="font-mono text-sm text-white">{step.command}</div>
-              <p className="mt-4 text-sm leading-6 text-white/50">
-                {step.text}
-              </p>
-            </article>
-          ))}
-        </div>
-      </div>
-    </GridSection>
-  );
-}
-
-function Automation() {
-  return (
-    <GridSection>
-      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_430px] lg:items-start">
-        <div>
-          <SectionHeading
-            eyebrow="Automation"
-            title="CI runs the same resolver as your shell."
-            body="`jolter setup-ci` synchronizes the project, refreshes shims, detects the provider, and emits exact runtime, tool, plugin, cache, and shim paths for later steps."
-          />
-          <div className="mt-10 grid gap-4 sm:grid-cols-3">
-            <MiniPanel
-              icon={Workflow}
-              title="Stable logs"
-              body="CI and redirected output use deterministic lines instead of in-place progress."
-            />
-            <MiniPanel
-              icon={Braces}
-              title="JSON mode"
-              body="Automation can consume documented machine-readable fields."
-            />
-            <MiniPanel
-              icon={GitBranch}
-              title="GitHub outputs"
-              body="GitHub Actions receives PATH updates and step outputs when files are present."
-            />
-          </div>
-        </div>
-        <CodePanel
-          title=".github/workflows/test.yml"
-          lines={[
-            "- name: Install and synchronize Jolter",
-            "  env:",
-            "    JOLTER_HOME: ${{ runner.temp }}/jolter-home",
-            "  run: |",
-            "    curl -fsSL https://get.jolter.dev/install.sh | sh",
-            "    jolter setup-ci --no-progress",
-            "",
-            "- run: |",
-            "    node --version",
-            "    pnpm --version",
-            "    pnpm test",
-          ]}
-        />
-      </div>
-    </GridSection>
-  );
-}
-
-function DiagnosticsAndSecurity() {
   return (
     <GridSection>
       <div className="grid gap-12 lg:grid-cols-[420px_minmax(0,1fr)]">
@@ -488,27 +471,21 @@ function DiagnosticsAndSecurity() {
             title="Know what will run before it runs."
             body="Jolter treats provider metadata, downloads, archives, project files, and writable storage as inputs to verify, not as trusted state."
           />
-          <CodePanel
+          <CopyableCodePanel
             title="health evidence"
-            lines={[
-              "jolter list --json",
-              "jolter doctor --json --no-color > jolter-doctor.json",
-              "jolter cache status",
-            ]}
+            code={healthSnippet.code}
+            highlightedHtml={healthSnippet.highlightedHtml}
             className="mt-9"
           />
         </div>
-        <div className="grid border-t border-l border-white/[0.09] sm:grid-cols-2">
+        <div className={`${framedGridClass} sm:grid-cols-2`}>
           {securityChecks.map((check) => (
-            <div
-              key={check}
-              className="flex min-h-24 gap-3 border-r border-b border-white/[0.09] p-5"
-            >
+            <div key={check} className="flex min-h-24 gap-3 bg-black p-5">
               <CircleCheck className="mt-0.5 size-4 shrink-0 text-white" />
               <p className="text-sm leading-6 text-white/58">{check}</p>
             </div>
           ))}
-          <div className="border-r border-b border-white/[0.09] p-6 sm:col-span-2">
+          <div className="bg-black p-6 sm:col-span-2">
             <div className="flex items-center gap-3 text-white">
               <SearchCheck className="size-5" />
               <h3 className="font-semibold">
@@ -528,34 +505,36 @@ function DiagnosticsAndSecurity() {
   );
 }
 
-function PluginEcosystem() {
+function PluginEcosystem({ snippets }: { snippets: HighlightedSnippet[] }) {
   return (
     <GridSection id="plugins">
-      <SectionHeading
-        eyebrow="Plugin ecosystem"
-        title="Extend the core with verified WebAssembly providers."
-        body="Jolter plugins resolve executable tools that are not built into the CLI. The registry handles identity, ownership, aliases, permissions, versions, and GitHub release metadata."
-      />
-      <div className="mt-14 grid border-t border-l border-white/[0.09] lg:grid-cols-3">
-        {ecosystem.map((item) => (
+      <FramedGridBlock
+        gridClassName="lg:grid-cols-3"
+        intro={
+          <SectionHeading
+            eyebrow="Plugin ecosystem"
+            title="Extend the core with verified WebAssembly providers."
+            body="Jolter plugins resolve executable tools that are not built into the CLI. The registry handles identity, ownership, aliases, permissions, versions, and GitHub release metadata."
+          />
+        }
+      >
+        {ecosystem.map((item, index) => (
           <InfoCard
             key={item.title}
             icon={item.icon}
             title={item.title}
             body={item.body}
           >
-            <pre className="mt-7 overflow-x-auto rounded-md border border-white/[0.1] bg-white/[0.03] p-4 text-sm leading-6 text-white/68">
-              <code>{item.command}</code>
-            </pre>
+            <HighlightedCodeBlock snippet={snippets[index]} className="mt-7" />
           </InfoCard>
         ))}
-      </div>
+      </FramedGridBlock>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <LinkPanel
           icon={BadgeCheck}
           title="Registry API and web UI"
           body="plugins.jolter.dev is the public discovery and management interface. registry.jolter.dev is the API origin used by Jolter and release automation."
-          href="https://registry.jolter.dev"
+          href="https://plugins.jolter.dev"
         />
         <LinkPanel
           icon={ShieldCheck}
@@ -570,12 +549,10 @@ function PluginEcosystem() {
 
 function FinalCta() {
   return (
-    <section className="border-t border-white/[0.08]">
-      <div className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:px-10">
-        <div className="absolute inset-y-0 left-5 hidden w-px bg-white/[0.08] sm:left-8 lg:left-10 lg:block" />
-        <div className="absolute inset-y-0 right-5 hidden w-px bg-white/[0.08] sm:right-8 lg:right-10 lg:block" />
+    <section>
+      <div className={`${pageRailClass} py-24`}>
         <div className="mx-auto max-w-4xl text-center">
-          <div className="inline-flex h-9 items-center gap-2 rounded-md border border-white/[0.12] bg-white/[0.03] px-3 text-sm text-white/58">
+          <div className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/[0.12] bg-white/[0.03] px-3 text-sm text-white/58">
             <LockKeyhole className="size-4" />
             Project declarations belong in source control.
           </div>
@@ -583,17 +560,19 @@ function FinalCta() {
             Start with the core CLI. Add plugins when a project needs more.
           </h2>
           <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-            <PrimaryLink href="https://docs.jolter.dev/quickstart">
-              Quickstart
-            </PrimaryLink>
+            <PrimaryLink href="/docs/quickstart">Quickstart</PrimaryLink>
             <SecondaryLink href="https://github.com/jolterjs/jolter">
+              <GitHubIcon className="mr-1.5 size-4 invert" />
               GitHub
             </SecondaryLink>
           </div>
         </div>
 
-        <div className="mt-16 grid border-t border-l border-white/[0.09] md:grid-cols-2 xl:grid-cols-4">
+        <div
+          className={`${framedGridClass} mt-16 md:grid-cols-2 xl:grid-cols-4`}
+        >
           {docsMap.map((item) => (
+            // @ts-ignore
             <DocLink key={item.title} {...item} />
           ))}
         </div>
@@ -605,9 +584,21 @@ function FinalCta() {
 function HeroGrid() {
   return (
     <div className="pointer-events-none absolute inset-0">
-      <div className="absolute inset-x-5 top-24 bottom-16 mx-auto max-w-7xl border-x border-white/[0.08] sm:inset-x-8 lg:inset-x-10" />
-      <div className="absolute inset-x-5 top-24 mx-auto max-w-7xl border-t border-white/[0.07] sm:inset-x-8 lg:inset-x-10" />
-      <div className="absolute inset-x-5 bottom-16 mx-auto max-w-7xl border-b border-white/[0.07] sm:inset-x-8 lg:inset-x-10" />
+      <div className="absolute inset-x-0 top-24 bottom-16">
+        <div className={`${pageRailClass} h-full`}>
+          <div className="h-full border-x border-white/[0.08]" />
+        </div>
+      </div>
+      <div className="absolute inset-x-0 top-24">
+        <div className={pageRailClass}>
+          <div className="border-t border-white/[0.07]" />
+        </div>
+      </div>
+      <div className="absolute inset-x-0 bottom-16">
+        <div className={pageRailClass}>
+          <div className="border-b border-white/[0.07]" />
+        </div>
+      </div>
       <div className="absolute top-24 bottom-16 left-[18%] hidden w-px bg-white/[0.07] xl:block" />
       <div className="absolute top-24 right-[18%] bottom-16 hidden w-px bg-white/[0.07] xl:block" />
       <div className="absolute top-24 left-1/2 h-28 w-px bg-white/[0.09]" />
@@ -625,21 +616,32 @@ function HeroGrid() {
   );
 }
 
-function GridSection({
-  id,
+function GridSection({ id, children }: { id?: string; children: ReactNode }) {
+  return (
+    <section id={id} className="scroll-mt-20">
+      <div className={`${pageRailClass} py-24`}>{children}</div>
+    </section>
+  );
+}
+
+function FramedGridBlock({
+  intro,
+  gridClassName,
   children,
 }: {
-  id?: string;
-  children: React.ReactNode;
+  intro: ReactNode;
+  gridClassName: string;
+  children: ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-20 border-b border-white/[0.08]">
-      <div className="relative mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:px-10">
-        <div className="absolute inset-y-0 left-5 hidden w-px bg-white/[0.08] sm:left-8 lg:left-10 lg:block" />
-        <div className="absolute inset-y-0 right-5 hidden w-px bg-white/[0.08] sm:right-8 lg:right-10 lg:block" />
-        <div className="relative">{children}</div>
+    <div className="overflow-hidden border border-white/[0.09] bg-white/[0.09]">
+      <div className="bg-black p-7 sm:p-8 lg:p-10">{intro}</div>
+      <div
+        className={`grid gap-px border-t border-white/[0.09] bg-white/[0.09] ${gridClassName}`}
+      >
+        {children}
       </div>
-    </section>
+    </div>
   );
 }
 
@@ -676,10 +678,10 @@ function InfoCard({
   icon: IconComponent;
   title: string;
   body: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   return (
-    <article className="min-h-72 border-r border-b border-white/[0.09] p-7 transition hover:bg-white/[0.025]">
+    <article className="min-h-72 bg-black p-7 transition hover:bg-[#050505]">
       <Icon className="size-5 text-white/76" />
       <h3 className="mt-8 text-xl font-semibold text-white">{title}</h3>
       <p className="mt-3 text-sm leading-6 text-white/52">{body}</p>
@@ -711,24 +713,6 @@ function ProcessRow({
         </div>
         <p className="mt-2 text-sm leading-6 text-white/48">{body}</p>
       </div>
-    </div>
-  );
-}
-
-function MiniPanel({
-  icon: Icon,
-  title,
-  body,
-}: {
-  icon: IconComponent;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="border border-white/[0.09] p-5">
-      <Icon className="size-4 text-white/72" />
-      <h3 className="mt-5 font-semibold text-white">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-white/48">{body}</p>
     </div>
   );
 }
@@ -772,16 +756,26 @@ function DocLink({
   body: string;
   href: string;
 }) {
+  const isGitHubIcon = Icon.name === "GitHubIcon";
+  const iconClassName = isGitHubIcon
+    ? "size-5 opacity-70 invert"
+    : "size-5 text-white/70";
+  const external = href.startsWith("http");
+
   return (
     <a
       href={href}
-      target="_blank"
-      rel="noreferrer"
-      className="group min-h-56 border-r border-b border-white/[0.09] p-6 transition hover:bg-white/[0.025]"
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      className="group min-h-56 bg-black p-6 transition hover:bg-[#050505]"
     >
       <div className="flex items-center justify-between">
-        <Icon className="size-5 text-white/70" />
-        <ExternalLink className="size-4 text-white/32 transition group-hover:text-white/70" />
+        <Icon className={iconClassName} />
+        {external ? (
+          <ExternalLink className="size-4 text-white/32 transition group-hover:text-white/70" />
+        ) : (
+          <ArrowRight className="size-4 text-white/32 transition group-hover:translate-x-0.5 group-hover:text-white/70" />
+        )}
       </div>
       <h3 className="mt-8 font-semibold text-white">{title}</h3>
       <p className="mt-3 text-sm leading-6 text-white/48">{body}</p>
@@ -789,71 +783,22 @@ function DocLink({
   );
 }
 
-function TerminalWindow({ title, lines }: { title: string; lines: string[] }) {
-  return (
-    <div className="overflow-hidden rounded-md border border-white/[0.11] bg-[#050505]">
-      <div className="flex h-11 items-center justify-between border-b border-white/[0.09] px-4">
-        <div className="flex items-center gap-2">
-          <Command className="size-3.5 text-white/40" />
-          <span className="font-mono text-xs text-white/38">{title}</span>
-        </div>
-        <Copy className="size-3.5 text-white/28" />
-      </div>
-      <pre className="overflow-x-auto p-5 font-mono text-sm leading-7 text-white/66">
-        <code>{lines.join("\n")}</code>
-      </pre>
-    </div>
-  );
-}
-
-function CodePanel({
-  title,
-  lines,
+function HighlightedCodeBlock({
+  snippet,
   className = "",
 }: {
-  title: string;
-  lines: string[];
+  snippet: HighlightedSnippet;
   className?: string;
 }) {
   return (
     <div
-      className={`overflow-hidden rounded-md border border-white/[0.11] bg-[#050505] ${className}`}
+      className={`overflow-hidden rounded-lg border border-white/[0.1] bg-white/[0.03] ${className}`}
     >
-      <div className="flex h-11 items-center justify-between border-b border-white/[0.09] px-4">
-        <span className="font-mono text-xs text-white/38">{title}</span>
-        <Copy className="size-3.5 text-white/28" />
-      </div>
-      <pre className="overflow-x-auto p-5 font-mono text-sm leading-7 break-words whitespace-pre-wrap text-white/66">
-        <code>{lines.join("\n")}</code>
-      </pre>
+      <div
+        className="overflow-x-auto p-4 text-sm leading-6 text-white/68 [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-mono [&_.shiki]:text-sm [&_.shiki]:leading-6 [&_.shiki]:whitespace-pre-wrap [&_code]:font-mono"
+        dangerouslySetInnerHTML={{ __html: snippet.highlightedHtml }}
+      />
     </div>
-  );
-}
-
-function OsButton({
-  active,
-  onClick,
-  label,
-  children,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex min-h-10 items-center justify-center gap-2 rounded px-3 py-2 text-sm font-medium transition ${
-        active
-          ? "bg-white text-black"
-          : "text-white/52 hover:bg-white/[0.06] hover:text-white"
-      }`}
-    >
-      <span className="flex items-center gap-1">{children}</span>
-      {label}
-    </button>
   );
 }
 
@@ -862,13 +807,15 @@ function PrimaryLink({
   children,
 }: {
   href: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
+  const external = href.startsWith("http");
+
   return (
     <a
       href={href}
-      target={href.startsWith("#") ? undefined : "_blank"}
-      rel={href.startsWith("#") ? undefined : "noreferrer"}
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
       className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-medium text-black transition hover:bg-white/90"
     >
       {children}
@@ -882,14 +829,16 @@ function SecondaryLink({
   children,
 }: {
   href: string;
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
+  const external = href.startsWith("http");
+
   return (
     <a
       href={href}
-      target={href.startsWith("#") ? undefined : "_blank"}
-      rel={href.startsWith("#") ? undefined : "noreferrer"}
-      className="inline-flex h-11 items-center justify-center rounded-md border border-white/[0.16] bg-black px-5 text-sm font-medium text-white transition hover:border-white/30 hover:bg-white/[0.04]"
+      target={external ? "_blank" : undefined}
+      rel={external ? "noreferrer" : undefined}
+      className="inline-flex h-11 items-center justify-center rounded-lg border border-white/[0.16] bg-black px-5 text-sm font-medium text-white transition hover:border-white/30 hover:bg-white/[0.04]"
     >
       {children}
     </a>

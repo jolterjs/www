@@ -1,0 +1,112 @@
+---
+title: "Networking and offline mode"
+description: "Configure providers, proxies, certificates, retries, cache behavior, and offline operation."
+---
+
+Jolter contacts official runtime providers, the npm registry, and the Jolter plugin registry to resolve versions, download artifacts, and obtain integrity metadata.
+
+## Provider endpoints
+
+Current providers include:
+
+- official Node.js release metadata and archives;
+- official Bun releases;
+- official Deno releases;
+- npm registry packages for npm, pnpm, and Yarn;
+- Jolter plugin registry metadata and WASM artifacts.
+
+Only HTTPS artifact and metadata URLs are accepted. Redirects must remain HTTPS.
+
+## Retries
+
+Network requests use finite timeouts and bounded retries for transient failures.
+
+Retryable statuses:
+
+```text
+408
+429
+500
+502
+503
+504
+```
+
+Permanent client errors are returned immediately.
+
+## Proxy configuration
+
+```text
+HTTPS_PROXY
+https_proxy
+HTTP_PROXY
+http_proxy
+NO_PROXY
+no_proxy
+```
+
+Example:
+
+```bash
+export HTTPS_PROXY="http://proxy.example.test:8080"
+export NO_PROXY="localhost,127.0.0.1"
+jolter doctor
+```
+
+PowerShell:
+
+```powershell
+$env:HTTPS_PROXY = "http://proxy.example.test:8080"
+$env:NO_PROXY = "localhost,127.0.0.1"
+jolter doctor
+```
+
+Protect proxy credentials and prefer CI secret injection over credentials in plain environment values.
+
+## Custom certificate authorities
+
+Doctor validates configured paths for:
+
+```text
+SSL_CERT_FILE
+NODE_EXTRA_CA_CERTS
+REQUESTS_CA_BUNDLE
+```
+
+Do not disable TLS verification to work around certificate problems. Install the correct organization CA and configure the environment explicitly.
+
+## Offline mode
+
+```bash
+export JOLTER_OFFLINE=1
+```
+
+PowerShell:
+
+```powershell
+$env:JOLTER_OFFLINE = "1"
+```
+
+Offline mode forbids metadata requests and downloads. Operations succeed only when required metadata, verified archives, or exact complete local installations are available.
+
+## Preparing offline cache
+
+On a connected machine with the same target OS and architecture:
+
+```bash
+jolter sync
+jolter doctor
+jolter cache status
+```
+
+Preserve the reported cache directory. Exact versions reduce metadata requirements. Broad selectors such as `latest` and Node.js `lts` depend on cached metadata.
+
+## Plugin registries
+
+Override the plugin registry:
+
+```bash
+export JOLTER_REGISTRY_URL="https://registry.example.com"
+```
+
+Use this for private registry testing or organization mirrors. The registry must serve metadata and artifacts over HTTPS.

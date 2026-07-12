@@ -1,0 +1,130 @@
+---
+title: "Project plugins"
+description: "Declare plugin providers and plugin-provided tools in `jolter.json` schema v2."
+---
+
+Schema version 2 lets a project declare plugin providers alongside runtime and tool requirements.
+
+## Minimal project
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "eslint": "8"
+  },
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+This says:
+
+| Field                       | Meaning                                        |
+| --------------------------- | ---------------------------------------------- |
+| `runtime.node`              | Use Node.js 24.x                               |
+| `tools.eslint`              | Install an ESLint 8.x tool release             |
+| `plugins["@eslint/eslint"]` | Use the Jolter plugin provider in the 1.x line |
+
+## Built-in and plugin tools
+
+Built-in tools and plugin-provided tools can coexist:
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10",
+    "eslint": "8"
+  },
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+`pnpm` is built in. `eslint` is resolved by the plugin selected in `plugins`.
+
+## Use canonical provider names
+
+The registry can accept official aliases such as `eslint`, but committed project configuration should prefer canonical scoped names:
+
+```json jolter.json
+{
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+Canonical names make ownership clear in code review and keep project files stable if alias policy changes.
+
+## Selector rules
+
+Plugin provider versions and plugin tool versions accept numeric selectors and wildcards:
+
+```text
+1
+1.x
+1.2
+1.2.x
+1.2.3
+latest
+x
+*
+```
+
+`lts` is only for Node.js runtimes. It is not valid for plugins, built-in tools, or plugin-provided tools.
+
+Plugin-provided tool names and commands must be lowercase and use ASCII letters, digits, `.`, `_`, or `-`.
+
+## Sync behavior
+
+```bash
+jolter sync
+```
+
+Without `--yes`, Jolter verifies that required plugins are already installed. Missing plugins fail.
+
+```bash
+jolter sync --yes
+```
+
+With `--yes`, Jolter may install missing declared plugins before resolving plugin tools.
+
+## CI behavior
+
+```bash
+jolter setup-ci --yes --no-progress
+```
+
+Use `--yes` only when the CI job is allowed to install plugin code declared by the repository.
+
+For untrusted pull requests, prefer a read-only cache from a trusted branch or preinstalled plugins. Do not share a writable `JOLTER_HOME` across trust boundaries.
+
+## Review checklist
+
+Before committing plugin requirements:
+
+```bash
+jolter plugin list
+jolter sync
+jolter doctor
+```
+
+Review:
+
+- the canonical provider name;
+- the plugin version selector;
+- every command the plugin exposes;
+- the registry host if `JOLTER_REGISTRY_URL` is set;
+- any lockfile, script, or CI changes caused by the plugin-provided tool.

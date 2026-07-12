@@ -1,0 +1,112 @@
+---
+title: "setup-jolter action"
+description: "Plan for the future `jolterjs/setup-jolter@v1` GitHub Action."
+---
+
+<Warning>
+  `jolterjs/setup-jolter@v1` is planned future behavior. Use{" "}
+  <a href="/automation/github-actions">the installer plus `jolter setup-ci`</a>{" "}
+  until the action is released.
+</Warning>
+
+The setup action should be a thin GitHub Actions wrapper around Jolter itself. It should install Jolter, restore or save cache data, run `jolter setup-ci`, add shims to `PATH`, and expose resolved versions as outputs.
+
+## Intended usage
+
+```yaml .github/workflows/test.yml
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Set up Jolter
+        id: jolter
+        uses: jolterjs/setup-jolter@v1
+        with:
+          cache: true
+          install-plugins: false
+
+      - name: Test
+        run: |
+          node --version
+          pnpm --version
+          pnpm test
+```
+
+## Intended inputs
+
+| Input                   | Default                    | Purpose                                                 |
+| ----------------------- | -------------------------- | ------------------------------------------------------- |
+| `version`               | `latest`                   | Jolter version or release selector to install           |
+| `jolter-home`           | runner temporary directory | Storage root used for the job                           |
+| `cache`                 | `true`                     | Restore and save `$JOLTER_HOME/cache`                   |
+| `cache-dependency-path` | common requirement files   | Files used to build the cache key                       |
+| `install-plugins`       | `false`                    | Run `jolter setup-ci --yes` for missing project plugins |
+| `no-progress`           | `true`                     | Use stable line-oriented logs                           |
+
+## Intended outputs
+
+| Output    | Example                                     |
+| --------- | ------------------------------------------- |
+| `runtime` | `node@24.5.0`                               |
+| `tools`   | `pnpm@10.12.1,yarn@4.9.2`                   |
+| `plugins` | `@eslint/eslint@1.0.0`                      |
+| `cache`   | `/home/runner/work/_temp/jolter-home/cache` |
+| `shims`   | `/home/runner/work/_temp/jolter-home/shims` |
+
+## Intended behavior
+
+The action should:
+
+1. download or reuse the requested Jolter version;
+2. set `JOLTER_HOME`;
+3. restore cache when enabled;
+4. run `jolter setup-ci` or `jolter setup-ci --yes`;
+5. add the shims directory to `PATH`;
+6. expose `runtime`, `tools`, `plugins`, `cache`, and `shims` outputs;
+7. save cache after successful setup when enabled.
+
+The action should not reimplement resolution rules. Jolter itself remains the source of truth.
+
+## Plugin projects
+
+When a project declares plugins:
+
+```yaml
+- uses: jolterjs/setup-jolter@v1
+  with:
+    install-plugins: true
+```
+
+This should map to:
+
+```bash
+jolter setup-ci --yes --no-progress
+```
+
+Without `install-plugins: true`, missing declared plugins should fail clearly instead of silently installing new code.
+
+## Migration path
+
+Today:
+
+```yaml
+- run: |
+    curl -fsSL https://get.jolter.dev/install.sh | sh
+    jolter setup-ci --no-progress
+```
+
+After the action ships:
+
+```yaml
+- uses: jolterjs/setup-jolter@v1
+```
+
+Both paths should produce the same runtime, tool, plugin, cache, and shim behavior because both rely on `jolter setup-ci`.

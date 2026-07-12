@@ -1,0 +1,94 @@
+---
+title: "Compatibility"
+description: "Compatibility expectations for Jolter's pre-1.0 command surface, schema, storage, and machine output."
+---
+
+Jolter follows semantic versioning while remaining pre-1.0. Compatibility promises apply to documented behavior in the current release line.
+
+## User-facing contract
+
+Patch releases should preserve:
+
+- documented command names and required argument forms;
+- supported selectors;
+- schema-version-1 and schema-version-2 parsing;
+- installed runtime, tool, plugin, and plugin-tool discovery;
+- active exact-version state;
+- documented machine-readable field names;
+- supported platform artifacts;
+- documented legacy inputs.
+
+Human wording, progress animation, colors, spacing, and provider cache contents are not stable parsing interfaces.
+
+Automation should use JSON, process exit status, and documented CI outputs.
+
+## Project configuration
+
+Current canonical schema:
+
+```json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10"
+  },
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+Files without `$schema` remain accepted. Files without `schemaVersion` are interpreted as the current schema when rewritten. Unknown versions fail closed.
+
+## Compatibility files
+
+Jolter supports:
+
+```text
+.node-version
+.nvmrc
+package.json#packageManager
+```
+
+These are interoperability sources. Jolter supports the subset documented in selectors and project resolution docs, not every syntax another manager may accept.
+
+## Machine output
+
+Documented JSON top-level fields include:
+
+| Command              | Fields                                                                     |
+| -------------------- | -------------------------------------------------------------------------- |
+| `list --json`        | `runtimes`, `tools`, `pluginTools`, `plugins`                              |
+| `doctor --json`      | `healthy`, `checks`                                                        |
+| `plugin list --json` | `plugins`                                                                  |
+| `setup-ci --json`    | `provider`, `runtime`, `tools`, `pluginTools`, `plugins`, `shims`, `cache` |
+
+New optional fields may be added. Consumers should ignore unknown fields and should not depend on object-key order.
+
+## Platform support
+
+Release targets:
+
+- Windows x64;
+- Linux x64;
+- macOS Intel x64;
+- macOS Apple Silicon;
+- WSL through the Linux build.
+
+Provider support may be narrower than Jolter's binary support. CPU or artifact availability imposed by upstream providers is not a Jolter compatibility guarantee.
+
+## Migration principles
+
+Before removing a compatibility input or changing persistent storage, a future release should provide:
+
+1. documentation of old and new behavior;
+2. a migration path;
+3. atomic or safely restartable migration;
+4. diagnostics for unsupported state;
+5. release notes with recovery instructions.
+
+Silent deletion or reinterpretation of installed state is not acceptable.

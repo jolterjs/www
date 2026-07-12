@@ -1,0 +1,109 @@
+---
+title: "Plugin security"
+description: "Understand Jolter's plugin trust boundaries, registry checks, and review practices."
+---
+
+Plugins affect command execution because they choose tool artifact URLs, integrity hashes, and shimmed commands. Treat plugin requirements like build scripts.
+
+## Registry ownership checks
+
+When a plugin repository is added at [plugins.jolter.dev](https://plugins.jolter.dev), the registry verifies:
+
+- the signed-in user owns the selected personal repository, or the selected organization has granted access through the Jolter GitHub App;
+- the repository contains a root `plugin.json`;
+- `plugin.json#$schema` is `https://schemas.jolter.dev/plugin/v1/schema.json` when present;
+- `plugin.json#name` matches the canonical registry owner scope and slug;
+- `plugin.json#repository.url` points to the selected GitHub repository.
+
+The server derives plugin scopes from the selected user or organization. Clients cannot create plugins under arbitrary scopes.
+
+## Release checks
+
+When a release is registered, the registry verifies:
+
+- the GitHub token or Jolter bearer token is allowed to publish for the registered repository;
+- the GitHub release exists;
+- the release tag matches `v<version>`;
+- the release contains `plugin.release.json`, `plugin.wasm`, and `checksums.txt`;
+- `plugin.release.json#$schema` is `https://schemas.jolter.dev/plugin-release/v1/schema.json` when present;
+- root and release manifests agree on name and repository;
+- the release manifest tag matches the GitHub release tag;
+- the release entrypoint file exists as a release asset;
+- the WASM asset size and SHA-256 match the release manifest;
+- provided tool names are lowercase;
+- requested filesystem scopes are supported;
+- shell command execution is not requested.
+
+Only URLs and metadata are stored by the registry. GitHub remains the artifact host.
+
+## Install checks
+
+During plugin installation, Jolter verifies the selected release manifest and WASM entrypoint before storing the plugin under `JOLTER_HOME/plugins`.
+
+When a plugin resolves a tool release, Jolter expects:
+
+| Field             | Requirement                                                             |
+| ----------------- | ----------------------------------------------------------------------- |
+| `version`         | Semantic version, including prereleases when the provider supports them |
+| `url`             | HTTPS artifact URL                                                      |
+| `sha256`          | Lowercase 64-character SHA-256                                          |
+| `archiveFormat`   | `tar.gz` or `zip`                                                       |
+| `stripComponents` | Non-negative integer                                                    |
+| `commands`        | Non-empty lowercase command list                                        |
+
+Jolter verifies downloaded plugin-tool archives before publishing them into `JOLTER_HOME/plugin-tools`.
+
+## Permissions
+
+Jolter plugin v1 does not allow shell execution from the plugin manifest:
+
+```json
+{
+  "permissions": {
+    "commands": {
+      "execute": false
+    }
+  }
+}
+```
+
+Supported filesystem scopes are:
+
+```text
+project
+jolter-cache
+jolter-tools
+temporary
+```
+
+Network permissions document intended hosts for review. They do not make a malicious tool artifact safe.
+
+## Aliases and verification
+
+Custom aliases are admin reviewed. A pending or rejected alias does not resolve.
+
+Registry verification is also controlled by registry administrators. It is a trust signal for registry metadata and ownership review, not a guarantee that every tool artifact produced by the plugin is harmless.
+
+## CI guidance
+
+Use `--yes` only after plugin requirements are reviewed:
+
+```bash
+jolter setup-ci --yes --no-progress
+```
+
+For untrusted pull requests:
+
+- do not share a writable `JOLTER_HOME` with trusted jobs;
+- prefer preinstalled plugins or a read-only cache from a trusted branch;
+- review `jolter.json`, workflow files, and registry overrides together.
+
+## Non-goals
+
+Jolter cannot protect against:
+
+- a compromised registry serving valid metadata for a malicious release;
+- a malicious plugin returning valid integrity metadata for a malicious tool artifact;
+- an attacker with write access to `JOLTER_HOME`;
+- arbitrary code intentionally run by a selected tool;
+- secrets exposed by the surrounding shell, proxy, or CI environment.

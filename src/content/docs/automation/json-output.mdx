@@ -1,0 +1,149 @@
+---
+title: "JSON output"
+description: "Parse Jolter machine output for inventory, diagnostics, plugins, and CI setup."
+---
+
+Use JSON modes for automation. Human wording, progress messages, colors, and spacing are not parsing contracts.
+
+## Inventory
+
+```bash
+jolter list --json
+```
+
+Shape:
+
+```json
+{
+  "runtimes": [
+    {
+      "active": true,
+      "kind": "node",
+      "path": "/home/user/.jolter/runtimes/node/24.5.0",
+      "ready": true,
+      "version": "24.5.0"
+    }
+  ],
+  "tools": [
+    {
+      "active": true,
+      "kind": "pnpm",
+      "path": "/home/user/.jolter/tools/pnpm/10.12.1",
+      "ready": true,
+      "version": "10.12.1"
+    }
+  ],
+  "pluginTools": [],
+  "plugins": []
+}
+```
+
+Consumers should identify records by fields rather than array position.
+
+## Doctor
+
+```bash
+jolter doctor --json
+```
+
+Shape:
+
+```json
+{
+  "healthy": true,
+  "checks": [
+    {
+      "name": "storage",
+      "status": "pass",
+      "message": "using /home/user/.jolter"
+    }
+  ]
+}
+```
+
+`status` is `pass`, `warning`, or `fail`. A check may include `remediation`. `healthy` is false only when at least one check fails.
+
+## CI setup
+
+```bash
+jolter setup-ci --json
+```
+
+Shape:
+
+```json
+{
+  "provider": "github-actions",
+  "runtime": {
+    "kind": "node",
+    "version": "24.5.0",
+    "path": "/home/user/.jolter/runtimes/node/24.5.0"
+  },
+  "tools": [
+    {
+      "kind": "pnpm",
+      "version": "10.12.1",
+      "path": "/home/user/.jolter/tools/pnpm/10.12.1"
+    }
+  ],
+  "pluginTools": [
+    {
+      "name": "eslint",
+      "provider": "@eslint/eslint",
+      "version": "8.57.0",
+      "path": "/home/user/.jolter/plugin-tools/@eslint/eslint/eslint/8.57.0"
+    }
+  ],
+  "plugins": [
+    {
+      "name": "@eslint/eslint",
+      "version": "1.0.0",
+      "path": "/home/user/.jolter/plugins/@eslint/eslint/1.0.0"
+    }
+  ],
+  "shims": "/home/user/.jolter/shims",
+  "cache": "/home/user/.jolter/cache"
+}
+```
+
+Provider values currently include `github-actions`, `gitlab-ci`, `circleci`, `azure-pipelines`, `buildkite`, and `generic`.
+
+## Plugin inventory
+
+```bash
+jolter plugin list --json
+```
+
+Shape:
+
+```json
+{
+  "plugins": [
+    {
+      "name": "@eslint/eslint",
+      "requestedName": "eslint",
+      "version": "1.0.0",
+      "path": "/home/user/.jolter/plugins/@eslint/eslint/1.0.0",
+      "commands": ["eslint"]
+    }
+  ]
+}
+```
+
+## Stream contract
+
+- Standard output contains final tables, instructions, JSON, and generated completion scripts.
+- Standard error contains progress events and failures.
+- JSON modes keep standard output free from decorative progress.
+
+Use:
+
+```bash
+jolter setup-ci --json --no-color > jolter.json
+```
+
+Avoid:
+
+```bash
+jolter setup-ci --json > jolter.json 2>&1
+```

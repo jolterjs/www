@@ -1,0 +1,65 @@
+---
+title: "Architecture"
+description: "How Jolter's Rust workspace separates CLI, config, resolution, installation, plugins, shims, diagnostics, and storage."
+---
+
+Jolter is a native Rust CLI with no resident daemon. It combines project requirement resolution, verified installation, filesystem-backed activation, plugins, and command shims in one workspace.
+
+## Design principles
+
+- Project declarations are portable and belong in source control.
+- Installed toolchains are rebuildable machine state.
+- Network artifacts remain untrusted until verified.
+- Publication is atomic and exact-version operations are lock-coordinated.
+- Shims resolve on command invocation.
+- Diagnostics are non-destructive and provide remediation.
+- Human output and machine output share behavior but not presentation.
+
+## Workspace boundaries
+
+| Crate       | Owns                                                                                                   |
+| ----------- | ------------------------------------------------------------------------------------------------------ |
+| `cli`       | Argument parsing, output rendering, shell instructions, CI adaptation, completions, and process launch |
+| `core`      | Orchestration for use, pin, update, sync, repair, lifecycle, plugins, and diagnostics                  |
+| `config`    | Strict project schema, upward discovery, validation, and atomic writes                                 |
+| `runtime`   | Runtime and tool identifiers, request parsing, selectors, and hashes                                   |
+| `installer` | Provider metadata, HTTP, retry, cache, integrity, extraction, locking, and publication                 |
+| `plugin`    | Registry resolution, plugin release manifests, WASM verification, and plugin execution                 |
+| `resolver`  | Project-source precedence and normalized requirements                                                  |
+| `shim`      | Shim generation and command-to-installation selection                                                  |
+| `doctor`    | Storage, project, installation, command-routing, network, cache, and plugin checks                     |
+| `storage`   | Directory layout, inventory, activation, plugins, and filesystem statistics                            |
+
+## Command flow
+
+1. Parse global output controls and subcommand.
+2. Discover `JOLTER_HOME` and create base layout.
+3. Construct installer, plugin, and orchestration services.
+4. Resolve project or direct-request inputs.
+5. Perform installation, activation, or inspection.
+6. Refresh shims when command routing changes.
+7. Render a final result or machine payload.
+
+Individual exact-version publication is atomic. Multi-target orchestration is restartable rather than globally transactional.
+
+## Shim dispatch
+
+Shims are copies of the Jolter shim executable under supported command names. At startup, Jolter checks the invocation filename before normal CLI parsing.
+
+Runtime dispatch resolves a project installation, falls back to global activation, verifies the executable, and launches it.
+
+Tool dispatch resolves the selected Node.js runtime, resolves a built-in or plugin tool where applicable, falls back to bundled npm/npx when applicable, and launches the selected entry point.
+
+Missing versions fail explicitly. Shim dispatch does not perform downloads.
+
+## Plugin architecture
+
+Plugins are WASM components loaded through the plugin crate. Installed plugin manifests declare provided tool commands. Sync and use operations resolve plugin tool releases, install verified archives, and refresh shims.
+
+Plugin command execution is intentionally constrained. The release manifest is verified before installation, and command execution permissions are rejected.
+
+## Output architecture
+
+Core and installer operations emit structured progress events. The CLI renderer chooses interactive progress, line-oriented events, quiet mode, or JSON-safe output.
+
+Final results go to standard output. Progress and failures go to standard error.

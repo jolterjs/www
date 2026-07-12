@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import ScrollRevealProvider from "@/components/ScrollRevealProvider";
+import SmoothScrollProvider from "@/components/SmoothScrollProvider";
+import ToastViewport from "@/components/ToastViewport";
+import { getDocsSearchIndex } from "@/lib/docs";
+import { absoluteUrl, siteConfig } from "@/lib/site";
+import "lenis/dist/lenis.css";
 import "@/styles/globals.css";
 
 const outfit = Outfit({
@@ -9,24 +16,109 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Jolter — One fast, reliable home for your toolchains",
-  description:
-    "Fast, reliable JavaScript runtime and toolchain management for local development and CI.",
+  metadataBase: new URL(siteConfig.url),
+  title: {
+    default: "Jolter - Reliable JavaScript toolchain management",
+    template: "%s - Jolter",
+  },
+  description: siteConfig.description,
+  applicationName: "Jolter",
+  authors: [{ name: "Jolter Team" }],
+  creator: "Jolter Team",
+  publisher: "Jolter",
+  keywords: [
+    "JavaScript toolchain manager",
+    "Node.js version manager",
+    "pnpm version manager",
+    "runtime management",
+    "CI toolchains",
+    "developer tooling",
+  ],
+  alternates: {
+    canonical: "/",
+  },
+  openGraph: {
+    title: "Jolter - Reliable JavaScript toolchain management",
+    description: siteConfig.description,
+    url: "/",
+    siteName: "Jolter",
+    locale: "en_US",
+    type: "website",
+    images: [
+      {
+        url: "/opengraph-image",
+        width: 1200,
+        height: 630,
+        alt: "Jolter",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jolter - Reliable JavaScript toolchain management",
+    description: siteConfig.description,
+    images: ["/twitter-image"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
 };
+
+const siteJsonLd = [
+  {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    logo: absoluteUrl("/jnbg.png"),
+    sameAs: ["https://github.com/jolterjs/jolter"],
+  },
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: siteConfig.name,
+    url: siteConfig.url,
+    potentialAction: {
+      "@type": "SearchAction",
+      query: "required name=search_term_string",
+      target: absoluteUrl("/docs?search={search_term_string}"),
+    },
+  },
+];
 
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const docsSearchIndex = getDocsSearchIndex();
+
   return (
     <html
       lang="en"
       className={`${outfit.variable} h-full antialiased selection:bg-white selection:text-black`}
     >
       <body className="flex min-h-full flex-col">
-        <Header />
-        {children}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
+        />
+        <SmoothScrollProvider>
+          <ScrollRevealProvider>
+            <Header docsSearchIndex={docsSearchIndex} />
+            {children}
+            <Footer />
+            <ToastViewport />
+          </ScrollRevealProvider>
+        </SmoothScrollProvider>
       </body>
     </html>
   );

@@ -1,0 +1,101 @@
+---
+title: "Storage"
+description: "Reference for `JOLTER_HOME`, installed versions, cache, shims, plugins, and active selections."
+---
+
+Jolter owns a self-contained storage root.
+
+Default:
+
+```text
+Windows: %USERPROFILE%\.jolter
+Unix:   $HOME/.jolter
+```
+
+Override:
+
+```text
+JOLTER_HOME
+```
+
+## Layout
+
+```text
+.jolter/
+|-- runtimes/
+|   |-- node/
+|   |-- bun/
+|   `-- deno/
+|-- tools/
+|   |-- npm/
+|   |-- pnpm/
+|   `-- yarn/
+|-- plugins/
+|-- plugin-tools/
+|-- shims/
+|-- cache/
+|   |-- downloads/
+|   |-- metadata/
+|   `-- locks/
+`-- config/
+    `-- active.json
+```
+
+Runtime installations contain `.jolter-install.json`. Built-in tools contain `.jolter-tool.json`. Plugins contain `.jolter-plugin.json`. These are implementation state; do not edit them manually.
+
+## Active selections
+
+`config/active.json` stores global fallback versions. Project requirements still win during shim dispatch.
+
+Forced uninstall clears an active selection only when it removes the exact active version.
+
+## Cache
+
+The cache stores:
+
+- provider metadata;
+- verified downloaded archives;
+- lock files used to coordinate cache and installation activity.
+
+Inspect:
+
+```bash
+jolter cache status
+```
+
+Clean:
+
+```bash
+jolter cache clean
+```
+
+Cleaning cache does not remove installed versions, shims, project configuration, active selections, or lock coordination files.
+
+## Locks and atomic publication
+
+Jolter uses exact-version locks for runtime, tool, and plugin-tool publication and removal. It also uses metadata-key locks and a maintenance lock for cache cleanup.
+
+A version becomes visible at its final path only after integrity verification, extraction, payload checks, manifest writing, and atomic rename.
+
+## Moving storage
+
+Set `JOLTER_HOME` consistently, then run:
+
+```bash
+jolter setup
+jolter doctor
+```
+
+The safest migration is to keep project configuration and run `jolter sync` into the new home. Copying installed executables across platforms or architectures is not guaranteed.
+
+## Manual cleanup
+
+Prefer:
+
+```bash
+jolter uninstall <name>@<exact-version>
+jolter prune
+jolter cache clean
+```
+
+Manual deletion bypasses activation cleanup, locks, reclaimed-size reporting, and compatibility checks. If manual recovery is unavoidable, stop Jolter processes, back up `JOLTER_HOME`, make the smallest targeted change, and run `jolter doctor`.

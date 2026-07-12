@@ -1,0 +1,71 @@
+---
+title: "GitLab CI"
+description: "Run Jolter in GitLab CI with stable storage and cache paths."
+---
+
+GitLab CI can use Jolter through the Unix installer and `jolter setup-ci`.
+
+```yaml .gitlab-ci.yml
+variables:
+  JOLTER_HOME: "$CI_PROJECT_DIR/.jolter-ci"
+
+cache:
+  key: "jolter-$CI_RUNNER_EXECUTABLE_ARCH"
+  paths:
+    - .jolter-ci/cache/
+
+test:
+  script:
+    - curl -fsSL https://get.jolter.dev/install.sh | sh
+    - jolter setup-ci --no-progress
+    - export PATH="$JOLTER_HOME/shims:$PATH"
+    - node --version
+    - pnpm test
+```
+
+GitLab is detected and reported, but Jolter does not mutate GitLab job variables. Add the shims directory to `PATH` in the job.
+
+## Plugin projects
+
+Use `--yes` only when the job is allowed to install missing project plugins:
+
+```yaml
+test:
+  script:
+    - curl -fsSL https://get.jolter.dev/install.sh | sh
+    - jolter setup-ci --yes --no-progress
+    - export PATH="$JOLTER_HOME/shims:$PATH"
+    - eslint .
+```
+
+## Cache keys
+
+Include the files that affect resolution:
+
+```yaml
+cache:
+  key:
+    files:
+      - jolter.json
+      - .node-version
+      - .nvmrc
+      - package.json
+  paths:
+    - .jolter-ci/cache/
+```
+
+Include OS and architecture when runners are heterogeneous. Runtime archives are platform-specific.
+
+## JSON output
+
+You can capture the resolved toolchain:
+
+```yaml
+test:
+  script:
+    - curl -fsSL https://get.jolter.dev/install.sh | sh
+    - jolter setup-ci --json --no-color > jolter-setup.json
+    - export PATH="$JOLTER_HOME/shims:$PATH"
+```
+
+Do not redirect standard error into `jolter-setup.json`.

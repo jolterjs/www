@@ -1,0 +1,102 @@
+---
+title: "Monorepos"
+description: "Place Jolter configuration so nested packages resolve the intended toolchain."
+---
+
+Jolter searches from the current directory upward, so one root `jolter.json` can serve an entire monorepo.
+
+## Shared toolchain
+
+Use a root configuration when the whole repository should use one runtime and tool set.
+
+```text
+repo/
+|-- jolter.json
+|-- package.json
+|-- apps/
+|   |-- web/
+|   `-- docs/
+`-- packages/
+    |-- ui/
+    `-- config/
+```
+
+Running from `repo/apps/web/src` discovers `repo/jolter.json`.
+
+## Nested toolchain boundary
+
+Add a nested `jolter.json` when a subtree intentionally uses a different runtime, tool version, or plugin provider.
+
+```text
+repo/
+|-- jolter.json
+|-- apps/
+|   `-- legacy/
+|       `-- jolter.json
+`-- packages/
+```
+
+Run `jolter sync` from the boundary you want to prepare.
+
+## Precedence matters
+
+Runtime sources are considered by type:
+
+1. `jolter.json`
+2. `.node-version`
+3. `.nvmrc`
+
+Tool sources are considered by type:
+
+1. `jolter.json#tools`
+2. `package.json#packageManager`
+
+A root `jolter.json` runtime can win over a closer `.node-version` below it. Use a nested Jolter configuration when you need an explicit boundary.
+
+## Recommended layout
+
+For most monorepos:
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10"
+  }
+}
+```
+
+Keep package-specific version constraints in package manager files. Keep runtime and toolchain policy in Jolter.
+
+## CI in monorepos
+
+Run `setup-ci` from the workspace root when the root config applies:
+
+```bash
+jolter setup-ci --no-progress
+pnpm -r test
+```
+
+For a nested boundary:
+
+```bash
+cd apps/legacy
+jolter setup-ci --no-progress
+pnpm test
+```
+
+Cache keys should include the files that can affect resolution:
+
+```text
+jolter.json
+.node-version
+.nvmrc
+package.json
+pnpm-lock.yaml
+yarn.lock
+package-lock.json
+```

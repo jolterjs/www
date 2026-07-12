@@ -1,0 +1,139 @@
+---
+title: "Quickstart"
+description: "Install Jolter, select Node.js and pnpm, pin a project, and verify the result."
+---
+
+This guide takes a new machine from no Jolter installation to a project that automatically uses its declared JavaScript toolchain.
+
+<Steps>
+  <Step title="Install Jolter">
+    Run the installer for your operating system.
+
+    <CodeGroup>
+
+    ```powershell Windows
+    irm https://get.jolter.dev/install.ps1 | iex
+    ```
+
+    ```bash Linux and macOS
+    curl -fsSL https://get.jolter.dev/install.sh | sh
+    ```
+
+    </CodeGroup>
+
+  </Step>
+
+  <Step title="Enable command shims">
+    Generate shims and apply the PATH command Jolter prints.
+
+    ```bash
+    jolter setup
+    ```
+
+    Restart the terminal or IDE after applying the persistent PATH command.
+
+  </Step>
+
+  <Step title="Install a runtime">
+    Select the current Node.js LTS release as your global fallback.
+
+    ```bash
+    jolter use node@lts
+    node --version
+    ```
+
+  </Step>
+
+  <Step title="Install a tool">
+    Install a managed pnpm version. Managed npm, pnpm, and Yarn releases run through the active Node.js runtime.
+
+    ```bash
+    jolter use pnpm@10
+    pnpm --version
+    ```
+
+  </Step>
+
+  <Step title="Pin the project">
+    From the project root, write project requirements.
+
+    ```bash
+    jolter pin node@24
+    jolter pin pnpm@10
+    ```
+
+    Jolter creates or updates `jolter.json` without removing unrelated tools.
+
+  </Step>
+
+  <Step title="Synchronize and verify">
+    Install or reuse the exact versions required by the current project.
+
+    ```bash
+    jolter sync
+    jolter doctor
+    node --version
+    pnpm --version
+    ```
+
+  </Step>
+</Steps>
+
+## What you created
+
+Your project now has a portable declaration:
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10"
+  }
+}
+```
+
+Commit `jolter.json`. Do not commit `JOLTER_HOME`, `.jolter`, downloaded runtimes, or tool directories.
+
+## Move between projects
+
+Jolter does not need a directory-change hook. The generated `node`, `pnpm`, `yarn`, `npm`, `bun`, and `deno` shims resolve the current directory every time they run.
+
+```bash
+cd project-a
+node --version
+
+cd ../project-b
+node --version
+```
+
+If a project has requirements, those win. Outside a configured project, the global fallback from `jolter use` is used.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Installation details" icon="download" href="/installation">
+    Inspect scripts before running, install release archives, build from source,
+    or upgrade Jolter.
+  </Card>
+  <Card title="First project" icon="folder-check" href="/first-project">
+    Prepare a real repository for local development and CI.
+  </Card>
+  <Card
+    title="Automatic switching"
+    icon="shuffle"
+    href="/guides/automatic-switching"
+  >
+    Understand shims, PATH precedence, and command dispatch.
+  </Card>
+  <Card
+    title="Troubleshooting"
+    icon="wrench"
+    href="/operations/troubleshooting"
+  >
+    Fix PATH, proxy, offline cache, permission, and incomplete-install problems.
+  </Card>
+</CardGroup>

@@ -1,0 +1,113 @@
+---
+title: "Environment variables"
+description: "Public Jolter controls, CI variables, networking variables, and internal child-process state."
+---
+
+## Public controls
+
+| Variable              | Values             | Effect                                   |
+| --------------------- | ------------------ | ---------------------------------------- |
+| `JOLTER_HOME`         | Non-empty path     | Overrides the default storage root       |
+| `JOLTER_OFFLINE`      | `1`, `true`, `yes` | Disables provider requests and downloads |
+| `JOLTER_NO_PROGRESS`  | `1`, `true`, `yes` | Disables the updating progress line      |
+| `JOLTER_NO_COLOR`     | any present value  | Disables ANSI color                      |
+| `NO_COLOR`            | any present value  | Standard ecosystem color disable         |
+| `JOLTER_REGISTRY_URL` | HTTPS URL          | Overrides the plugin registry            |
+
+Boolean values are case-insensitive. Color variables disable color whenever present.
+
+## Storage
+
+<CodeGroup>
+
+```bash Bash and Zsh
+export JOLTER_HOME="$HOME/.local/share/jolter"
+```
+
+```powershell PowerShell
+$env:JOLTER_HOME = "$HOME\AppData\Local\Jolter"
+```
+
+</CodeGroup>
+
+Use the same value for setup, interactive shells, IDEs, and CI.
+
+## Offline and output
+
+```bash
+export JOLTER_OFFLINE=1
+export JOLTER_NO_PROGRESS=1
+export NO_COLOR=1
+```
+
+PowerShell:
+
+```powershell
+$env:JOLTER_OFFLINE = "1"
+$env:JOLTER_NO_PROGRESS = "1"
+$env:NO_COLOR = "1"
+```
+
+Command-line flags are useful for one invocation. Environment variables are useful for a complete shell or CI job.
+
+## CI detection
+
+These variables enable automated output mode when true:
+
+```text
+CI
+GITHUB_ACTIONS
+GITLAB_CI
+CIRCLECI
+TF_BUILD
+BUILDKITE
+```
+
+Provider detection uses the specific provider variables. A generic `CI=true` disables interactive progress but reports the provider as `generic` unless a specific provider flag is also set.
+
+## GitHub Actions files
+
+When `GITHUB_ACTIONS` is true, `jolter setup-ci` uses:
+
+| Variable        | Purpose                                                               |
+| --------------- | --------------------------------------------------------------------- |
+| `GITHUB_PATH`   | File that receives the Jolter shims directory                         |
+| `GITHUB_OUTPUT` | File that receives `runtime`, `tools`, `plugins`, and `cache` outputs |
+
+If either file variable is absent, Jolter skips that integration.
+
+## Proxy variables
+
+```text
+HTTPS_PROXY
+https_proxy
+HTTP_PROXY
+http_proxy
+NO_PROXY
+no_proxy
+```
+
+Use `http://` or `https://` proxy URLs. Protect embedded credentials.
+
+## Certificate variables
+
+Doctor validates configured paths for:
+
+```text
+SSL_CERT_FILE
+NODE_EXTRA_CA_CERTS
+REQUESTS_CA_BUNDLE
+```
+
+Trust behavior depends on the platform and TLS stack. A configured path must exist.
+
+## Internal variables
+
+Jolter sets these for child processes:
+
+| Variable              | Meaning                                              |
+| --------------------- | ---------------------------------------------------- |
+| `JOLTER_RUNTIME_ROOT` | Root of the runtime selected by a shim               |
+| `JOLTER_DOCTOR`       | Marks a bounded `--version` probe launched by doctor |
+
+Do not set internal variables to influence resolution.

@@ -1,0 +1,105 @@
+---
+title: "Mental model"
+description: "Understand how Jolter resolves projects, installs toolchains, and dispatches commands."
+---
+
+Jolter is intentionally small in concept: project files declare requirements, explicit commands prepare installations, and shims choose the right executable whenever a command runs.
+
+## Three pieces
+
+| Piece               | Purpose                                                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------------- |
+| Project declaration | `jolter.json`, `.node-version`, `.nvmrc`, or `package.json#packageManager` describe requirements   |
+| Managed storage     | `JOLTER_HOME` stores runtimes, tools, plugins, shims, cache, manifests, and active selections      |
+| Shims               | `node`, `pnpm`, `yarn`, `bun`, `deno`, plugin commands, and related launchers resolve and dispatch |
+
+## Resolution before execution
+
+When you run a shimmed command, Jolter:
+
+1. reads the command name that invoked it;
+2. resolves the current directory upward;
+3. chooses a matching complete local installation from project requirements;
+4. falls back to the global active version when no project requirement applies;
+5. launches the real runtime or tool.
+
+No background daemon or directory-change hook is required.
+
+## Installation is explicit
+
+Jolter separates preparation from dispatch.
+
+```bash
+jolter sync
+pnpm test
+```
+
+`jolter sync` can resolve metadata, download, verify, extract, and publish installations. `pnpm test` should start quickly and either run the selected pnpm or fail with a remediation message.
+
+This avoids surprise network access in the middle of `node`, `pnpm`, or a plugin command.
+
+## Global versions are fallbacks
+
+`jolter use` creates global active versions:
+
+```bash
+jolter use node@lts
+jolter use pnpm@10
+```
+
+These are useful defaults outside configured projects. They are not project requirements, and commands such as `sync`, `repair`, and `setup-ci` do not treat them as repository configuration.
+
+## Project versions win
+
+Inside a configured project, `jolter.json` and compatibility files take priority over global active versions.
+
+```text
+global active: node@24
+project file:  node@22
+command:       node --version
+result:        project Node.js 22, if synchronized
+```
+
+## Versions are selectors until resolved
+
+Configuration selectors describe acceptable versions:
+
+```json
+{
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10.x"
+  }
+}
+```
+
+They are not a lockfile. A broad selector can resolve to a newer release when provider metadata changes. Use exact versions for build images or release jobs that must not move.
+
+## Integrity before publication
+
+Downloaded content is not published into a live installation until Jolter verifies integrity, validates archive paths, checks expected payloads, writes manifests, and atomically renames the staged directory.
+
+Jolter does not execute downloaded runtimes or tools during installation. `doctor` may run already-installed binaries with `--version` during bounded probes.
+
+## What to read next
+
+<CardGroup cols={2}>
+  <Card
+    title="Automatic switching"
+    icon="shuffle"
+    href="/guides/automatic-switching"
+  >
+    How shims and PATH precedence determine which executable runs.
+  </Card>
+  <Card title="Project pinning" icon="pin" href="/guides/project-pinning">
+    How to choose selector policies for apps, libraries, and release jobs.
+  </Card>
+  <Card title="Storage" icon="database" href="/reference/storage">
+    What lives under `JOLTER_HOME` and what is safe to delete.
+  </Card>
+  <Card title="Security model" icon="shield" href="/security/model">
+    Jolter's trust boundaries and artifact verification flow.
+  </Card>
+</CardGroup>

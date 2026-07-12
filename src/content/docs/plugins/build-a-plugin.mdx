@@ -1,0 +1,161 @@
+---
+title: "Build a plugin"
+description: "Create, test, validate, and package a Jolter plugin with `@jolter/jdt`."
+---
+
+Use the Jolter Development Toolkit to create plugin projects. The toolkit is published on npm as `@jolter/jdt` and provides the `jdt` CLI.
+
+## Install the toolkit
+
+```bash
+npm install -D @jolter/jdt
+npx jdt init
+```
+
+`jdt init` creates the minimum project shape:
+
+```text
+plugin.json
+src/plugin.ts
+types/plugin-api.d.ts
+wit/jolter-plugin.wit
+README.md
+```
+
+The copied `types` and `wit` files make the plugin project self-contained and keep the WebAssembly component world explicit.
+
+## Root `plugin.json`
+
+The root manifest describes the plugin repository before any release is published:
+
+```json plugin.json
+{
+  "$schema": "https://schemas.jolter.dev/plugin/v1/schema.json",
+  "schemaVersion": 1,
+  "name": "@example/example",
+  "displayName": "Example",
+  "description": "Example Jolter plugin.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/example/jolter-plugin-example.git"
+  },
+  "license": "MIT",
+  "readme": "./README.md",
+  "supports": {
+    "jolter": ">=0.3.0"
+  },
+  "provides": {
+    "tools": {
+      "example": {
+        "displayName": "Example",
+        "description": "Example tool managed by a Jolter plugin.",
+        "commands": ["example"]
+      }
+    }
+  }
+}
+```
+
+The registry requires this file at the root of the GitHub repository before the repository can be added at [plugins.jolter.dev](https://plugins.jolter.dev).
+
+## Implement the plugin API
+
+The generated TypeScript plugin exports three functions:
+
+```ts src/plugin.ts
+import type { Platform, Tool, ToolRelease } from "../types/plugin-api";
+
+export function listTools(): Tool[] {
+  return [{ name: "example", commands: ["example"] }];
+}
+
+export function resolveTool(
+  tool: string,
+  selector: string,
+  platform: Platform,
+): ToolRelease {
+  if (tool !== "example") throw new Error("unsupported tool " + tool);
+  return {
+    version: selector === "latest" ? "1.0.0" : selector.replace(/\.x$/, ".0"),
+    url:
+      "https://example.com/example-" +
+      platform.os +
+      "-" +
+      platform.arch +
+      ".tar.gz",
+    sha256: "0".repeat(64),
+    archiveFormat: "tar.gz",
+    stripComponents: 1,
+    commands: ["example"],
+  };
+}
+
+export function validateInstalled(
+  tool: string,
+  version: string,
+  root: string,
+): boolean {
+  return tool === "example" && version.length > 0 && root.length > 0;
+}
+```
+
+`listTools` declares provided tools and shimmed commands. `resolveTool` returns the exact artifact Jolter should install for a selector and platform. `validateInstalled` decides whether an existing plugin-tool installation is still reusable.
+
+## Test locally
+
+Run the local TypeScript or JavaScript API without building WebAssembly:
+
+```bash
+npx jdt run list-tools
+npx jdt run resolve-tool example latest --os linux --arch x64
+npx jdt run validate-installed example 1.0.0 ./fixtures/example
+```
+
+`jdt run` validates returned JSON shapes and fails when a tool release is malformed.
+
+## Build and validate
+
+```bash
+npx jdt build
+npx jdt validate
+```
+
+`jdt build` writes `dist/plugin.wasm`. It uses Bytecode Alliance component tooling through `jco` and currently requires Node.js for componentization, even if the rest of the project uses Bun.
+
+If you already have a WebAssembly component, package it explicitly:
+
+```bash
+npx jdt build --wasm ./prebuilt.wasm
+```
+
+## Generate release artifacts
+
+```bash
+npx jdt manifest --version 1.0.0
+npx jdt pack --version 1.0.0
+```
+
+`jdt pack` runs build, manifest generation, and validation. It writes:
+
+```text
+dist/plugin.wasm
+dist/plugin.release.json
+dist/checksums.txt
+```
+
+The release manifest records the GitHub repository, release tag, commit, Jolter compatibility, entrypoint, provided tools, permissions, and WASM integrity metadata.
+
+## Quality checklist
+
+Before publishing:
+
+- `plugin.json` is committed at the repository root;
+- `plugin.json#name` matches the registry owner scope and slug;
+- `repository.url` points to the same GitHub repository you will add to the registry;
+- `listTools` returns stable tool and command names;
+- `resolveTool` returns exact semantic versions and HTTPS artifact URLs;
+- `sha256` values are lowercase 64-character hex strings;
+- `archiveFormat` is `tar.gz` or `zip`;
+- `stripComponents` is a non-negative integer;
+- `validateInstalled` catches missing command entry points;
+- the plugin does not request shell execution permissions.

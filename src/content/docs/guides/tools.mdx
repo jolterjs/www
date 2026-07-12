@@ -1,0 +1,111 @@
+---
+title: "Tools"
+description: "Use npm, pnpm, Yarn, and plugin-provided tools through Jolter."
+---
+
+Jolter separates runtimes from tools. Built-in tools such as npm, pnpm, and Yarn run through the selected Node.js runtime. Plugin-provided tools are installed by Jolter plugins and can expose their own command shims.
+
+## Built-in managed tools
+
+| Tool | Registry package    | Commands     |
+| ---- | ------------------- | ------------ |
+| npm  | `npm`               | `npm`, `npx` |
+| pnpm | `pnpm`              | `pnpm`       |
+| Yarn | `@yarnpkg/cli-dist` | `yarn`       |
+
+Tool tarballs come from the npm registry and are verified with registry SHA-512 integrity metadata. Exact Corepack-style hashes add another check when provided.
+
+## Activate a tool globally
+
+Managed tools require an active Node.js runtime:
+
+```bash
+jolter use node@lts
+jolter use pnpm@10
+jolter use yarn@4
+```
+
+Jolter validates the tool's declared `engines.node` range before activation.
+
+## Pin tools in a project
+
+```bash
+jolter pin node@24
+jolter pin pnpm@10
+jolter pin yarn@4
+jolter sync
+```
+
+Result:
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10",
+    "yarn": "4"
+  }
+}
+```
+
+If `jolter.json#tools` is non-empty, it wins over `package.json#packageManager`. Put every intended managed tool in `tools`.
+
+## npm bundled with Node.js
+
+Official Node.js archives include bundled `npm` and `npx`. Jolter can route those bundled commands through the selected Node.js runtime when no managed npm override applies.
+
+Pin or activate a managed npm version when you need npm to move independently from Node.js:
+
+```bash
+jolter pin npm@11
+jolter sync
+```
+
+## Plugin-provided tools
+
+Plugins can provide tools such as `eslint`, `prettier`, or organization-specific commands.
+
+```bash
+jolter plugin install eslint
+jolter use eslint@8
+```
+
+Schema v2 connects the tool and provider:
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "eslint": "8"
+  },
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+Built-in tools do not require plugin declarations.
+
+## Diagnose tool issues
+
+```bash
+jolter doctor
+jolter list
+```
+
+Common fixes:
+
+| Symptom                                | Fix                                           |
+| -------------------------------------- | --------------------------------------------- |
+| Tool requires Node.js                  | Pin or activate `node@...` first              |
+| Tool and Node.js are incompatible      | Choose a compatible Node.js or tool line      |
+| Shim cannot find a project tool        | Run `jolter sync`                             |
+| Multiple plugins provide the same tool | Declare the provider in `jolter.json#plugins` |

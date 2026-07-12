@@ -1,0 +1,181 @@
+---
+title: "Troubleshooting"
+description: "Fix the most common Jolter setup, PATH, project, cache, plugin, proxy, and permission problems."
+---
+
+Start every investigation from the affected directory and shell:
+
+```bash
+jolter doctor
+jolter list
+```
+
+Use `--no-progress` when collecting logs and `--json --no-color` when a machine-readable report is needed.
+
+## `jolter` is not found
+
+Locate the executable:
+
+<CodeGroup>
+
+```powershell PowerShell
+Get-Command jolter -All
+```
+
+```bash Linux and macOS
+command -v jolter
+type -a jolter
+```
+
+</CodeGroup>
+
+If the binary exists, invoke it by absolute path and run:
+
+```bash
+jolter setup
+```
+
+Apply the printed PATH command and restart the terminal or IDE.
+
+## A command resolves outside Jolter
+
+Symptoms include the wrong Node.js version or command lookup showing nvm, fnm, Volta, Corepack, or a system installation first.
+
+```bash
+jolter setup
+jolter doctor
+```
+
+Move `$JOLTER_HOME/shims` before competing entries on `PATH`.
+
+## The project uses the wrong version
+
+Run:
+
+```bash
+jolter doctor
+```
+
+Remember:
+
+- `jolter.json` runtime wins over `.node-version` and `.nvmrc`;
+- `.node-version` wins over `.nvmrc`;
+- non-empty `jolter.json#tools` wins over `package.json#packageManager`;
+- project requirements win over globally active versions.
+
+After correcting declarations:
+
+```bash
+jolter sync
+```
+
+## Required version is missing
+
+```bash
+jolter sync
+```
+
+Shims do not install during dispatch. If inventory says `incomplete`:
+
+```bash
+jolter repair
+```
+
+## Managed tool requires Node.js
+
+Built-in npm, pnpm, and Yarn execute through Node.js.
+
+```bash
+jolter use node@lts
+jolter use pnpm@10
+```
+
+For a project:
+
+```bash
+jolter pin node@24
+jolter pin pnpm@10
+jolter sync
+```
+
+A project using Bun or Deno as its sole runtime cannot synchronize built-in Node.js-based tools.
+
+## Plugin is missing
+
+Install the provider:
+
+```bash
+jolter plugin install eslint
+```
+
+Or let a reviewed project install declared plugins:
+
+```bash
+jolter sync --yes
+jolter setup-ci --yes
+```
+
+Without `--yes`, missing project plugins fail by design.
+
+## Plugin provider is ambiguous
+
+If multiple installed plugins provide the same command, declare the provider:
+
+```json jolter.json
+{
+  "tools": {
+    "eslint": "8"
+  },
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+Then run:
+
+```bash
+jolter sync
+```
+
+## Offline cache miss
+
+Check:
+
+```bash
+jolter cache status
+```
+
+Disable offline mode, synchronize once with network access, and then re-enable it:
+
+```bash
+jolter sync
+jolter cache status
+```
+
+`jolter cache clean` removes offline readiness.
+
+## Proxy or certificate failure
+
+Inspect:
+
+```text
+HTTPS_PROXY
+HTTP_PROXY
+NO_PROXY
+SSL_CERT_FILE
+NODE_EXTRA_CA_CERTS
+REQUESTS_CA_BUNDLE
+```
+
+Proxy URLs must use `http://` or `https://`. Certificate variables must point to existing files.
+
+## JSON output is corrupted
+
+Do not merge standard error into standard output:
+
+```bash
+jolter doctor --json --no-color > doctor.json
+```
+
+Progress and failures go to standard error. JSON goes to standard output.

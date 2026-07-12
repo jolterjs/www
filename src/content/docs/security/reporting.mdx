@@ -1,0 +1,47 @@
+---
+title: "Report a vulnerability"
+description: "How to privately report Jolter security issues and what information to include."
+---
+
+Please report vulnerabilities privately through GitHub security advisories for the Jolter repository. Do not open a public issue for an undisclosed vulnerability.
+
+<Card
+  title="Open the repository security page"
+  icon="shield-alert"
+  href="https://github.com/jolterjs/jolter/security/advisories/new"
+>
+  Use GitHub's private advisory workflow when available.
+</Card>
+
+## Include in the report
+
+Provide:
+
+- affected Jolter version and platform;
+- minimal reproduction;
+- trust-boundary assumptions;
+- observed behavior;
+- expected behavior;
+- whether untrusted network, archive, project, plugin, registry, or filesystem input is required;
+- whether the issue affects installation, shims, diagnostics, cache, plugin resolution, or CI.
+
+Remove credentials, tokens, proxy passwords, private paths, and private registry URLs unless they are necessary and safe to share privately.
+
+## Current guarantees
+
+Jolter is designed so:
+
+- release metadata and artifacts are fetched over HTTPS;
+- redirects to non-HTTPS URLs are rejected;
+- runtime and tool archives are verified before extraction;
+- plugin WASM artifacts are verified before installation;
+- archive paths, links, entry counts, and extracted sizes are constrained;
+- installations are staged and then published atomically;
+- concurrent metadata and installation publication is locked;
+- cache cleanup is coordinated with active installation operations;
+- downloaded runtimes are not executed during installation;
+- telemetry is not implemented.
+
+## Public disclosure
+
+Do not publish exploit details before maintainers have had time to respond. If the issue is accepted, coordinate disclosure timing, affected versions, mitigation guidance, and release notes through the advisory.

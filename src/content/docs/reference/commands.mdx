@@ -1,0 +1,208 @@
+---
+title: "Command reference"
+description: "Complete reference for Jolter commands, global options, aliases, and output behavior."
+---
+
+Run `jolter <command> --help` to inspect the syntax shipped by your installed version.
+
+## Global options
+
+| Option            | Purpose                                                        |
+| ----------------- | -------------------------------------------------------------- |
+| `--no-progress`   | Disable the in-place progress line and use stable action lines |
+| `--no-color`      | Disable ANSI styling                                           |
+| `-q`, `--quiet`   | Suppress operational progress while retaining results          |
+| `-v`, `--verbose` | Include transfer timing and additional operational detail      |
+| `-h`, `--help`    | Print help                                                     |
+| `-V`, `--version` | Print the Jolter version                                       |
+
+`--quiet` and `--verbose` conflict. CI detection, redirected output, and `JOLTER_NO_PROGRESS` also disable the in-place renderer.
+
+## Request syntax
+
+Runtime and tool requests use `<name>@<selector>`:
+
+```text
+node@lts
+node@24
+bun@1.2
+deno@2.1.3
+pnpm@10
+yarn@4.x
+npm@11.1.0
+eslint@8
+```
+
+## `jolter setup`
+
+```bash
+jolter setup
+jolter setup --shell powershell
+jolter setup --shell cmd
+jolter setup --shell bash
+jolter setup --shell zsh
+jolter setup --shell fish
+```
+
+Creates or refreshes command shims and prints PATH commands for the selected shell. `auto` is the default.
+
+## `jolter use`
+
+```bash
+jolter use <runtime-or-tool>@<selector>
+jolter use node@lts pnpm@10
+```
+
+For a runtime, `use` resolves, installs or reuses, and globally activates the exact version. For a built-in tool, an active Node.js runtime is required. For a plugin tool, a provider plugin must already be installed.
+
+When run without a target in an interactive terminal, Jolter can prompt for a runtime or tool.
+
+## `jolter pin`
+
+```bash
+jolter pin <runtime-or-tool>@<selector>
+```
+
+Writes `jolter.json` in the current directory. Runtime pinning replaces the previous runtime. Tool pinning preserves the runtime and other tools.
+
+Plugin-provided tool pinning records both the tool and provider plugin when Jolter can identify the provider.
+
+## `jolter update`
+
+Aliases: `up`.
+
+```bash
+jolter update <runtime-or-tool>
+jolter update <runtime-or-tool>@<selector>
+jolter update --all
+```
+
+A bare name updates the globally active version within its current major line. An explicit selector may move to another line. `--all` updates every active runtime, built-in tool, and plugin tool sequentially.
+
+## `jolter list`
+
+Aliases: `ls`.
+
+```bash
+jolter list
+jolter list --json
+```
+
+Lists installed runtimes, built-in tools, plugin tools, and plugins. `*` marks globally active versions. `ready` means the expected executable or entry point exists.
+
+## `jolter doctor`
+
+```bash
+jolter doctor
+jolter doctor --json
+```
+
+Runs non-destructive health checks for storage, platform support, project resolution, installations, shims, PATH, cache state, proxies, certificates, and plugin state.
+
+Warnings do not fail the command. Any failed check produces a nonzero exit status.
+
+## `jolter sync`
+
+```bash
+jolter sync
+jolter sync --yes
+```
+
+Synchronizes the current project. A project runtime is required. Configured built-in tools require that runtime to be Node.js. `--yes` permits Jolter to install missing project plugins.
+
+## `jolter repair`
+
+```bash
+jolter repair
+jolter repair --yes
+```
+
+Runs project synchronization in repair mode. Complete reusable installations are retained. Incomplete or corrupt project requirements are replaced.
+
+## `jolter plugin`
+
+```bash
+jolter plugin install <name>[@selector]
+jolter plugin list
+jolter plugin list --json
+jolter plugin update <name>
+jolter plugin update --all
+jolter plugin uninstall <name> [--force]
+```
+
+Aliases:
+
+```bash
+jolter plugin add eslint
+jolter plugin i eslint
+jolter plugin ls
+jolter plugin up eslint
+jolter plugin remove eslint
+jolter plugin rm eslint
+```
+
+Plugins are installed globally under `JOLTER_HOME/plugins`.
+
+## `jolter uninstall`
+
+Aliases: `remove`, `rm`.
+
+```bash
+jolter uninstall <runtime-or-tool>@<exact-version>
+jolter uninstall <runtime-or-tool>@<exact-version> --force
+```
+
+Only exact semantic versions are accepted. Active versions are protected unless `--force` is passed.
+
+## `jolter prune`
+
+```bash
+jolter prune
+jolter prune --dry-run
+jolter prune --keep 2
+```
+
+Removes old and incomplete installations while protecting active versions, current project requirements, and the newest kept complete versions for each kind.
+
+## `jolter cache`
+
+```bash
+jolter cache status
+jolter cache clean
+```
+
+`status` reports cached metadata and download file counts and size. `clean` removes metadata and downloaded archives, but not installed versions, shims, active selections, or lock files.
+
+## `jolter setup-ci`
+
+```bash
+jolter setup-ci
+jolter setup-ci --json
+jolter setup-ci --yes
+```
+
+Synchronizes the project, refreshes shims, detects the CI provider, and reports the resolved toolchain and cache paths.
+
+On GitHub Actions, it appends shims to `GITHUB_PATH` and writes outputs when `GITHUB_OUTPUT` is available.
+
+## `jolter completions`
+
+Aliases: `c`, `comp`.
+
+```bash
+jolter completions bash
+jolter completions zsh
+jolter completions fish
+jolter completions elvish
+jolter completions powershell
+```
+
+Writes a completion script to standard output.
+
+## Exit and stream contract
+
+- Successful commands return exit code `0`.
+- Parsing, installation, configuration, storage, and failed health checks return a nonzero exit code.
+- Final human results and JSON are written to standard output.
+- Progress and failures are written to standard error.
+- Machine-output commands suppress decorative progress.

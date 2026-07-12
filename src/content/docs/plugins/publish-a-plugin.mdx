@@ -1,0 +1,159 @@
+---
+title: "Publish a plugin"
+description: "Add a plugin repository to the Jolter registry and register GitHub releases."
+---
+
+Publishing has two separate steps:
+
+1. Add the GitHub repository to the registry at [plugins.jolter.dev](https://plugins.jolter.dev).
+2. Register each GitHub release with the registry API.
+
+GitHub remains the source of truth for release artifacts. The registry stores plugin metadata, ownership, permissions, version metadata, and GitHub download URLs.
+
+## Prepare the repository
+
+Your GitHub repository must contain a valid root `plugin.json`:
+
+```bash
+npm install -D @jolter/jdt
+npx jdt init
+npx jdt validate
+```
+
+Commit `plugin.json`, `src/plugin.ts`, `types/plugin-api.d.ts`, `wit/jolter-plugin.wit`, and the plugin README.
+
+The registry derives the canonical plugin name from the selected registry owner and the slug in `plugin.json#name`. Users cannot choose arbitrary scopes during creation.
+
+## Add the repository
+
+1. Sign in to [plugins.jolter.dev](https://plugins.jolter.dev).
+2. Open the dashboard and choose to add a repository.
+3. Select your personal scope or an organization scope.
+4. Pick a public GitHub repository with a valid root `plugin.json`.
+5. Confirm the registry preview.
+
+For organization-owned plugins, install the Jolter GitHub App for that organization first. The repository picker only shows repositories available to the selected owner.
+
+## Pack release assets
+
+From the plugin repository:
+
+```bash
+npx jdt pack --version 1.0.0
+```
+
+The GitHub release must include these assets:
+
+```text
+plugin.wasm
+plugin.release.json
+checksums.txt
+```
+
+The release tag must match the plugin version:
+
+```text
+v1.0.0
+```
+
+`plugin.release.json` must match the root `plugin.json`, selected repository, release tag, and WASM artifact metadata.
+
+## Create the GitHub release
+
+One possible flow with the GitHub CLI:
+
+```bash
+gh release create v1.0.0 \
+  dist/plugin.wasm \
+  dist/plugin.release.json \
+  dist/checksums.txt \
+  --title "v1.0.0" \
+  --notes "Initial release"
+```
+
+Any release process is fine as long as the final published release contains the required assets.
+
+## Register the release automatically
+
+Use `jolterjs/register-release-action@v1` on published GitHub releases:
+
+```yaml
+name: Register Jolter plugin release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: jolterjs/register-release-action@v1
+        with:
+          registry-url: https://registry.jolter.dev
+          plugin-name: "@example/example"
+          github-token: ${{ github.token }}
+```
+
+The action reads the release tag, strips a leading `v` for the semantic version, and posts release metadata to the registry. Re-running the action is safe: an existing version is reported as `registered=false` instead of failing the workflow.
+
+Use explicit inputs only when your release process needs them:
+
+```yaml
+with:
+  registry-url: https://registry.jolter.dev
+  plugin-name: "@example/example"
+  github-token: ${{ github.token }}
+  version: 1.0.0
+  release-tag: v1.0.0
+```
+
+## Register with a bearer token
+
+Maintainers with publisher permission can also register a release through the API using a Jolter token with `plugin:publish`:
+
+```bash
+curl -X POST "https://registry.jolter.dev/api/v1/plugins/%40example%2Fexample/versions" \
+  -H "Authorization: Bearer $JOLTER_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"version":"1.0.0","releaseTag":"v1.0.0"}'
+```
+
+GitHub Actions usually should use `jolterjs/register-release-action@v1` instead.
+
+## Request an alias
+
+Plugin owners and admins can request an alias from the plugin settings at [plugins.jolter.dev](https://plugins.jolter.dev). Aliases become resolvable only after registry administrator approval.
+
+Use aliases for names users naturally expect:
+
+```text
+eslint -> @eslint/eslint
+```
+
+Do not rely on an alias before it is approved.
+
+## Smoke test
+
+Use a clean `JOLTER_HOME` after the release is registered:
+
+```bash
+export JOLTER_HOME="$(mktemp -d)"
+jolter plugin install @example/example@1.0.0
+jolter use example@latest
+example --version
+jolter doctor
+```
+
+PowerShell:
+
+```powershell
+$env:JOLTER_HOME = Join-Path $env:TEMP "jolter-plugin-smoke"
+jolter plugin install @example/example@1.0.0
+jolter use example@latest
+example --version
+jolter doctor
+```

@@ -1,0 +1,110 @@
+---
+title: "Plugins overview"
+description: "Discover, install, and publish registry-backed Jolter tool providers."
+---
+
+Plugins let Jolter manage tools that are not built into the core CLI. A plugin is a registry-hosted WebAssembly provider that declares the tools it can supply, resolves exact tool releases, and validates installed plugin tools before Jolter reuses them.
+
+Use the public registry at [plugins.jolter.dev](https://plugins.jolter.dev) to find plugins, inspect their repositories and releases, and manage plugins you own. Jolter CLI and release automation talk to the registry API behind that site.
+
+## What plugins provide
+
+Plugins are for executable tools such as:
+
+- ecosystem CLIs outside Jolter's built-in tool set;
+- organization-specific development commands;
+- tools that need Jolter version selectors, verified installs, and shims.
+
+These tools are built in and do not require plugins:
+
+```text
+npm
+pnpm
+yarn
+```
+
+## Names and aliases
+
+Every plugin has a canonical scoped name:
+
+```text
+@jolter/search
+@eslint/eslint
+```
+
+The registry can also approve an official unscoped alias for a plugin:
+
+```text
+eslint
+```
+
+Install commands may use either form when the registry maps the alias:
+
+```bash
+jolter plugin install eslint
+jolter plugin install @eslint/eslint@1
+```
+
+Commit canonical scoped names in shared `jolter.json` files when possible. Aliases are convenient for humans, but canonical names make ownership explicit during review.
+
+## Project configuration
+
+Schema version 2 uses `tools` for tool versions and `plugins` for provider versions:
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "eslint": "8"
+  },
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+`tools.eslint` selects the ESLint release. `plugins["@eslint/eslint"]` selects the Jolter plugin version that knows how to resolve and install ESLint.
+
+## Install lifecycle
+
+When you install a plugin, Jolter:
+
+1. resolves aliases through the registry;
+2. selects a plugin release matching the selector;
+3. downloads the release manifest and WebAssembly entrypoint;
+4. verifies the manifest schema, identity, size, and SHA-256;
+5. stores the plugin under `JOLTER_HOME/plugins`;
+6. refreshes shims for commands declared by the plugin.
+
+Project sync then uses installed plugins to resolve plugin-provided tools:
+
+```bash
+jolter sync
+jolter setup-ci --yes
+```
+
+Use `--yes` only when the environment is allowed to install missing project plugins.
+
+## Registry endpoints
+
+Use these URLs for different jobs:
+
+| URL                           | Purpose                                                   |
+| ----------------------------- | --------------------------------------------------------- |
+| `https://plugins.jolter.dev`  | Public web registry for discovery and plugin management   |
+| `https://registry.jolter.dev` | Registry API origin used by Jolter and release automation |
+
+Override the CLI registry for private or development testing:
+
+```bash
+export JOLTER_REGISTRY_URL="https://registry.example.com"
+```
+
+<Warning>
+  Review plugin requirements like build scripts. A plugin controls which
+  executable artifacts Jolter downloads for plugin-provided tools.
+</Warning>

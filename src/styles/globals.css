@@ -16,3 +16,186 @@ body {
   color: var(--foreground);
   font-family: var(--font-outfit);
 }
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition:
+    opacity 520ms ease,
+    transform 520ms ease;
+}
+
+.scroll-reveal-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    scroll-behavior: auto !important;
+  }
+
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@keyframes jolter-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.docs-markdown :not(pre) > code {
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 0.375rem;
+  background: rgba(255, 255, 255, 0.045);
+  padding: 0.12rem 0.32rem;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.88em;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.docs-link,
+.docs-markdown
+  :where(p, li, blockquote, td, .docs-callout)
+  > a:not(.docs-heading-anchor) {
+  color: rgba(255, 255, 255, 0.94);
+  font-weight: 500;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 255, 255, 0.25);
+  text-underline-offset: 0.22em;
+  transition: text-decoration-color 150ms ease;
+}
+
+.docs-link:hover,
+.docs-markdown
+  :where(p, li, blockquote, td, .docs-callout)
+  > a:not(.docs-heading-anchor):hover {
+  text-decoration-color: rgba(255, 255, 255, 0.7);
+}
+
+.docs-card,
+.docs-card * {
+  text-decoration: none !important;
+}
+
+.docs-card-grid > .docs-card {
+  border: 0;
+}
+
+.docs-card p,
+.docs-callout p {
+  margin: 0;
+}
+
+.docs-card p + p,
+.docs-callout p + p {
+  margin-top: 0.75rem;
+}
+
+.docs-card code {
+  text-decoration: none;
+}
+
+.docs-markdown [data-rehype-pretty-code-figure] {
+  margin: 1.75rem 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+  background: #050505;
+}
+
+.docs-markdown [data-rehype-pretty-code-title] {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  padding: 0.625rem 0.875rem;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.42);
+}
+
+.docs-markdown [data-rehype-pretty-code-figure] pre {
+  margin: 0;
+  background: transparent !important;
+}
+
+.docs-markdown [data-line] {
+  display: block;
+  padding-right: 0;
+  padding-left: 0;
+}
+
+.docs-code-body {
+  background: #050505;
+}
+
+.docs-code-tabs [data-rehype-pretty-code-figure] {
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+.docs-code-tabs [data-rehype-pretty-code-title] {
+  display: none;
+}
+
+.docs-code-tabs .docs-code-pre {
+  border-radius: 0;
+}
+
+.docs-code-copy {
+  transition:
+    opacity 150ms ease,
+    color 150ms ease,
+    background-color 150ms ease,
+    transform 150ms ease;
+}
+
+.docs-code-pre code {
+  display: grid;
+  min-width: max-content;
+}
+
+.docs-heading-anchor {
+  color: inherit;
+  text-decoration: none;
+}
+
+.docs-steps {
+  counter-reset: docs-step;
+}
+
+.docs-step::before {
+  position: absolute;
+  top: -0.125rem;
+  left: -0.875rem;
+  display: flex;
+  width: 1.75rem;
+  height: 1.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 999px;
+  background: #000;
+  color: rgba(255, 255, 255, 0.52);
+  content: counter(docs-step);
+  counter-increment: docs-step;
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono",
+    "Courier New", monospace;
+  font-size: 0.75rem;
+}

@@ -1,0 +1,36 @@
+---
+title: "Safer installs for JavaScript toolchains"
+description: "How Jolter treats downloaded scripts, archives, metadata, and writable storage as inputs to verify rather than trusted state."
+date: "2026-07-10"
+category: "security"
+authorName: "Jolter Team"
+authorAvatarUrl: "https://github.com/jolterjs.png"
+---
+
+Toolchain managers sit close to command execution. That makes the installation path, cache, provider metadata, and runtime archives part of the trust boundary.
+
+Jolter's design keeps that boundary visible. Installer scripts are convenience entry points, release archives can be inspected and checksum-verified, and managed runtimes are not executed during installation.
+
+## Review before running
+
+One-line installers are convenient, but security-sensitive environments should inspect the script first.
+
+```bash
+curl -fsSL https://get.jolter.dev/install.sh -o install-jolter.sh
+less install-jolter.sh
+sh install-jolter.sh
+```
+
+On Windows, use the PowerShell installer with the same review-first policy.
+
+```powershell
+Invoke-WebRequest https://get.jolter.dev/install.ps1 -OutFile install-jolter.ps1
+Get-Content .\install-jolter.ps1
+.\install-jolter.ps1
+```
+
+## Treat writable storage carefully
+
+`JOLTER_HOME` contains provider metadata, downloaded archives, complete installations, shims, manifests, and active selections. Keep it writable only by the user or automation identity that owns the workflow.
+
+For CI, prefer trust-aware caches. Do not share one writable home across mutually untrusted repositories, branches, users, or pull requests.

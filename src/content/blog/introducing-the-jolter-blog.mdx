@@ -1,0 +1,34 @@
+---
+title: "Introducing the Jolter blog"
+description: "A home for product updates, implementation notes, release context, and practical toolchain guidance from the Jolter team."
+date: "2026-07-12"
+category: "updates"
+authorName: "Jolter Team"
+authorAvatarUrl: "https://github.com/jolterjs.png"
+featured: true
+---
+
+Jolter is small on purpose: project files declare the JavaScript toolchain a repository expects, explicit commands prepare verified installations, and command shims choose the matching executable every time a tool runs.
+
+The documentation is the canonical reference. This blog gives the team a more conversational place to publish context around the work: what changed, why a design exists, and how teams can adopt Jolter safely across laptops and CI.
+
+## What we will publish here
+
+- Product updates when workflows, commands, or compatibility guarantees change.
+- Engineering notes about shims, provider metadata, plugin execution, and storage.
+- Security notes about installer review, archive verification, cache boundaries, and plugin trust.
+- Migration guidance for teams standardizing Node.js, pnpm, Yarn, Bun, Deno, and plugin-provided tools.
+
+## The practical goal
+
+The goal is not to add another channel to check. Posts should make the reference docs easier to understand and give maintainers a durable place to explain tradeoffs.
+
+For day-one setup, start with:
+
+```bash
+curl -fsSL https://get.jolter.dev/install.sh | sh
+jolter setup
+jolter doctor
+```
+
+Then use the docs for the exact commands and compatibility rules that apply to your project.

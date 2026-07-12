@@ -1,0 +1,122 @@
+---
+title: "First project"
+description: "Prepare a repository so every developer and CI job resolves the same toolchain."
+---
+
+This guide creates a project declaration, synchronizes the local machine, and leaves the repository ready for teammates and CI.
+
+## Choose the project root
+
+Place `jolter.json` at the highest directory that should share one runtime and tool set.
+
+```text
+my-repo/
+|-- jolter.json
+|-- package.json
+|-- apps/
+|   `-- web/
+`-- packages/
+```
+
+Use nested `jolter.json` files only when a subtree intentionally needs a different toolchain.
+
+## Pin the runtime
+
+From the project root:
+
+```bash
+jolter pin node@24
+```
+
+Jolter supports Node.js, Bun, and Deno as runtimes:
+
+```bash
+jolter pin node@24
+jolter pin bun@1
+jolter pin deno@2
+```
+
+Only one runtime can be configured in a project. Pinning a different runtime replaces the previous runtime entry and preserves tools.
+
+## Pin tools
+
+Built-in tools run through Node.js, so they require a Node.js runtime.
+
+```bash
+jolter pin pnpm@10
+jolter pin yarn@4
+jolter pin npm@11
+```
+
+The resulting configuration can contain multiple tools:
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  },
+  "tools": {
+    "pnpm": "10",
+    "yarn": "4"
+  }
+}
+```
+
+## Synchronize the project
+
+```bash
+jolter sync
+```
+
+`sync` resolves the project, installs or reuses complete compatible versions, activates the exact result, and refreshes shims.
+
+Shims do not download missing versions during normal command dispatch. That keeps `node`, `pnpm`, and other commands deterministic once a build starts.
+
+## Verify the project
+
+```bash
+jolter doctor
+jolter list
+node --version
+pnpm --version
+```
+
+`doctor` reports invalid configuration, missing versions, incomplete installs, PATH precedence, cache readiness, proxy and certificate findings, and plugin issues.
+
+## Commit the right files
+
+Commit:
+
+```text
+jolter.json
+package.json
+lockfiles
+```
+
+Do not commit:
+
+```text
+.jolter/
+JOLTER_HOME
+downloaded runtimes
+downloaded tools
+cache directories
+```
+
+## Add CI
+
+The same project file works in automation:
+
+```bash
+jolter setup-ci --no-progress
+```
+
+Continue with <a href="/automation/ci">CI automation</a> or the <a href="/automation/setup-jolter-action">planned setup action</a>.
+
+<Check>
+  A prepared project has committed requirements, a successful `jolter sync`, a
+  clean `jolter doctor`, and CI that calls `jolter setup-ci` before
+  package-manager commands.
+</Check>

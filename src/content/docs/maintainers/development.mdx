@@ -1,0 +1,106 @@
+---
+title: "Development"
+description: "Set up the Jolter repository, run quality gates, test changes, and update docs."
+---
+
+This guide is for contributors working on the Jolter repository.
+
+## Prerequisites
+
+- Rust `1.85` or newer
+- Cargo
+- Git
+- platform build tools for the selected target
+
+Build the workspace:
+
+```bash
+cargo build --workspace --all-targets --locked
+```
+
+Development binary:
+
+```text
+Windows: target/debug/jolter.exe
+Unix:   target/debug/jolter
+```
+
+## Quality gates
+
+Format:
+
+```bash
+cargo fmt --all -- --check
+```
+
+Lint:
+
+```bash
+cargo clippy --workspace --all-targets --locked -- -D warnings
+```
+
+Test:
+
+```bash
+cargo test --workspace --all-targets --locked
+```
+
+Coverage:
+
+```bash
+cargo llvm-cov --workspace --all-targets --locked --fail-under-lines 80
+```
+
+Audit:
+
+```bash
+cargo audit
+```
+
+## Isolated manual testing
+
+Do not test against your real home unless you intend to.
+
+```bash
+export JOLTER_HOME="$(mktemp -d)"
+cargo run -p jolter-cli --bin jolter -- use node@24
+```
+
+PowerShell:
+
+```powershell
+$env:JOLTER_HOME = Join-Path $env:TEMP "jolter-dev"
+cargo run -p jolter-cli --bin jolter -- use node@24
+```
+
+## Change expectations
+
+Behavioral changes should update:
+
+1. implementation and focused tests;
+2. CLI help text when the command surface changes;
+3. user docs in `docs.jolter.dev`;
+4. roadmap or changelog entries when release status changes.
+
+Preserve legacy input compatibility unless an intentional migration is designed and documented.
+
+## Security-sensitive areas
+
+Changes to URL validation, redirects, checksums, archive extraction, symlink handling, permissions, locking, temporary paths, plugin verification, or atomic publication require adversarial tests.
+
+Read the security model before changing installer, plugin, or storage behavior.
+
+## Documentation development
+
+From `docs.jolter.dev`:
+
+```bash
+bun install
+bun run dev
+```
+
+Keep docs examples aligned with:
+
+```bash
+cargo run -p jolter-cli --bin jolter -- --help
+```

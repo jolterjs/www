@@ -1,0 +1,159 @@
+---
+title: "Using plugins"
+description: "Find, install, update, uninstall, and use tools provided by Jolter plugins."
+---
+
+Use [plugins.jolter.dev](https://plugins.jolter.dev) to search the public registry. A plugin page shows the canonical name, approved alias when one exists, repository, README, latest version, and install command.
+
+## Install a plugin
+
+Install by approved alias:
+
+```bash
+jolter plugin install eslint
+```
+
+Install by canonical scoped name and provider selector:
+
+```bash
+jolter plugin install @eslint/eslint@1
+```
+
+`add` and `i` are aliases for `install`:
+
+```bash
+jolter plugin add eslint
+jolter plugin i @eslint/eslint@1
+```
+
+During installation, Jolter resolves the name through the registry, downloads the selected release manifest and WASM entrypoint, verifies integrity metadata, stores the plugin under `JOLTER_HOME/plugins`, and refreshes shims for the plugin commands.
+
+## List installed plugins
+
+```bash
+jolter plugin list
+jolter plugin list --json
+```
+
+The human output is for interactive use. Automation should use `--json` and rely on field names and exit status.
+
+## Use plugin-provided tools
+
+After installing a provider, use the tool like any other Jolter-managed tool:
+
+```bash
+jolter use eslint@8
+eslint --version
+```
+
+Pin a plugin-provided tool into the current project:
+
+```bash
+jolter pin eslint@8
+jolter sync
+```
+
+When Jolter can identify the provider, `pin` records both the tool requirement and the provider requirement in `jolter.json`.
+
+## Sync projects with plugins
+
+Projects that declare plugins require those providers before plugin tools can be resolved.
+
+```bash
+jolter sync
+```
+
+Without `--yes`, Jolter verifies required plugins are already installed. Missing plugins fail with remediation text.
+
+Allow Jolter to install missing declared plugins:
+
+```bash
+jolter sync --yes
+jolter setup-ci --yes
+```
+
+Use `--yes` only after the plugin requirements have been reviewed.
+
+## Update plugins
+
+Update one installed plugin:
+
+```bash
+jolter plugin update eslint
+```
+
+Update every installed plugin:
+
+```bash
+jolter plugin update --all
+```
+
+`up` is an alias:
+
+```bash
+jolter plugin up eslint
+```
+
+Plugin updates move the provider version. Plugin-provided tool updates still use `jolter update`:
+
+```bash
+jolter update eslint
+jolter update eslint@latest
+```
+
+## Uninstall plugins
+
+```bash
+jolter plugin uninstall eslint
+```
+
+`remove` and `rm` are aliases:
+
+```bash
+jolter plugin remove eslint
+jolter plugin rm eslint
+```
+
+If the plugin still owns active shims or tool state, Jolter can refuse removal. Use `--force` only when you intentionally want to remove the provider anyway:
+
+```bash
+jolter plugin uninstall eslint --force
+```
+
+## Resolve provider ambiguity
+
+If multiple installed plugins provide the same tool, declare the intended provider:
+
+```json jolter.json
+{
+  "tools": {
+    "eslint": "8"
+  },
+  "plugins": {
+    "@eslint/eslint": "1"
+  }
+}
+```
+
+Then run:
+
+```bash
+jolter sync
+jolter doctor
+```
+
+## Registry override
+
+`JOLTER_REGISTRY_URL` changes the registry used by plugin commands:
+
+```bash
+export JOLTER_REGISTRY_URL="https://registry.example.com"
+```
+
+PowerShell:
+
+```powershell
+$env:JOLTER_REGISTRY_URL = "https://registry.example.com"
+```
+
+Run `jolter doctor` in the same shell to confirm the active configuration.

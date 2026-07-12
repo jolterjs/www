@@ -1,0 +1,125 @@
+---
+title: "Runtimes"
+description: "Install, activate, pin, and update Node.js, Bun, and Deno with Jolter."
+---
+
+Jolter manages JavaScript runtimes as verified, exact-version installations under `JOLTER_HOME`.
+
+| Runtime | Selectors                          | Provider                  |
+| ------- | ---------------------------------- | ------------------------- |
+| Node.js | numeric, wildcard, `latest`, `lts` | Official Node.js releases |
+| Bun     | numeric, wildcard, `latest`        | Official Bun releases     |
+| Deno    | numeric, wildcard, `latest`        | Official Deno releases    |
+
+## Install a personal default
+
+Use `jolter use` to install and activate a global fallback.
+
+```bash
+jolter use node@lts
+jolter use bun@latest
+jolter use deno@2
+```
+
+The resolved exact version is stored in Jolter's active configuration. It is used outside a configured project or when a project does not declare a runtime for the command you run.
+
+## Pin a project runtime
+
+Run from the project root:
+
+```bash
+jolter pin node@24
+jolter sync
+```
+
+`pin` records the requirement. `sync` installs or reuses a matching exact version.
+
+```json jolter.json
+{
+  "$schema": "https://schemas.jolter.dev/project/v2/schema.json",
+  "schemaVersion": 2,
+  "runtime": {
+    "node": "24"
+  }
+}
+```
+
+Only one runtime can be configured in `jolter.json`. If you pin `deno@2` after `node@24`, Jolter replaces the runtime entry and preserves tools and plugins.
+
+## Choose selectors intentionally
+
+| Selector                      | Use when                                                              |
+| ----------------------------- | --------------------------------------------------------------------- |
+| `node@lts`                    | You want a personal default that follows the current Node.js LTS line |
+| `node@24` or `node@24.x`      | A project should follow a major release line                          |
+| `node@24.5`                   | A project should follow a minor release line                          |
+| `node@24.5.0`                 | A release job or build image must resolve exactly                     |
+| `bun@latest` or `deno@latest` | You are experimenting and accept provider movement                    |
+
+<Warning>
+  Broad selectors resolve against current provider metadata. Use exact versions
+  when a build must reproduce the same exact runtime over time.
+</Warning>
+
+## Compatibility files
+
+Jolter also understands:
+
+```text
+.node-version
+.nvmrc
+```
+
+Runtime precedence is:
+
+1. nearest ancestor `jolter.json` with a runtime;
+2. nearest ancestor `.node-version`;
+3. nearest ancestor `.nvmrc`;
+4. global active runtime during direct shim execution.
+
+Use `jolter.json` when you want a first-class Jolter declaration with runtime, tools, and plugins in one file.
+
+## Verify runtime routing
+
+```bash
+jolter doctor
+jolter list
+node --version
+```
+
+If the wrong runtime appears, check PATH precedence:
+
+<CodeGroup>
+
+```powershell PowerShell
+Get-Command node -All
+```
+
+```bash Bash and Zsh
+type -a node
+```
+
+```fish Fish
+type -a node
+```
+
+</CodeGroup>
+
+The first `node`, `bun`, or `deno` entry should be inside the Jolter shims directory.
+
+## Runtime updates
+
+Update the active runtime within its current major line:
+
+```bash
+jolter update node
+```
+
+Move to a new selector:
+
+```bash
+jolter update node@26
+jolter update deno@latest
+```
+
+Project files are not changed by `update`. To change a project policy, edit or repin `jolter.json`, then run `jolter sync`.

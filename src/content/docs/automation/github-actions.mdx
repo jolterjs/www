@@ -1,0 +1,118 @@
+---
+title: "GitHub Actions"
+description: "Install Jolter, cache provider artifacts, and expose shims to GitHub Actions jobs."
+---
+
+GitHub Actions is supported today through the installer plus `jolter setup-ci`.
+
+<Info>
+  The planned `jolterjs/setup-jolter@v1` action is documented separately. Until
+  that action ships, use the workflow on this page.
+</Info>
+
+## Linux example
+
+```yaml .github/workflows/test.yml
+name: Test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Restore Jolter cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.temp }}/jolter-home/cache
+          key: jolter-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('jolter.json', '.node-version', '.nvmrc', 'package.json') }}
+
+      - name: Install and synchronize Jolter
+        id: jolter
+        env:
+          JOLTER_HOME: ${{ runner.temp }}/jolter-home
+        run: |
+          curl -fsSL https://get.jolter.dev/install.sh | sh
+          jolter setup-ci --no-progress
+
+      - name: Test
+        env:
+          JOLTER_HOME: ${{ runner.temp }}/jolter-home
+        run: |
+          node --version
+          pnpm --version
+          pnpm test
+```
+
+## Windows example
+
+```yaml .github/workflows/test-windows.yml
+name: Test Windows
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Install and synchronize Jolter
+        id: jolter
+        shell: pwsh
+        env:
+          JOLTER_HOME: ${{ runner.temp }}\jolter-home
+        run: |
+          irm https://get.jolter.dev/install.ps1 | iex
+          jolter setup-ci --no-progress
+
+      - name: Test
+        shell: pwsh
+        env:
+          JOLTER_HOME: ${{ runner.temp }}\jolter-home
+        run: |
+          node --version
+          pnpm --version
+          pnpm test
+```
+
+## GitHub integration behavior
+
+When `GITHUB_ACTIONS` is true, `setup-ci`:
+
+- appends the Jolter shims directory to `GITHUB_PATH`;
+- writes `runtime` to `GITHUB_OUTPUT`;
+- writes comma-separated `tools` when tools are configured;
+- writes comma-separated `plugins` when project plugins are installed or verified;
+- writes the cache path as `cache`.
+
+Use outputs from the step id:
+
+```yaml
+- run: echo '${{ steps.jolter.outputs.runtime }}'
+- run: echo '${{ steps.jolter.outputs.tools }}'
+- run: echo '${{ steps.jolter.outputs.cache }}'
+```
+
+Keep `JOLTER_HOME` consistent in later steps. `GITHUB_PATH` carries the shim path forward, while storage discovery still depends on the same home.
+
+## Plugin projects
+
+Allow CI to install missing declared plugins:
+
+```yaml
+- name: Install and synchronize Jolter
+  env:
+    JOLTER_HOME: ${{ runner.temp }}/jolter-home
+  run: |
+    curl -fsSL https://get.jolter.dev/install.sh | sh
+    jolter setup-ci --yes --no-progress
+```
+
+Review plugin declarations in `jolter.json` with the same care as build scripts.
