@@ -274,10 +274,10 @@ function Callout({
         className={`absolute inset-y-0 left-0 w-px ${config.accentClassName}`}
       />
       <Icon
-        className={`mt-0.5 size-4 shrink-0 ${config.iconClassName}`}
+        className={`mt-1.25 size-4 shrink-0 ${config.iconClassName}`}
         aria-hidden="true"
       />
-      <div className="min-w-0 space-y-3">{children}</div>
+      <div className="ml-1 min-w-0 space-y-3">{children}</div>
     </div>
   );
 }

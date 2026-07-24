@@ -30,6 +30,10 @@ import {
 } from "@/lib/highlight";
 import GitHubIcon from "@/icons/github";
 
+const GitHubIconForDocsMap = (className: string) => {
+  return <GitHubIcon className={`${className} opacity-70 invert`} />;
+};
+
 type OsChoice = "unix" | "windows";
 type IconComponent = ComponentType<{ className?: string }>;
 
@@ -158,7 +162,7 @@ const ecosystem: Array<{
     icon: Code,
     title: "@jolter/jdt",
     body: "Initialize, run, build, validate, and pack WebAssembly plugin providers.",
-    command: "npx jdt init\nnpx jdt pack --version 0.1.0",
+    command: "npx @jolter/jdt init\nnpx @jolter/jdt pack --version 0.1.0",
     language: "shellscript",
   },
   {
@@ -197,7 +201,7 @@ const docsMap = [
     href: "https://plugins.jolter.dev",
   },
   {
-    icon: GitHubIcon,
+    icon: GitHubIconForDocsMap,
     title: "GitHub",
     body: "Follow the project, release work, and project roadmap.",
     href: "https://github.com/jolterjs/jolter",
@@ -756,10 +760,6 @@ function DocLink({
   body: string;
   href: string;
 }) {
-  const isGitHubIcon = Icon.name === "GitHubIcon";
-  const iconClassName = isGitHubIcon
-    ? "size-5 opacity-70 invert"
-    : "size-5 text-white/70";
   const external = href.startsWith("http");
 
   return (
@@ -770,7 +770,7 @@ function DocLink({
       className="group min-h-56 bg-black p-6 transition hover:bg-[#050505]"
     >
       <div className="flex items-center justify-between">
-        <Icon className={iconClassName} />
+        <Icon className="size-5 text-white/70" />
         {external ? (
           <ExternalLink className="size-4 text-white/32 transition group-hover:text-white/70" />
         ) : (
