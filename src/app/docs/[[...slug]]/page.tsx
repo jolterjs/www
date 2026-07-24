@@ -13,6 +13,7 @@ import {
   DocsSidebarNav,
   DocsToc,
 } from "@/components/docs/DocsNavigation";
+import { DocsFeedback } from "@/components/docs/DocsFeedback";
 import { getDocNav, getDocPage, getDocStaticParams } from "@/lib/docs";
 import type { DocNavItem } from "@/lib/docs-types";
 
@@ -133,6 +134,8 @@ export default async function DocsPage({ params }: DocsPageProps) {
             </header>
 
             <div className="docs-markdown pt-4">{content}</div>
+
+            <DocsFeedback slug={page.slug} title={page.title} />
 
             <DocsPagination previous={page.previous} next={page.next} />
           </article>

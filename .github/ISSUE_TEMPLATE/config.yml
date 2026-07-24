@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Jolter Website Documentation
+    url: https://jolter.dev/docs
+    about: Browse documentation, guides, and reference material for Jolter.
+  - name: Jolter Core Repository
+    url: https://github.com/jolterjs/jolter
+    about: Main repository for the Jolter CLI toolchain.

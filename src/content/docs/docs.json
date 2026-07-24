@@ -93,6 +93,8 @@
         "pages": [
           "maintainers/architecture",
           "maintainers/development",
+          "maintainers/contributing",
+          "maintainers/code-of-conduct",
           "maintainers/releasing"
         ]
       }

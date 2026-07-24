@@ -1,0 +1,52 @@
+name: Website / Docs Bug Report
+description: Report a broken link, formatting issue, or bug on the Jolter website
+title: "[Website Bug]: "
+labels: ["bug", "website"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a website or documentation bug!
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the issue on the Jolter website or docs page.
+      placeholder: Broken link on /docs/installation, code snippet layout glitch, etc.
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: Page URL
+      description: Provide the page URL where the bug occurs.
+      placeholder: "https://jolter.dev/docs/installation"
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser & OS
+      description: What browser and OS are you using? (e.g. Chrome 124 on macOS Sonoma).
+      placeholder: "Firefox 125 on Windows 11"
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to see.
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots or Additional Context
+      description: Drag and drop screenshots or paste error messages here.
+    validations:
+      required: false

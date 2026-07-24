@@ -1,0 +1,97 @@
+---
+title: "Contributing Guide"
+description: "How to contribute code, documentation, and bug reports to Jolter."
+---
+
+Thank you for your interest in contributing to Jolter! We welcome contributions of all kinds, including bug reports, documentation improvements, feature requests, and code contributions.
+
+## Code of Conduct
+
+All contributors are expected to adhere to our [Code of Conduct](/maintainers/code-of-conduct). Please read it to understand community standards and enforcement guidelines.
+
+## Getting Started
+
+### Prerequisites
+
+- **Rust**: Version `1.85` or newer (edition 2024 support required)
+- **Cargo**
+- **Git**
+- **Platform Build Tools**: C/C++ toolchain for compiling native dependencies
+
+### Workspace Setup
+
+Clone the repository and build the workspace binaries:
+
+```bash
+git clone https://github.com/jolterjs/jolter.git
+cd jolter
+cargo build --workspace --all-targets --locked
+```
+
+The resulting binaries will be placed in:
+
+- **Windows**: `target/debug/jolter.exe`
+- **Unix**: `target/debug/jolter`
+
+## Quality Gates
+
+Before submitting a pull request, ensure all continuous integration quality gates pass locally:
+
+### Formatting
+
+```bash
+cargo fmt --all -- --check
+```
+
+### Clippy Lints
+
+```bash
+cargo clippy --workspace --all-targets --locked -- -D warnings
+```
+
+### Unit & Integration Tests
+
+```bash
+cargo test --workspace --all-targets --locked
+```
+
+### Code Coverage
+
+```bash
+cargo llvm-cov --workspace --all-targets --locked --fail-under-lines 80
+```
+
+### Security Audit
+
+```bash
+cargo audit
+```
+
+## Isolated Development Testing
+
+To avoid modifying your default `$HOME/.jolter` directory while testing:
+
+**Linux / macOS**:
+
+```bash
+export JOLTER_HOME="$(mktemp -d)"
+cargo run -p jolter-cli --bin jolter -- use node@24
+```
+
+**Windows PowerShell**:
+
+```powershell
+$env:JOLTER_HOME = Join-Path $env:TEMP "jolter-dev"
+cargo run -p jolter-cli --bin jolter -- use node@24
+```
+
+## Submitting Pull Requests
+
+1. Create a feature or bugfix branch off `main`.
+2. Ensure commits are descriptive and atomic.
+3. Run all quality gate commands (`fmt`, `clippy`, `test`).
+4. Fill out the pull request template when opening your PR on GitHub.
+
+## Security Vulnerability Reporting
+
+Please report security vulnerabilities privately via GitHub Security Advisories. Refer to our [Security Policy](/security/reporting) for complete details.
