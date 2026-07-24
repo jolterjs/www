@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Jolter Website & Documentation Portal (`jolter.dev`)
+
+Official website, documentation hub, and engineering blog for [Jolter](https://github.com/jolterjs/jolter) — the fast, reliable JavaScript runtime and toolchain manager.
+
+Built with **Next.js 16 (App Router & Turbopack)**, **React 19**, **Tailwind CSS v4**, and **MDX**.
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- **Bun** (recommended) or **Node.js** (`>= 18.0.0`)
+- **Git**
+
+### Installation
+
+Clone the repository and install dependencies:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/jolterjs/www.git
+cd www
+bun install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Development Server
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Start the local development server:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+bun run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Environment Variables
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Copy `.env.example` to `.env` to configure optional feedback and analytics integrations:
 
-## Deploy on Vercel
+```bash
+cp .env.example .env
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+| Variable                         | Description                                              | Default / Fallback                                  |
+| :------------------------------- | :------------------------------------------------------- | :-------------------------------------------------- |
+| `DISCORD_WEBHOOK_URL`            | Discord Webhook URL for receiving docs feedback          | `undefined` (logs to console in dev)                |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Cloudflare Turnstile Site Key for anti-spam CAPTCHA      | `1x00000000000000000000AA` (testing key)            |
+| `TURNSTILE_SECRET_KEY`           | Cloudflare Turnstile Secret Key for backend verification | `1x0000000000000000000000000000000AA` (testing key) |
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Adding Documentation Pages
+
+1. **Create MDX File**: Add a new `.mdx` file inside `src/content/docs/` (or subdirectories like `guides/`, `maintainers/`).
+
+   ```mdx
+   ---
+   title: "Your Feature Title"
+   description: "Brief summary of your guide or reference page."
+   ---
+
+   ## Overview
+
+   Your content here...
+   ```
+
+2. **Register in Navigation**: Open `src/content/docs/docs.json` and add the relative slug to the appropriate navigation group:
+   ```json
+   {
+     "group": "Guides",
+     "pages": ["guides/your-feature-title"]
+   }
+   ```
+3. **Verify Build**: Run `bun run build` to ensure all links and MDX components compile cleanly.
+
+---
+
+## Available Scripts
+
+| Command          | Action                                                             |
+| :--------------- | :----------------------------------------------------------------- |
+| `bun run dev`    | Starts Next.js development server with Turbopack                   |
+| `bun run build`  | Builds optimized production bundle & verifies all static doc pages |
+| `bun run start`  | Runs production server                                             |
+| `bun run format` | Formats codebase using Prettier                                    |
+
+---
+
+## Contributing & Community Standards
+
+We welcome contributions to the Jolter website and documentation!
+
+- Read our [Contributing Guide](CONTRIBUTING.md) to get started.
+- Please adhere to our [Code of Conduct](CODE_OF_CONDUCT.md).
+
+---
+
+## License
+
+Distributed under the [MIT License](LICENSE).
