@@ -10,6 +10,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { docsMdxComponents } from "@/components/docs/DocsMdxComponents";
 import { DocsSidebarNav, DocsToc } from "@/components/docs/DocsNavigation";
 import { DocsFeedback } from "@/components/docs/DocsFeedback";
+import { DocsPageActions } from "@/components/docs/DocsPageActions";
 import { InlineMarkdown } from "@/components/InlineMarkdown";
 import { getDocNav, getDocPage, getDocStaticParams } from "@/lib/docs";
 import type { DocNavItem } from "@/lib/docs-types";
@@ -88,15 +89,6 @@ export default async function DocsPage({ params }: DocsPageProps) {
         rehypePlugins: [
           rehypeSlug,
           [
-            rehypeAutolinkHeadings,
-            {
-              behavior: "wrap",
-              properties: {
-                className: ["docs-heading-anchor"],
-              },
-            },
-          ],
-          [
             rehypePrettyCode,
             {
               theme: "github-dark",
@@ -127,6 +119,11 @@ export default async function DocsPage({ params }: DocsPageProps) {
                   <InlineMarkdown content={page.description} />
                 </p>
               )}
+              <DocsPageActions
+                slug={page.slug}
+                content={page.content}
+                href={page.href}
+              />
             </header>
 
             <div className="docs-markdown pt-4">{content}</div>
@@ -161,7 +158,7 @@ function DocsPagination({
           href={previous.href}
           className="group bg-black p-5 transition hover:bg-[#050505]"
         >
-          <div className="flex items-center gap-2 font-mono text-xs text-white/35 uppercase">
+          <div className="flex items-center gap-2 font-mono text-xs text-white/35">
             <ArrowLeft className="size-3.5 transition group-hover:-translate-x-0.5" />
             Previous
           </div>
@@ -178,7 +175,7 @@ function DocsPagination({
           href={next.href}
           className="group bg-black p-5 text-right transition hover:bg-[#050505]"
         >
-          <div className="flex items-center justify-end gap-2 font-mono text-xs text-white/35 uppercase">
+          <div className="flex items-center justify-end gap-2 font-mono text-xs text-white/35">
             Next
             <ArrowRight className="size-3.5 transition group-hover:translate-x-0.5" />
           </div>

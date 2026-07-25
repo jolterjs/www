@@ -128,7 +128,7 @@ export function DocsToc({ headings }: { headings: DocHeading[] }) {
       data-lenis-prevent
       data-no-reveal
     >
-      <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/32 uppercase">
+      <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/32">
         On this page
       </p>
       <nav className="space-y-1 border-l border-white/[0.08] pl-4">
@@ -139,6 +139,14 @@ export function DocsToc({ headings }: { headings: DocHeading[] }) {
             <a
               key={heading.id}
               href={`#${heading.id}`}
+              onClick={(e) => {
+                e.preventDefault();
+                const el = document.getElementById(heading.id);
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                  window.history.pushState(null, "", `#${heading.id}`);
+                }
+              }}
               className={`block border-l py-1.5 text-sm leading-5 transition ${
                 heading.depth === 3 ? "pl-4" : "pl-3"
               } ${
@@ -166,7 +174,7 @@ function DocsNavGroup({
 }) {
   return (
     <div>
-      <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/32 uppercase">
+      <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/32">
         {group.group}
       </p>
       <div className="space-y-1">

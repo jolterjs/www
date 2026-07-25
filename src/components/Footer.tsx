@@ -9,6 +9,7 @@ const linkGroups = [
       { label: "Workflow", href: "/#workflow" },
       { label: "Plugins", href: "/#plugins" },
       { label: "Blog", href: "/blog" },
+      { label: "MCP Server", href: "/docs/automation/mcp-server" },
     ],
   },
   {

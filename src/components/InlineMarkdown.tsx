@@ -24,7 +24,7 @@ export function InlineMarkdown({ content }: { content?: string }) {
           return (
             <code
               key={i}
-              className="mx-0.5 rounded border border-white/[0.13] bg-white/[0.06] px-1.5 py-0.5 font-mono text-[0.88em] leading-none font-normal text-white/90 select-all"
+              className="mx-0.5 rounded border border-white/[0.13] bg-white/[0.06] px-1.5 py-0.5 font-mono text-[0.88em] leading-none font-normal [overflow-wrap:anywhere] [word-break:break-word] text-white/90 select-all"
             >
               {codeText}
             </code>
@@ -37,7 +37,7 @@ export function InlineMarkdown({ content }: { content?: string }) {
           return (
             <code
               key={i}
-              className="mx-0.5 rounded border border-white/[0.13] bg-white/[0.06] px-1.5 py-0.5 font-mono text-[0.88em] leading-none font-normal text-white/90 select-all"
+              className="mx-0.5 rounded border border-white/[0.13] bg-white/[0.06] px-1.5 py-0.5 font-mono text-[0.88em] leading-none font-normal [overflow-wrap:anywhere] [word-break:break-word] text-white/90 select-all"
             >
               {codeText}
             </code>
@@ -65,7 +65,7 @@ export function InlineMarkdown({ content }: { content?: string }) {
               href={url}
               target="_blank"
               rel="noreferrer"
-              className="text-underline-offset-2 text-white underline transition hover:text-white/80"
+              className="text-underline-offset-2 [overflow-wrap:anywhere] [word-break:break-word] text-white underline transition hover:text-white/80"
             >
               {label}
             </a>
@@ -73,7 +73,7 @@ export function InlineMarkdown({ content }: { content?: string }) {
             <Link
               key={i}
               href={url}
-              className="text-underline-offset-2 text-white underline transition hover:text-white/80"
+              className="text-underline-offset-2 [overflow-wrap:anywhere] [word-break:break-word] text-white underline transition hover:text-white/80"
             >
               {label}
             </Link>

@@ -130,9 +130,9 @@ function slugifyHeading(value: string) {
     .toLowerCase()
     .normalize("NFKD")
     .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
     .trim()
-    .replace(/\s+/g, "-");
+    .replace(/[\s]/g, "-")
+    .replace(/[^\w-]/g, "");
 }
 
 function extractHeadings(content: string): DocHeading[] {

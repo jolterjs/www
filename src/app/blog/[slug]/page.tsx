@@ -95,15 +95,6 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         rehypePlugins: [
           rehypeSlug,
           [
-            rehypeAutolinkHeadings,
-            {
-              behavior: "wrap",
-              properties: {
-                className: ["docs-heading-anchor"],
-              },
-            },
-          ],
-          [
             rehypePrettyCode,
             {
               theme: "github-dark",

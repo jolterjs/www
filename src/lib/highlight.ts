@@ -2,7 +2,7 @@ import { createHighlighter, type BundledLanguage } from "shiki";
 
 export type HighlightLanguage = Extract<
   BundledLanguage,
-  "json" | "shellscript" | "yaml"
+  "json" | "shellscript" | "yaml" | "javascript"
 >;
 
 export type HighlightedSnippet = {
@@ -12,7 +12,7 @@ export type HighlightedSnippet = {
 
 const highlighterPromise = createHighlighter({
   themes: ["github-dark"],
-  langs: ["json", "shellscript", "yaml"],
+  langs: ["json", "shellscript", "yaml", "javascript"],
 });
 
 export async function highlightCode(

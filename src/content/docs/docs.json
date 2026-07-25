@@ -49,6 +49,7 @@
           "automation/ci",
           "automation/github-actions",
           "automation/setup-jolter-action",
+          "automation/mcp-server",
           "automation/gitlab-ci",
           "automation/offline-ci",
           "automation/json-output"
@@ -93,8 +94,6 @@
         "pages": [
           "maintainers/architecture",
           "maintainers/development",
-          "maintainers/contributing",
-          "maintainers/code-of-conduct",
           "maintainers/releasing"
         ]
       }

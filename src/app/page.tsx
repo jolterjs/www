@@ -196,16 +196,16 @@ const docsMap = [
     href: "/docs",
   },
   {
+    icon: Zap,
+    title: "MCP Server",
+    body: "Connect Jolter directly to Cursor, Claude Desktop, VS Code, and Windsurf.",
+    href: "/docs/automation/mcp-server",
+  },
+  {
     icon: Plug,
     title: "Plugin registry",
     body: "Discover plugins, inspect repositories, manage owners, and request aliases.",
     href: "https://plugins.jolter.dev",
-  },
-  {
-    icon: GitHubIconForDocsMap,
-    title: "GitHub",
-    body: "Follow the project, release work, and project roadmap.",
-    href: "https://github.com/jolterjs/jolter",
   },
 ];
 
@@ -257,6 +257,25 @@ const healthCode = [
   "jolter cache status",
 ].join("\n");
 
+const mcpConfigCode = [
+  "{",
+  '  "mcpServers": {',
+  '    "jolter": {',
+  '      "command": "npx",',
+  '      "args": ["-y", "@jolter/mcp-server"]',
+  "    }",
+  "  }",
+  "}",
+].join("\n");
+
+const mcpToolCode = [
+  "// MCP tools exposed to Cursor, Claude, VS Code & Windsurf",
+  "search_docs({ query: 'github actions' })",
+  "get_doc({ slug: 'quickstart' })",
+  "explain_config({ configJson: '...' })",
+  "fetch_llms_txt({ fullBundle: true })",
+].join("\n");
+
 const pageRailClass = "mx-auto max-w-7xl px-5 sm:px-8";
 const framedGridClass =
   "grid rounded-xl overflow-hidden gap-px border border-white/[0.09] bg-white/[0.09]";
@@ -269,6 +288,8 @@ export default async function Home() {
     installWindowsSnippet,
     automationSnippet,
     healthSnippet,
+    mcpConfigSnippet,
+    mcpToolSnippet,
     ...ecosystemSnippets
   ] = await Promise.all([
     highlightCode(projectDeclarationCode, "json"),
@@ -277,6 +298,8 @@ export default async function Home() {
     highlightCode(installCommands.windows.join("\n"), "shellscript"),
     highlightCode(automationCode, "yaml"),
     highlightCode(healthCode, "shellscript"),
+    highlightCode(mcpConfigCode, "json"),
+    highlightCode(mcpToolCode, "javascript"),
     ...ecosystem.map((item) => highlightCode(item.command, item.language)),
   ]);
 
@@ -286,6 +309,10 @@ export default async function Home() {
       <ToolchainStrip />
       <SupportedToolchains />
       <Mechanics projectSnippet={projectSnippet} shimSnippet={shimSnippet} />
+      <McpServerSection
+        configSnippet={mcpConfigSnippet}
+        toolSnippet={mcpToolSnippet}
+      />
       <GridSection id="workflow">
         <WorkflowSection
           installSnippets={{
@@ -464,6 +491,88 @@ function Mechanics({
             title="shim resolution"
             code={shimSnippet.code}
             highlightedHtml={shimSnippet.highlightedHtml}
+            withCommandIcon
+          />
+        </div>
+      </div>
+    </GridSection>
+  );
+}
+
+function McpServerSection({
+  configSnippet,
+  toolSnippet,
+}: {
+  configSnippet: HighlightedSnippet;
+  toolSnippet: HighlightedSnippet;
+}) {
+  const mcpFeatures = [
+    {
+      icon: SearchCheck,
+      title: "Full Docs & Reference Search",
+      body: "Search across all 40+ documentation pages, CLI subcommands, and configuration options directly inside your IDE.",
+    },
+    {
+      icon: Braces,
+      title: "Config Validation & Guidance",
+      body: "Analyze jolter.json configurations and receive instant assistance with version pinning, schemas, and team setup.",
+    },
+    {
+      icon: Zap,
+      title: "Native AI Client Integration",
+      body: "Works seamlessly out of the box with Cursor, Claude Desktop, VS Code (Roo Code / Cline / Continue), and Windsurf.",
+    },
+  ];
+
+  return (
+    <GridSection id="mcp-server">
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start">
+        <div className="min-w-0">
+          <SectionHeading
+            eyebrow="Model Context Protocol"
+            title="Connect Jolter directly to your AI coding assistant."
+            body="The official `@jolter/mcp-server` package gives Cursor, Claude, VS Code, and Windsurf deep context about your Jolter toolchains, schemas, and documentation."
+          />
+          <div className="mt-8 space-y-4">
+            {mcpFeatures.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div
+                  key={item.title}
+                  className="flex gap-4 rounded-xl border border-white/[0.09] bg-black p-5 transition"
+                >
+                  <Icon className="mt-0.5 size-5 shrink-0 text-white" />
+                  <div>
+                    <h3 className="font-semibold text-white">
+                      <InlineMarkdown content={item.title} />
+                    </h3>
+                    <p className="mt-1.5 text-sm leading-6 text-white/52">
+                      <InlineMarkdown content={item.body} />
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="mt-8 flex flex-wrap gap-4">
+            <PrimaryLink href="/docs/automation/mcp-server">
+              Read MCP Server Docs
+            </PrimaryLink>
+            <SecondaryLink href="https://www.npmjs.com/package/@jolter/mcp-server">
+              View on npm
+            </SecondaryLink>
+          </div>
+        </div>
+        <div className="min-w-0 space-y-4">
+          <CopyableCodePanel
+            title="mcp_config.json"
+            code={configSnippet.code}
+            highlightedHtml={configSnippet.highlightedHtml}
+          />
+          <CopyableCodePanel
+            title="mcp tools & prompts"
+            code={toolSnippet.code}
+            highlightedHtml={toolSnippet.highlightedHtml}
             withCommandIcon
           />
         </div>

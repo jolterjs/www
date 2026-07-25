@@ -1,0 +1,116 @@
+---
+title: "MCP Server"
+description: "Connect Jolter to Cursor, VS Code, Claude, and Windsurf using the Model Context Protocol (MCP)."
+---
+
+The **Jolter MCP Server** brings deep Jolter awareness directly into your AI-enabled code editors and AI assistants. It exposes documentation search, configuration validation, toolchain metadata, and resource templates via the open [Model Context Protocol (MCP)](https://modelcontextprotocol.io).
+
+<Info>
+  The Jolter MCP server works seamlessly with **Cursor**, **VS Code** (Roo Code,
+  Cline, Continue), **Claude Desktop**, **Windsurf**, and any MCP-compliant
+  client.
+</Info>
+
+## Quickstart
+
+Run the server directly without manual installation using `npx`:
+
+```bash
+npx @jolter/mcp-server
+```
+
+## Editor & Client Setup
+
+<CodeGroup>
+```json Cursor
+// .cursor/mcp.json or Cursor Settings -> MCP
+{
+  "mcpServers": {
+    "jolter": {
+      "command": "npx",
+      "args": ["-y", "@jolter/mcp-server"]
+    }
+  }
+}
+```
+
+```json Claude
+// claude_desktop_config.json
+{
+  "mcpServers": {
+    "jolter": {
+      "command": "npx",
+      "args": ["-y", "@jolter/mcp-server"]
+    }
+  }
+}
+```
+
+```json VS Code
+// .vscode/mcp.json (Roo Code / Cline / Continue)
+{
+  "mcpServers": {
+    "jolter": {
+      "command": "npx",
+      "args": ["-y", "@jolter/mcp-server"]
+    }
+  }
+}
+```
+
+```json Windsurf
+// ~/.codeium/windsurf/mcp_config.json
+{
+  "mcpServers": {
+    "jolter": {
+      "command": "npx",
+      "args": ["-y", "@jolter/mcp-server"]
+    }
+  }
+}
+```
+
+</CodeGroup>
+
+## Available Tools
+
+The Jolter MCP server exposes four primary tools to your AI coding assistants:
+
+| Tool Name         | Parameters              | Description                                                                       |
+| :---------------- | :---------------------- | :-------------------------------------------------------------------------------- |
+| `search_docs`     | `query` _(string)_      | Searches Jolter docs by keyword or topic and returns relevant sections.           |
+| `get_doc`         | `slug` _(string)_       | Retrieves full text content and code blocks for a specific doc page.              |
+| `get_jolter_info` | None                    | Returns supported runtimes (Node, Bun, Deno), tool managers, and CLI subcommands. |
+| `explain_config`  | `configJson` _(string)_ | Validates and explains `jolter.json` project configuration schemas.               |
+
+### Example Tool Usage in AI Chat
+
+When asking your AI assistant in Cursor or Claude:
+
+```text
+"How do I set up Jolter in GitHub Actions?"
+```
+
+The AI agent calls `search_docs(query: "github actions")` or `get_doc(slug: "ci")` and responds with the exact verified configuration.
+
+## MCP Resources
+
+You can attach or reference Jolter MCP resources directly in prompts:
+
+- `docs://quickstart` — Quickstart installation and project initialization.
+- `docs://configuration` — Complete `jolter.json` schema reference.
+- `docs://commands` — Full command list for `jolter`.
+- `docs://plugins` — Plugin safety, trust boundaries, and registry checks.
+
+## AI-Friendly Documentation Endpoints
+
+In addition to the MCP Server, the Jolter documentation site exports LLM-optimized raw markdown endpoints:
+
+- **AI Index**: [`/llms.txt`](https://jolter.dev/llms.txt) — Structured navigation index for web-browsing AI models.
+- **Full Bundle**: [`/llms-full.txt`](https://jolter.dev/llms-full.txt) — Single-file concatenated markdown bundle for high-context LLMs.
+
+<Tip>
+  You can point web-enabled AI models directly to `https://jolter.dev/llms.txt`
+  or `https://jolter.dev/llms-full.txt` when asking complex architectural
+  questions about your toolchain!
+</Tip>

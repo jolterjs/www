@@ -77,6 +77,10 @@ const iconMap = {
 };
 
 function normalizeDocsHref(href: string) {
+  if (href.startsWith("#")) {
+    return href;
+  }
+
   if (href.startsWith("http")) {
     return href;
   }
@@ -113,6 +117,14 @@ function DocsLink({
   if (!normalizedHref) {
     return (
       <a className={linkClassName} {...props}>
+        {children}
+      </a>
+    );
+  }
+
+  if (anchorOnly) {
+    return (
+      <a href={normalizedHref} className={linkClassName} {...props}>
         {children}
       </a>
     );
@@ -346,10 +358,24 @@ function createCodeGroupTab(
   }
 
   const props = pre.props as Record<string, unknown>;
+  const childProps = (isValidElement(child) ? child.props : {}) as Record<
+    string,
+    unknown
+  >;
+
+  const rawTitle =
+    (typeof childProps["data-title"] === "string"
+      ? childProps["data-title"]
+      : "") ||
+    (typeof childProps.title === "string" ? childProps.title : "") ||
+    (typeof props["data-title"] === "string" ? props["data-title"] : "") ||
+    (typeof props["data-meta"] === "string" ? props["data-meta"] : "") ||
+    (typeof props.title === "string" ? props.title : "");
+
   const language =
     typeof props["data-language"] === "string" ? props["data-language"] : "";
   const code = extractTextFromNode(props.children as ReactNode);
-  const label = inferCodeGroupLabel(language, code, index);
+  const label = inferCodeGroupLabel(language, code, index, rawTitle);
 
   return {
     content: child,
@@ -382,9 +408,63 @@ function findCodePre(node: ReactNode): ReactElement | null {
   return findCodePre(node.props.children as ReactNode);
 }
 
-function inferCodeGroupLabel(language: string, code: string, index: number) {
+function inferCodeGroupLabel(
+  language: string,
+  code: string,
+  index: number,
+  rawTitle?: string,
+) {
+  if (rawTitle && rawTitle.trim()) {
+    let clean = rawTitle.trim();
+    const parts = clean.split(/\s+/);
+    if (parts.length > 1 && parts[0].toLowerCase() === language.toLowerCase()) {
+      clean = parts.slice(1).join(" ");
+    }
+    if (clean) return clean;
+  }
+
   const normalizedLanguage = language.toLowerCase();
   const normalizedCode = code.toLowerCase();
+
+  if (
+    normalizedCode.includes(".cursor/") ||
+    normalizedCode.includes("cursor settings") ||
+    normalizedCode.includes("cursor")
+  ) {
+    return "Cursor";
+  }
+
+  if (
+    normalizedCode.includes("claude_desktop") ||
+    normalizedCode.includes("claude")
+  ) {
+    return "Claude";
+  }
+
+  if (
+    normalizedCode.includes(".vscode/") ||
+    normalizedCode.includes("roo code") ||
+    normalizedCode.includes("cline") ||
+    normalizedCode.includes("vscode") ||
+    normalizedCode.includes("vs code")
+  ) {
+    return "VS Code";
+  }
+
+  if (
+    normalizedCode.includes("windsurf") ||
+    normalizedCode.includes("codeium")
+  ) {
+    return "Windsurf";
+  }
+
+  if (normalizedCode.includes("perplexity")) {
+    return "Perplexity";
+  }
+
+  if (normalizedCode.includes("chatgpt") || normalizedCode.includes("openai")) {
+    return "ChatGPT";
+  }
 
   if (
     normalizedLanguage.includes("powershell") ||
@@ -435,6 +515,43 @@ function inferCodeGroupLabel(language: string, code: string, index: number) {
 function inferCodeGroupIcon(label: string): CodeGroupTabItem["icon"] {
   const normalizedLabel = label.toLowerCase();
 
+  if (normalizedLabel.includes("cursor")) {
+    return "cursor";
+  }
+
+  if (normalizedLabel.includes("claude")) {
+    return "claude";
+  }
+
+  if (
+    normalizedLabel.includes("chatgpt") ||
+    normalizedLabel.includes("openai")
+  ) {
+    return "chatgpt";
+  }
+
+  if (normalizedLabel.includes("perplexity")) {
+    return "perplexity";
+  }
+
+  if (
+    normalizedLabel.includes("vscode") ||
+    normalizedLabel.includes("vs code")
+  ) {
+    return "vscode";
+  }
+
+  if (
+    normalizedLabel.includes("windsurf") ||
+    normalizedLabel.includes("codeium")
+  ) {
+    return "windsurf";
+  }
+
+  if (normalizedLabel.includes("github")) {
+    return "github";
+  }
+
   if (normalizedLabel.includes("windows")) {
     return "windows";
   }
@@ -447,7 +564,7 @@ function inferCodeGroupIcon(label: string): CodeGroupTabItem["icon"] {
     return "linux";
   }
 
-  if (normalizedLabel.includes("macos")) {
+  if (normalizedLabel.includes("macos") || normalizedLabel.includes("apple")) {
     return "macos";
   }
 
@@ -532,83 +649,171 @@ export const docsMdxComponents = {
   h1: ({
     className = "",
     children,
+    id,
     ...props
-  }: HTMLAttributes<HTMLHeadingElement>) => (
-    <h1
-      className={`group mt-12 mb-5 text-4xl leading-tight ${headingBaseClassName} ${className}`}
-      {...props}
-    >
-      <span className="relative inline-flex max-w-full items-center">
-        <span>{children}</span>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
-        >
-          <LinkIcon className="size-4.5" />
+  }: HTMLAttributes<HTMLHeadingElement>) => {
+    const headingId = id;
+    return (
+      <h1
+        id={headingId}
+        className={`group mt-12 mb-5 text-4xl leading-tight ${headingBaseClassName} ${className}`}
+        {...props}
+      >
+        <span className="relative inline-flex max-w-full items-center">
+          {headingId ? (
+            <a
+              href={`#${headingId}`}
+              className="text-inherit no-underline hover:text-white"
+            >
+              <span>{children}</span>
+              <span
+                aria-hidden="true"
+                className="absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+              >
+                <LinkIcon className="size-4.5" />
+              </span>
+            </a>
+          ) : (
+            <>
+              <span>{children}</span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+              >
+                <LinkIcon className="size-4.5" />
+              </span>
+            </>
+          )}
         </span>
-      </span>
-    </h1>
-  ),
+      </h1>
+    );
+  },
   h2: ({
     className = "",
     children,
+    id,
     ...props
-  }: HTMLAttributes<HTMLHeadingElement>) => (
-    <h2
-      className={`group mt-12 border-t border-white/[0.09] pt-10 text-2xl leading-tight ${headingBaseClassName} ${className}`}
-      {...props}
-    >
-      <span className="relative inline-flex max-w-full items-center">
-        <span>{children}</span>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
-        >
-          <LinkIcon className="size-4" />
+  }: HTMLAttributes<HTMLHeadingElement>) => {
+    const headingId = id;
+    return (
+      <h2
+        id={headingId}
+        className={`group mt-12 border-t border-white/[0.09] pt-10 text-2xl leading-tight ${headingBaseClassName} ${className}`}
+        {...props}
+      >
+        <span className="relative inline-flex max-w-full items-center">
+          {headingId ? (
+            <a
+              href={`#${headingId}`}
+              className="text-inherit no-underline hover:text-white"
+            >
+              <span>{children}</span>
+              <span
+                aria-hidden="true"
+                className="absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+              >
+                <LinkIcon className="size-4" />
+              </span>
+            </a>
+          ) : (
+            <>
+              <span>{children}</span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+              >
+                <LinkIcon className="size-4" />
+              </span>
+            </>
+          )}
         </span>
-      </span>
-    </h2>
-  ),
+      </h2>
+    );
+  },
   h3: ({
     className = "",
     children,
+    id,
     ...props
-  }: HTMLAttributes<HTMLHeadingElement>) => (
-    <h3
-      className={`group mt-9 text-xl leading-snug ${headingBaseClassName} ${className}`}
-      {...props}
-    >
-      <span className="relative inline-flex max-w-full items-center">
-        <span>{children}</span>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
-        >
-          <LinkIcon className="size-3.5" />
+  }: HTMLAttributes<HTMLHeadingElement>) => {
+    const headingId = id;
+    return (
+      <h3
+        id={headingId}
+        className={`group mt-9 text-xl leading-snug ${headingBaseClassName} ${className}`}
+        {...props}
+      >
+        <span className="relative inline-flex max-w-full items-center">
+          {headingId ? (
+            <a
+              href={`#${headingId}`}
+              className="text-inherit no-underline hover:text-white"
+            >
+              <span>{children}</span>
+              <span
+                aria-hidden="true"
+                className="absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+              >
+                <LinkIcon className="size-3.5" />
+              </span>
+            </a>
+          ) : (
+            <>
+              <span>{children}</span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+              >
+                <LinkIcon className="size-3.5" />
+              </span>
+            </>
+          )}
         </span>
-      </span>
-    </h3>
-  ),
+      </h3>
+    );
+  },
   h4: ({
     className = "",
     children,
+    id,
     ...props
-  }: HTMLAttributes<HTMLHeadingElement>) => (
-    <h4
-      className={`group mt-8 text-base ${headingBaseClassName} ${className}`}
-      {...props}
-    >
-      <span className="relative inline-flex max-w-full items-center">
-        <span>{children}</span>
-        <span
-          aria-hidden="true"
-          className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
-        >
-          <LinkIcon className="size-3.5" />
+  }: HTMLAttributes<HTMLHeadingElement>) => {
+    const headingId = id;
+    return (
+      <h4
+        id={headingId}
+        className={`group mt-8 text-base ${headingBaseClassName} ${className}`}
+        {...props}
+      >
+        <span className="relative inline-flex max-w-full items-center">
+          {headingId ? (
+            <a
+              href={`#${headingId}`}
+              className="text-inherit no-underline hover:text-white"
+            >
+              <span>{children}</span>
+              <span
+                aria-hidden="true"
+                className="absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+              >
+                <LinkIcon className="size-3.5" />
+              </span>
+            </a>
+          ) : (
+            <>
+              <span>{children}</span>
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+              >
+                <LinkIcon className="size-3.5" />
+              </span>
+            </>
+          )}
         </span>
-      </span>
-    </h4>
-  ),
+      </h4>
+    );
+  },
   hr: ({ className = "", ...props }: HTMLAttributes<HTMLHRElement>) => (
     <hr className={`my-10 border-white/[0.09] ${className}`} {...props} />
   ),

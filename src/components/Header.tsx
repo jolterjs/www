@@ -14,6 +14,7 @@ const items = [
   { name: "Plugins", href: "/#plugins" },
   { name: "Docs", href: "/docs" },
   { name: "Blog", href: "/blog" },
+  { name: "MCP Server", href: "/docs/automation/mcp-server" },
   { name: "Plugin Registry", href: "https://plugins.jolter.dev" },
   { name: "GitHub", href: "https://github.com/jolterjs/jolter" },
 ];
