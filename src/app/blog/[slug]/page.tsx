@@ -9,6 +9,7 @@ import remarkGfm from "remark-gfm";
 import { ArrowLeft } from "lucide-react";
 import { blogMdxComponents } from "@/components/blog/BlogMdxComponents";
 import { BlogAuthors } from "@/components/blog/BlogAuthors";
+import { InlineMarkdown } from "@/components/InlineMarkdown";
 import {
   formatBlogDate,
   getBlogCategoryLabel,
@@ -160,7 +161,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
                 {post.title}
               </h1>
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/52">
-                {post.description}
+                <InlineMarkdown content={post.description} />
               </p>
               <div className="mt-8">
                 <BlogAuthors authors={post.authors} />

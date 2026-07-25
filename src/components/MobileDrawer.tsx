@@ -84,6 +84,14 @@ export default function MobileDrawer() {
     setDragOffsetY(0);
   };
 
+  const handleLinkClick = (href: string) => {
+    const targetPath = href.split("#")[0];
+    const isSamePage = targetPath === "" || targetPath === pathname;
+    if (isSamePage) {
+      closeDrawer();
+    }
+  };
+
   if (!mounted) return null;
 
   const isDocs = Boolean(docsNav && pathname.startsWith("/docs"));
@@ -155,13 +163,13 @@ export default function MobileDrawer() {
           {isDocs ? (
             <div className="space-y-6">
               <div>
-                <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/34 uppercase">
+                <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/34">
                   Quick Links
                 </p>
                 <div className="grid grid-cols-3 gap-2">
                   <Link
                     href="/"
-                    onClick={closeDrawer}
+                    onClick={() => handleLinkClick("/")}
                     className="flex flex-row items-center justify-center gap-1.5 rounded-xl bg-white/[0.03] py-3 text-xs font-medium text-white/80 transition hover:bg-white/[0.08]"
                   >
                     <Home className="size-4 text-white/60" />
@@ -169,7 +177,7 @@ export default function MobileDrawer() {
                   </Link>
                   <Link
                     href="/blog"
-                    onClick={closeDrawer}
+                    onClick={() => handleLinkClick("/blog")}
                     className="flex flex-row items-center justify-center gap-1.5 rounded-xl bg-white/[0.03] py-3 text-xs font-medium text-white/80 transition hover:bg-white/[0.08]"
                   >
                     <BookOpen className="size-4 text-white/60" />
@@ -179,6 +187,7 @@ export default function MobileDrawer() {
                     href="https://github.com/jolterjs/jolter"
                     target="_blank"
                     rel="noreferrer"
+                    onClick={closeDrawer}
                     className="flex flex-row items-center justify-center gap-1.5 rounded-xl bg-white/[0.03] py-3 text-xs font-medium text-white/80 transition hover:bg-white/[0.08]"
                   >
                     <GithubIcon className="size-4 text-white/60" />
@@ -189,7 +198,7 @@ export default function MobileDrawer() {
 
               {docsNav?.map((group) => (
                 <div key={group.group} className="space-y-2">
-                  <p className="font-mono text-[11px] font-semibold tracking-normal text-white/34 uppercase">
+                  <p className="font-mono text-[11px] font-semibold tracking-normal text-white/34">
                     {group.group}
                   </p>
                   <div className="space-y-1">
@@ -201,7 +210,7 @@ export default function MobileDrawer() {
                         <Link
                           key={item.href}
                           href={item.href}
-                          onClick={closeDrawer}
+                          onClick={() => handleLinkClick(item.href)}
                           className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm transition ${
                             isActive
                               ? "bg-white/[0.05] font-semibold"
@@ -247,7 +256,7 @@ export default function MobileDrawer() {
                     <Link
                       key={item.href}
                       href={item.href}
-                      onClick={closeDrawer}
+                      onClick={() => handleLinkClick(item.href)}
                       className={`flex items-center justify-between rounded-xl px-3.5 py-3 text-base font-medium transition ${
                         pathname === item.href
                           ? "bg-white/[0.05] font-semibold text-white"
@@ -267,7 +276,7 @@ export default function MobileDrawer() {
               <div className="pt-2">
                 <Link
                   href="/docs/quickstart"
-                  onClick={closeDrawer}
+                  onClick={() => handleLinkClick("/docs/quickstart")}
                   className="flex h-12 w-full items-center justify-center rounded-xl bg-white text-sm font-semibold text-black transition hover:bg-white/90"
                 >
                   Get Started <ArrowRight className="ml-1 size-4" />

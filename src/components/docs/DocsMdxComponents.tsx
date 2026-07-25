@@ -1,3 +1,4 @@
+import React, { cloneElement, isValidElement } from "react";
 import type {
   AnchorHTMLAttributes,
   HTMLAttributes,
@@ -5,7 +6,6 @@ import type {
   ReactNode,
   TableHTMLAttributes,
 } from "react";
-import { isValidElement } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -29,6 +29,7 @@ import {
   TriangleAlert,
   Workflow,
   Wrench,
+  Link as LinkIcon,
 } from "lucide-react";
 import CopyButton from "@/components/CopyButton";
 import CodeGroupTabs, {
@@ -45,6 +46,7 @@ type CardProps = {
   title: string;
   icon?: string;
   href?: string;
+  inCardGroup?: boolean;
 };
 
 type CalloutProps = {
@@ -75,24 +77,23 @@ const iconMap = {
 };
 
 function normalizeDocsHref(href: string) {
-  if (
-    href.startsWith("/docs") ||
-    href.startsWith("#") ||
-    href.startsWith("/_next") ||
-    href.startsWith("/api")
-  ) {
+  if (href.startsWith("http")) {
     return href;
   }
 
-  if (href === "/") {
-    return "/docs";
+  if (href.startsWith("/docs/")) {
+    return href;
+  }
+
+  if (href.startsWith("docs/")) {
+    return `/${href}`;
   }
 
   if (href.startsWith("/")) {
     return `/docs${href}`;
   }
 
-  return href;
+  return `/docs/${href}`;
 }
 
 function DocsLink({
@@ -138,6 +139,29 @@ function DocsLink({
   );
 }
 
+function ReactChildrenToArray(children: ReactNode): ReactNode[] {
+  if (children === null || children === undefined) {
+    return [];
+  }
+
+  if (Array.isArray(children)) {
+    return children.flatMap((child) => ReactChildrenToArray(child));
+  }
+
+  if (
+    isValidElement(children) &&
+    children.type === React.Fragment &&
+    children.props &&
+    "children" in (children.props as { children?: ReactNode })
+  ) {
+    return ReactChildrenToArray(
+      (children.props as { children?: ReactNode }).children,
+    );
+  }
+
+  return [children];
+}
+
 function CardGroup({ children, cols = 2 }: CardGroupProps) {
   const gridClassName =
     cols === 1
@@ -148,16 +172,28 @@ function CardGroup({ children, cols = 2 }: CardGroupProps) {
           ? "sm:grid-cols-2 xl:grid-cols-4"
           : "sm:grid-cols-2";
 
+  const formattedChildren = ReactChildrenToArray(children).map(
+    (child, index) => {
+      if (isValidElement(child)) {
+        return cloneElement(child, {
+          key: child.key ?? `card-${index}`,
+          inCardGroup: true,
+        } as any);
+      }
+      return child;
+    },
+  );
+
   return (
     <div
-      className={`docs-card-grid my-8 grid gap-px border border-white/[0.09] bg-white/[0.09] ${gridClassName}`}
+      className={`docs-card-grid my-8 grid gap-px overflow-hidden rounded-lg border border-white/[0.09] bg-white/[0.09] ${gridClassName}`}
     >
-      {children}
+      {formattedChildren}
     </div>
   );
 }
 
-function Card({ children, title, icon, href }: CardProps) {
+function Card({ children, title, icon, href, inCardGroup }: CardProps) {
   const Icon = iconMap[icon as keyof typeof iconMap] ?? FileText;
   const content = (
     <>
@@ -172,16 +208,20 @@ function Card({ children, title, icon, href }: CardProps) {
     </>
   );
 
+  const baseClasses = inCardGroup
+    ? "docs-card bg-black p-5"
+    : "docs-card my-6 rounded-lg border border-white/[0.09] bg-white/[0.05] p-5";
+
   if (!href) {
-    return (
-      <div className="docs-card border border-white/[0.09] bg-black p-5">
-        {content}
-      </div>
-    );
+    return <div className={baseClasses}>{content}</div>;
   }
 
   const normalizedHref = normalizeDocsHref(href);
   const external = normalizedHref.startsWith("http");
+
+  const interactiveClasses = inCardGroup
+    ? "docs-card group block bg-black p-5 transition hover:bg-[#050505]"
+    : "docs-card group block my-6 rounded-lg border border-white/[0.08] bg-white/[0.025] p-5 transition hover:border-white/20 hover:bg-white/[0.05]";
 
   if (external) {
     return (
@@ -189,7 +229,7 @@ function Card({ children, title, icon, href }: CardProps) {
         href={normalizedHref}
         target="_blank"
         rel="noreferrer"
-        className="docs-card group block border border-white/[0.09] bg-black p-5 transition hover:bg-[#050505]"
+        className={interactiveClasses}
       >
         {content}
       </a>
@@ -197,10 +237,7 @@ function Card({ children, title, icon, href }: CardProps) {
   }
 
   return (
-    <Link
-      href={normalizedHref}
-      className="docs-card group block border border-white/[0.09] bg-black p-5 transition hover:bg-[#050505]"
-    >
+    <Link href={normalizedHref} className={interactiveClasses}>
       {content}
     </Link>
   );
@@ -296,10 +333,6 @@ function extractTextFromNode(node: ReactNode): string {
   }
 
   return "";
-}
-
-function ReactChildrenToArray(children: ReactNode) {
-  return Array.isArray(children) ? children : [children];
 }
 
 function createCodeGroupTab(
@@ -475,7 +508,7 @@ function DocsTable({
   ...props
 }: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="my-8 overflow-x-auto border border-white/[0.09]">
+    <div className="my-8 overflow-x-auto rounded-lg border border-white/[0.09]">
       <table className={`w-full text-left text-sm ${className}`} {...props} />
     </div>
   );
@@ -496,29 +529,85 @@ export const docsMdxComponents = {
   CardGroup,
   Check: (props: CalloutProps) => <Callout tone="check" {...props} />,
   CodeGroup,
-  h1: ({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) => (
+  h1: ({
+    className = "",
+    children,
+    ...props
+  }: HTMLAttributes<HTMLHeadingElement>) => (
     <h1
-      className={`mt-12 mb-5 text-4xl leading-tight ${headingBaseClassName} ${className}`}
+      className={`group mt-12 mb-5 text-4xl leading-tight ${headingBaseClassName} ${className}`}
       {...props}
-    />
+    >
+      <span className="relative inline-flex max-w-full items-center">
+        <span>{children}</span>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+        >
+          <LinkIcon className="size-4.5" />
+        </span>
+      </span>
+    </h1>
   ),
-  h2: ({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) => (
+  h2: ({
+    className = "",
+    children,
+    ...props
+  }: HTMLAttributes<HTMLHeadingElement>) => (
     <h2
-      className={`mt-12 border-t border-white/[0.09] pt-10 text-2xl leading-tight ${headingBaseClassName} ${className}`}
+      className={`group mt-12 border-t border-white/[0.09] pt-10 text-2xl leading-tight ${headingBaseClassName} ${className}`}
       {...props}
-    />
+    >
+      <span className="relative inline-flex max-w-full items-center">
+        <span>{children}</span>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+        >
+          <LinkIcon className="size-4" />
+        </span>
+      </span>
+    </h2>
   ),
-  h3: ({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) => (
+  h3: ({
+    className = "",
+    children,
+    ...props
+  }: HTMLAttributes<HTMLHeadingElement>) => (
     <h3
-      className={`mt-9 text-xl leading-snug ${headingBaseClassName} ${className}`}
+      className={`group mt-9 text-xl leading-snug ${headingBaseClassName} ${className}`}
       {...props}
-    />
+    >
+      <span className="relative inline-flex max-w-full items-center">
+        <span>{children}</span>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+        >
+          <LinkIcon className="size-3.5" />
+        </span>
+      </span>
+    </h3>
   ),
-  h4: ({ className = "", ...props }: HTMLAttributes<HTMLHeadingElement>) => (
+  h4: ({
+    className = "",
+    children,
+    ...props
+  }: HTMLAttributes<HTMLHeadingElement>) => (
     <h4
-      className={`mt-8 text-base ${headingBaseClassName} ${className}`}
+      className={`group mt-8 text-base ${headingBaseClassName} ${className}`}
       {...props}
-    />
+    >
+      <span className="relative inline-flex max-w-full items-center">
+        <span>{children}</span>
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute top-1/2 left-full mt-0.5 ml-2.5 translate-x-[calc(50%-20px)] -translate-y-1/2 text-white opacity-0 transition-all duration-150 ease-out group-hover:-translate-x-[calc(50%-3px)] group-hover:opacity-60"
+        >
+          <LinkIcon className="size-3.5" />
+        </span>
+      </span>
+    </h4>
   ),
   hr: ({ className = "", ...props }: HTMLAttributes<HTMLHRElement>) => (
     <hr className={`my-10 border-white/[0.09] ${className}`} {...props} />

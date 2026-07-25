@@ -2,7 +2,6 @@
 
 import React from "react";
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
 import type { DocHeading, DocNavGroup, DocNavItem } from "@/lib/docs-types";
 import { useMobileDrawer } from "@/components/MobileDrawerProvider";
 
@@ -14,6 +13,17 @@ export function DocsSidebarNav({
   currentHref: string;
 }) {
   const containerRef = React.useRef<HTMLDivElement>(null);
+  const { setDocsNav, setCurrentDocsHref } = useMobileDrawer();
+
+  React.useEffect(() => {
+    setDocsNav(nav);
+    setCurrentDocsHref(currentHref);
+
+    return () => {
+      setDocsNav(null);
+      setCurrentDocsHref("");
+    };
+  }, [nav, currentHref, setDocsNav, setCurrentDocsHref]);
 
   React.useEffect(() => {
     const container = containerRef.current;
@@ -34,7 +44,7 @@ export function DocsSidebarNav({
   return (
     <aside
       ref={containerRef}
-      className="sticky top-24 hidden max-h-[calc(100vh-7rem)] overflow-y-auto border-r border-white/[0.08] pr-6 lg:block"
+      className="sticky top-6 hidden max-h-[calc(100vh-3rem)] overflow-y-auto border-r border-white/[0.08] pr-6 lg:block"
       data-lenis-prevent
       data-no-reveal
     >
@@ -48,49 +58,6 @@ export function DocsSidebarNav({
         ))}
       </nav>
     </aside>
-  );
-}
-
-export function DocsMobileNav({
-  nav,
-  currentHref,
-}: {
-  nav: DocNavGroup[];
-  currentHref: string;
-}) {
-  const { setDocsNav, setCurrentDocsHref, openDrawer } = useMobileDrawer();
-
-  React.useEffect(() => {
-    setDocsNav(nav);
-    setCurrentDocsHref(currentHref);
-
-    return () => {
-      setDocsNav(null);
-      setCurrentDocsHref("");
-    };
-  }, [nav, currentHref, setDocsNav, setCurrentDocsHref]);
-
-  const current = nav
-    .flatMap((group) => group.pages)
-    .find((item) => item.href === currentHref);
-
-  return (
-    <button
-      type="button"
-      onClick={openDrawer}
-      className="docs-mobile-nav mb-8 flex w-full items-center justify-between rounded-xl border border-white/[0.1] bg-[#050505] px-4 py-3 text-left text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.04] lg:hidden"
-    >
-      <div className="flex items-center gap-2.5">
-        <span className="font-mono text-xs text-white/40 uppercase">Docs:</span>
-        <span className="font-medium text-white">
-          {current?.title ?? "Browse docs"}
-        </span>
-      </div>
-      <div className="flex items-center gap-1.5 text-xs text-white/50">
-        <span>Menu</span>
-        <ChevronRight className="size-4" />
-      </div>
-    </button>
   );
 }
 
@@ -157,7 +124,7 @@ export function DocsToc({ headings }: { headings: DocHeading[] }) {
 
   return (
     <aside
-      className="sticky top-24 hidden max-h-[calc(100vh-7rem)] overflow-y-auto xl:block"
+      className="sticky top-6 hidden max-h-[calc(100vh-3rem)] overflow-y-auto xl:block"
       data-lenis-prevent
       data-no-reveal
     >

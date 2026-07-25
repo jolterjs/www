@@ -16,7 +16,7 @@ function MiniPanel({
   body: string;
 }) {
   return (
-    <div className="border border-white/[0.09] p-5">
+    <div className="rounded-lg border border-white/[0.09] p-5">
       {icon}
       <h3 className="mt-5 font-semibold text-white">{title}</h3>
       <p className="mt-3 text-sm leading-6 text-white/48">{body}</p>
@@ -35,7 +35,7 @@ function SectionHeading({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className="font-mono text-xs font-semibold tracking-normal text-white/38 uppercase">
+      <p className="font-mono text-xs font-semibold tracking-normal text-white/38">
         {eyebrow}
       </p>
       <h2 className="mt-5 text-4xl leading-tight font-semibold text-balance sm:text-5xl">

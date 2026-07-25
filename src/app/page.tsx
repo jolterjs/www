@@ -258,7 +258,7 @@ const healthCode = [
 
 const pageRailClass = "mx-auto max-w-7xl px-5 sm:px-8";
 const framedGridClass =
-  "grid gap-px border border-white/[0.09] bg-white/[0.09]";
+  "grid rounded-xl overflow-hidden gap-px border border-white/[0.09] bg-white/[0.09]";
 
 export default async function Home() {
   const [
@@ -666,7 +666,7 @@ function FramedGridBlock({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden border border-white/[0.09] bg-white/[0.09]">
+    <div className="overflow-hidden rounded-xl border border-white/[0.09] bg-white/[0.09]">
       <div className="bg-black p-7 sm:p-8 lg:p-10">{intro}</div>
       <div
         className={`grid gap-px border-t border-white/[0.09] bg-white/[0.09] ${gridClassName}`}
@@ -688,7 +688,7 @@ function SectionHeading({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className="font-mono text-xs font-semibold tracking-normal text-white/38 uppercase">
+      <p className="font-mono text-xs font-semibold tracking-normal text-white/38">
         {eyebrow}
       </p>
       <h2 className="mt-5 text-4xl leading-tight font-semibold text-balance sm:text-5xl">
@@ -765,7 +765,7 @@ function LinkPanel({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="group border border-white/[0.09] p-6 transition hover:bg-white/[0.025]"
+      className="group rounded-xl border border-white/[0.09] p-6 transition hover:bg-white/[0.025]"
     >
       <div className="flex items-start justify-between gap-5">
         <Icon className="size-5 text-white/72" />

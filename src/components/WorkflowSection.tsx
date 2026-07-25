@@ -30,7 +30,7 @@ export default function WorkflowSection({
     <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.55fr)] lg:items-start">
       <div className="lg:max-w-[420px]">
         <div className="max-w-xl">
-          <p className="font-mono text-xs font-semibold tracking-normal text-white/38 uppercase">
+          <p className="font-mono text-xs font-semibold tracking-normal text-white/38">
             Install and pin
           </p>
           <h2 className="mt-5 text-4xl leading-tight font-semibold text-balance sm:text-5xl lg:text-4xl xl:text-5xl">
@@ -70,7 +70,7 @@ export default function WorkflowSection({
         />
       </div>
 
-      <div className="grid gap-px border border-white/[0.09] bg-white/[0.09] sm:grid-cols-2">
+      <div className="grid gap-px overflow-hidden rounded-xl border border-white/[0.09] bg-white/[0.09] sm:grid-cols-2">
         {workflowSteps.map((step, index) => (
           <article
             key={step.command}

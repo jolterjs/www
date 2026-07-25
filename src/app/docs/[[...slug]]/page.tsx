@@ -8,12 +8,9 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { docsMdxComponents } from "@/components/docs/DocsMdxComponents";
-import {
-  DocsMobileNav,
-  DocsSidebarNav,
-  DocsToc,
-} from "@/components/docs/DocsNavigation";
+import { DocsSidebarNav, DocsToc } from "@/components/docs/DocsNavigation";
 import { DocsFeedback } from "@/components/docs/DocsFeedback";
+import { InlineMarkdown } from "@/components/InlineMarkdown";
 import { getDocNav, getDocPage, getDocStaticParams } from "@/lib/docs";
 import type { DocNavItem } from "@/lib/docs-types";
 
@@ -114,21 +111,20 @@ export default async function DocsPage({ params }: DocsPageProps) {
   return (
     <main className="min-h-screen bg-black pt-16 text-white">
       <div className={`${pageRailClass} py-10 lg:py-14`}>
-        <DocsMobileNav nav={nav} currentHref={page.href} />
         <div className="grid gap-10 lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,760px)_220px]">
           <DocsSidebarNav nav={nav} currentHref={page.href} />
 
           <article className="docs-article min-w-0">
             <header className="border-b border-white/[0.09] pb-10">
-              <p className="font-mono text-xs font-semibold tracking-normal text-white/38 uppercase">
+              <p className="font-mono text-xs font-semibold tracking-normal text-white/38">
                 {page.group}
               </p>
-              <h1 className="mt-5 text-4xl leading-tight font-semibold text-balance text-white sm:text-5xl">
+              <h1 className="mt-2.5 text-4xl leading-tight font-semibold text-balance text-white sm:text-5xl">
                 {page.title}
               </h1>
               {page.description && (
-                <p className="mt-5 max-w-2xl text-lg leading-8 text-white/52">
-                  {page.description}
+                <p className="mt-2.5 max-w-2xl text-lg leading-8 text-white/52">
+                  <InlineMarkdown content={page.description} />
                 </p>
               )}
             </header>
@@ -159,7 +155,7 @@ function DocsPagination({
   }
 
   return (
-    <nav className="docs-pagination mt-14 grid gap-px border border-white/[0.09] bg-white/[0.09] sm:grid-cols-2">
+    <nav className="docs-pagination mt-14 grid gap-px overflow-hidden rounded-lg border border-white/[0.09] bg-white/[0.09] sm:grid-cols-2">
       {previous ? (
         <Link
           href={previous.href}

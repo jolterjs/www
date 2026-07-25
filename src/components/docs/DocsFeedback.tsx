@@ -13,6 +13,7 @@ import {
 import GitHubIcon from "@/icons/github";
 
 type RatingType = "happy" | "mid" | "sad";
+type TurnstileStatus = "idle" | "verifying" | "success" | "error";
 
 interface DocsFeedbackProps {
   slug: string;
@@ -30,9 +31,11 @@ declare global {
           "error-callback"?: () => void;
           "expired-callback"?: () => void;
           theme?: "dark" | "light" | "auto";
+          size?: "normal" | "compact" | "flexible";
         },
       ) => string;
       reset: (widgetId?: string) => void;
+      remove: (widgetId: string) => void;
     };
     onloadTurnstileCallback?: () => void;
   }
@@ -43,20 +46,27 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
   const [showForm, setShowForm] = useState(false);
   const [comment, setComment] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string>("");
+  const [turnstileStatus, setTurnstileStatus] =
+    useState<TurnstileStatus>("idle");
+  const [isTurnstileDisabledSession, setIsTurnstileDisabledSession] =
+    useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const turnstileRef = useRef<HTMLDivElement>(null);
   const widgetIdRef = useRef<string | null>(null);
+  const pendingSubmitRef = useRef(false);
 
   const editOnGithubUrl = `https://github.com/jolterjs/www/edit/main/src/content/docs/${slug}.mdx`;
   const siteKey =
     process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA";
 
-  // Load Cloudflare Turnstile script when form is opened
+  // Load Cloudflare Turnstile script in background when form is opened
   useEffect(() => {
-    if (!showForm || isSubmitted) return;
+    if (!showForm || isSubmitted || isTurnstileDisabledSession) return;
+
+    setTurnstileStatus("verifying");
 
     const renderWidget = () => {
       if (window.turnstile && turnstileRef.current && !widgetIdRef.current) {
@@ -64,9 +74,34 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
           widgetIdRef.current = window.turnstile.render(turnstileRef.current, {
             sitekey: siteKey,
             theme: "dark",
+            size: "flexible",
             callback: (token: string) => {
               setTurnstileToken(token);
+              setTurnstileStatus("success");
               setErrorMessage(null);
+
+              if (pendingSubmitRef.current) {
+                pendingSubmitRef.current = false;
+                executeSubmit(token);
+              }
+            },
+            "error-callback": () => {
+              setTurnstileStatus("error");
+              setIsTurnstileDisabledSession(true);
+              setIsSubmitting(false);
+              setErrorMessage(
+                "Verification failed. Feedback is disabled for this session.",
+              );
+              pendingSubmitRef.current = false;
+            },
+            "expired-callback": () => {
+              setTurnstileStatus("error");
+              setIsTurnstileDisabledSession(true);
+              setIsSubmitting(false);
+              setErrorMessage(
+                "Verification expired. Feedback is disabled for this session.",
+              );
+              pendingSubmitRef.current = false;
             },
           });
         } catch (e) {
@@ -94,22 +129,26 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
         existingScript.addEventListener("load", renderWidget);
       }
     }
-  }, [showForm, isSubmitted, siteKey]);
+
+    return () => {
+      if (widgetIdRef.current && window.turnstile?.remove) {
+        try {
+          window.turnstile.remove(widgetIdRef.current);
+        } catch (e) {
+          // Ignore cleanup error if already removed
+        }
+        widgetIdRef.current = null;
+      }
+    };
+  }, [showForm, isSubmitted, siteKey, isTurnstileDisabledSession]);
 
   const handleRatingClick = (rating: RatingType) => {
     setSelectedRating(rating);
     setErrorMessage(null);
-
-    if (rating === "mid" || rating === "sad") {
-      setShowForm(true);
-    } else {
-      // For happy rating, submit immediately or allow optional message
-      setShowForm(true);
-    }
+    setShowForm(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const executeSubmit = async (token: string) => {
     if (!selectedRating) return;
 
     setIsSubmitting(true);
@@ -126,7 +165,7 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
           title,
           rating: selectedRating,
           comment,
-          turnstileToken,
+          turnstileToken: token,
         }),
       });
 
@@ -146,11 +185,27 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
     }
   };
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedRating || isTurnstileDisabledSession) return;
+
+    if (turnstileToken) {
+      executeSubmit(turnstileToken);
+    } else if (turnstileStatus === "error") {
+      setIsTurnstileDisabledSession(true);
+      setErrorMessage(
+        "Verification failed. Feedback is disabled for this session.",
+      );
+    } else {
+      // Waiting for background verification to finish
+      setIsSubmitting(true);
+      pendingSubmitRef.current = true;
+    }
+  };
+
   return (
     <div className="mt-12 border-t border-white/[0.09] pt-8">
-      {/* Edit on GitHub link & Rating Bar */}
       <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-        {/* Edit on GitHub */}
         <a
           href={editOnGithubUrl}
           target="_blank"
@@ -161,13 +216,11 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
           <span>Edit this page on GitHub</span>
         </a>
 
-        {/* Smileys Rating */}
         <div className="flex items-center gap-3">
           <span className="text-xs font-medium text-white/60">
             Was this page helpful?
           </span>
           <div className="flex items-center gap-1.5">
-            {/* Happy Smiley */}
             <button
               type="button"
               onClick={() => handleRatingClick("happy")}
@@ -181,7 +234,6 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
               <Smile className="size-5 transition group-hover:scale-110" />
             </button>
 
-            {/* Mid Smiley */}
             <button
               type="button"
               onClick={() => handleRatingClick("mid")}
@@ -195,7 +247,6 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
               <Meh className="size-5 transition group-hover:scale-110" />
             </button>
 
-            {/* Sad Smiley */}
             <button
               type="button"
               onClick={() => handleRatingClick("sad")}
@@ -212,12 +263,8 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
         </div>
       </div>
 
-      {/* Interactive Feedback Form */}
       {showForm && !isSubmitted && (
-        <form
-          onSubmit={handleSubmit}
-          className="mt-6 rounded-xl border border-white/[0.09] bg-[#050505] p-5 shadow-2xl transition-all"
-        >
+        <form onSubmit={handleSubmit} className="mt-6 transition-all">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-white">
               {selectedRating === "happy"
@@ -232,7 +279,7 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
                 setShowForm(false);
                 setSelectedRating(null);
               }}
-              className="text-xs text-white/40 hover:text-white"
+              className="cursor-pointer text-xs text-white/40 transition hover:text-white"
             >
               Cancel
             </button>
@@ -250,19 +297,25 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
             className="focus:ring-none mt-3 w-full rounded-lg border border-white/10 bg-black/60 p-3 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none"
           />
 
-          {/* Cloudflare Turnstile Container */}
-          <div className="mt-3 flex items-center justify-between">
-            <div ref={turnstileRef} className="min-h-[65px]" />
+          <div className="hidden" aria-hidden="true">
+            <div ref={turnstileRef} />
+          </div>
 
+          <div className="mt-3 flex items-center justify-end">
             <button
               type="submit"
-              disabled={isSubmitting}
-              className="text-background inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-semibold transition hover:opacity-90 disabled:opacity-50"
+              disabled={isSubmitting || isTurnstileDisabledSession}
+              className="text-background inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-semibold transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="size-3.5 animate-spin" />
-                  Sending...
+                  {turnstileToken ? "Sending..." : "Verifying..."}
+                </>
+              ) : isTurnstileDisabledSession ? (
+                <>
+                  <AlertCircle className="size-3.5 text-rose-500" />
+                  Disabled (Verification Failed)
                 </>
               ) : (
                 <>
@@ -282,7 +335,6 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
         </form>
       )}
 
-      {/* Success Banner */}
       {isSubmitted && (
         <div className="mt-6 flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-300">
           <CheckCircle2 className="size-5 shrink-0 text-emerald-400" />

@@ -67,7 +67,7 @@ export default function BlogIndex({
           )}
 
           {visiblePosts.length > 0 && (
-            <div className="mt-10 grid gap-px border border-white/[0.09] bg-white/[0.09] md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-white/[0.09] bg-white/[0.09] md:grid-cols-2 xl:grid-cols-3">
               {visiblePosts.map((post) => (
                 <BlogCard key={post.slug} post={post} />
               ))}
@@ -126,13 +126,13 @@ function CategoryTab({
 
 function FeaturedPost({ post }: { post: BlogPost }) {
   return (
-    <div className="group relative grid overflow-hidden border border-white/[0.09] bg-[#050505] transition hover:border-white/[0.16] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+    <div className="group relative grid overflow-hidden rounded-xl border border-white/[0.09] bg-[#050505] transition hover:border-white/[0.16] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       <Link
         href={post.href}
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-2"
         aria-label={post.title}
       />
-      <div className="relative min-h-72 overflow-hidden border-b border-white/[0.09] bg-black p-8 lg:border-r lg:border-b-0">
+      <div className="relative min-h-72 overflow-hidden border-b border-white/[0.09] bg-black p-8 select-none lg:border-r lg:border-b-0">
         <BlogVisual title={post.title} />
       </div>
       <div className="flex min-h-72 flex-col justify-between p-6 sm:p-8">
@@ -193,7 +193,7 @@ function BlogCard({ post }: { post: BlogPost }) {
 
 function BlogVisual({ title }: { title: string }) {
   return (
-    <div className="absolute inset-0 select-none">
+    <div className="absolute inset-0">
       <div className="absolute inset-8 border border-white/[0.08]" />
       <div className="absolute top-8 right-8 left-8 h-px bg-white/[0.08]" />
       <div className="absolute right-8 bottom-8 left-8 h-px bg-white/[0.08]" />
