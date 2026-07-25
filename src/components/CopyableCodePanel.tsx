@@ -20,7 +20,7 @@ export default function CopyableCodePanel({
 }: CopyableCodePanelProps) {
   return (
     <div
-      className={`overflow-hidden rounded-md border border-white/[0.11] bg-[#050505] ${className}`}
+      className={`min-w-0 overflow-hidden rounded-md border border-white/[0.11] bg-[#050505] ${className}`}
       data-copy-panel={title}
     >
       <div className="flex h-11 items-center justify-between border-b border-white/[0.09] px-4">
@@ -33,7 +33,7 @@ export default function CopyableCodePanel({
         <CopyButton code={code} label={title} />
       </div>
       <div
-        className="overflow-x-auto p-5 text-sm leading-7 text-white/66 [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-mono [&_.shiki]:text-sm [&_.shiki]:leading-7 [&_.shiki]:whitespace-pre-wrap [&_code]:font-mono"
+        className="overflow-x-auto p-5 text-sm leading-7 text-white/66 [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-mono [&_.shiki]:text-sm [&_.shiki]:leading-7 [&_.shiki]:[word-break:break-word] [&_.shiki]:whitespace-pre-wrap [&_code]:font-mono"
         dangerouslySetInnerHTML={{ __html: highlightedHtml }}
       />
     </div>

@@ -34,7 +34,7 @@ export default function Header({
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
         <div className="flex min-w-0 items-center gap-8">
           <Link
-            href="/#top"
+            href="/"
             className="flex shrink-0 items-center transition hover:opacity-80"
             aria-label="Jolter home"
           >
@@ -105,6 +105,30 @@ function DocsSearchModal({
   const [query, setQuery] = React.useState("");
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
+  const touchStartY = React.useRef<number>(0);
+  const touchCurrentY = React.useRef<number>(0);
+  const [dragOffsetY, setDragOffsetY] = React.useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchCurrentY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchCurrentY.current = e.touches[0].clientY;
+    const deltaY = touchCurrentY.current - touchStartY.current;
+    if (deltaY > 0) {
+      setDragOffsetY(deltaY);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (dragOffsetY > 100) {
+      closeSearch();
+    }
+    setDragOffsetY(0);
+  };
+
   const results = React.useMemo(() => {
     return searchDocs(docsSearchIndex, query);
   }, [docsSearchIndex, query]);
@@ -124,8 +148,21 @@ function DocsSearchModal({
       }
 
       document.documentElement.style.overflow = "";
+      document.documentElement.removeAttribute("data-drawer-open");
     };
   }, []);
+
+  React.useEffect(() => {
+    if (open && window.innerWidth < 640) {
+      document.documentElement.setAttribute("data-drawer-open", "true");
+    } else {
+      document.documentElement.removeAttribute("data-drawer-open");
+    }
+
+    return () => {
+      document.documentElement.removeAttribute("data-drawer-open");
+    };
+  }, [open]);
 
   const openSearch = React.useCallback(() => {
     if (closeTimer.current) {
@@ -227,14 +264,11 @@ function DocsSearchModal({
   const modal = rendered
     ? createPortal(
         <div
-          className={`fixed inset-0 z-[9999] flex items-start justify-center overflow-y-auto bg-black/90 px-4 pt-24 pb-8 transition-opacity duration-200 ease-out sm:px-6 ${
-            open ? "opacity-100" : "opacity-0"
+          className={`fixed inset-0 z-[9999] transition-opacity duration-300 ${
+            open
+              ? "pointer-events-auto opacity-100"
+              : "pointer-events-none opacity-0"
           }`}
-          onMouseDown={(event) => {
-            if (event.target === event.currentTarget) {
-              closeSearch();
-            }
-          }}
           onKeyDown={handleModalKeyDown}
           data-docs-search-modal
           data-lenis-prevent
@@ -242,16 +276,36 @@ function DocsSearchModal({
           data-state={open ? "open" : "closed"}
         >
           <div
-            className={`relative w-full max-w-2xl overflow-hidden rounded-lg border border-white/[0.12] bg-[#050505] shadow-2xl shadow-black/70 transition-all duration-200 ease-out ${
+            className="absolute inset-0 bg-black/82.5 transition-opacity duration-300"
+            onClick={closeSearch}
+          />
+
+          <div
+            style={{
+              transform:
+                open && dragOffsetY > 0
+                  ? `translateY(${dragOffsetY}px)`
+                  : undefined,
+            }}
+            className={`absolute inset-x-0 bottom-0 mx-2 flex max-h-[85vh] flex-col rounded-t-[28px] border-x border-t border-white/12 bg-[#080808] shadow-[0_-12px_40px_rgba(0,0,0,0.9)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] sm:top-24 sm:bottom-auto sm:left-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:rounded-2xl sm:border sm:border-white/12 sm:shadow-2xl sm:shadow-black/70 ${
               open
-                ? "translate-y-0 scale-100 opacity-100"
-                : "-translate-y-1 scale-[0.99] opacity-0"
+                ? "translate-y-0 sm:scale-100 sm:opacity-100"
+                : "translate-y-full sm:translate-y-0 sm:scale-95 sm:opacity-0"
             }`}
             role="dialog"
             aria-modal="true"
             aria-label="Search documentation"
             onMouseDown={(event) => event.stopPropagation()}
           >
+            <div
+              className="flex w-full cursor-grab items-center justify-center pt-3 pb-1 active:cursor-grabbing sm:hidden"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div className="h-1.5 w-12 rounded-full bg-white/20 transition hover:bg-white/40" />
+            </div>
+
             <div className="flex h-14 items-center gap-3 border-b border-white/[0.09] px-4">
               <Search className="size-4 shrink-0 text-white/40" />
               <input
@@ -266,7 +320,7 @@ function DocsSearchModal({
               <button
                 type="button"
                 onClick={closeSearch}
-                className="flex size-8 items-center justify-center rounded-md text-white/35 transition hover:bg-white/[0.06] hover:text-white"
+                className="flex size-8 items-center justify-center rounded-full bg-white/[0.06] text-white/60 transition hover:bg-white/[0.12] hover:text-white"
                 aria-label="Close search"
               >
                 <X className="size-4" />
@@ -274,8 +328,9 @@ function DocsSearchModal({
             </div>
 
             <div
-              className="max-h-[60vh] overflow-y-auto p-2"
+              className="max-h-[60vh] flex-1 overflow-y-auto overscroll-contain p-2 sm:max-h-[55vh]"
               data-lenis-prevent
+              data-no-reveal
             >
               {results.length > 0 ? (
                 <SearchResults

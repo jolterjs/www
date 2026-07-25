@@ -29,6 +29,7 @@ import {
   type HighlightLanguage,
 } from "@/lib/highlight";
 import GitHubIcon from "@/icons/github";
+import { InlineMarkdown } from "@/components/InlineMarkdown";
 
 const GitHubIconForDocsMap = (className: string) => {
   return <GitHubIcon className={`${className} opacity-70 invert`} />;
@@ -106,7 +107,7 @@ const mechanics = [
   {
     icon: Database,
     title: "Managed storage",
-    body: "Keep runtimes, tools, plugins, shims, cache, manifests, and active fallbacks in JOLTER_HOME.",
+    body: "Keep runtimes, tools, plugins, shims, cache, manifests, and active fallbacks in `JOLTER_HOME`.",
   },
   {
     icon: Terminal,
@@ -435,7 +436,7 @@ function Mechanics({
   return (
     <GridSection>
       <div className="grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-start">
-        <div>
+        <div className="min-w-0">
           <SectionHeading
             eyebrow="How Jolter works"
             title="Explicit preparation. Fast command dispatch."
@@ -453,7 +454,7 @@ function Mechanics({
             ))}
           </div>
         </div>
-        <div className="space-y-4">
+        <div className="min-w-0 space-y-4">
           <CopyableCodePanel
             title="jolter.json"
             code={projectSnippet.code}
@@ -478,8 +479,8 @@ function DiagnosticsAndSecurity({
 }) {
   return (
     <GridSection>
-      <div className="grid gap-12 lg:grid-cols-[420px_minmax(0,1fr)]">
-        <div>
+      <div className="grid gap-12 lg:grid-cols-[minmax(0,420px)_minmax(0,1fr)]">
+        <div className="min-w-0">
           <SectionHeading
             eyebrow="Diagnostics and security"
             title="Know what will run before it runs."
@@ -492,7 +493,7 @@ function DiagnosticsAndSecurity({
             className="mt-9"
           />
         </div>
-        <div className={`${framedGridClass} sm:grid-cols-2`}>
+        <div className={`${framedGridClass} min-w-0 sm:grid-cols-2`}>
           {securityChecks.map((check) => (
             <div key={check} className="flex min-h-24 gap-3 bg-black p-5">
               <CircleCheck className="mt-0.5 size-4 shrink-0 text-white" />
@@ -689,13 +690,13 @@ function SectionHeading({
   return (
     <div className="max-w-3xl">
       <p className="font-mono text-xs font-semibold tracking-normal text-white/38">
-        {eyebrow}
+        <InlineMarkdown content={eyebrow} />
       </p>
       <h2 className="mt-5 text-4xl leading-tight font-semibold text-balance sm:text-5xl">
-        {title}
+        <InlineMarkdown content={title} />
       </h2>
       <p className="mt-5 text-base leading-7 text-white/52 sm:text-lg">
-        {body}
+        <InlineMarkdown content={body} />
       </p>
     </div>
   );
@@ -715,8 +716,12 @@ function InfoCard({
   return (
     <article className="min-h-72 bg-black p-7 transition hover:bg-[#050505]">
       <Icon className="size-5 text-white/76" />
-      <h3 className="mt-8 text-xl font-semibold text-white">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-white/52">{body}</p>
+      <h3 className="mt-8 text-xl font-semibold text-white">
+        <InlineMarkdown content={title} />
+      </h3>
+      <p className="mt-3 text-sm leading-6 text-white/52">
+        <InlineMarkdown content={body} />
+      </p>
       {children}
     </article>
   );
@@ -735,15 +740,19 @@ function ProcessRow({
 }) {
   return (
     <div className="grid grid-cols-[44px_minmax(0,1fr)] gap-4 border-t border-white/[0.09] py-5">
-      <div className="flex size-10 items-center justify-center border border-white/[0.12] font-mono text-xs text-white/48">
+      <div className="flex size-10 items-center justify-center rounded-md border border-white/[0.12] font-mono text-xs text-white/48">
         {String(index).padStart(2, "0")}
       </div>
       <div>
         <div className="flex items-center gap-3">
           <Icon className="size-4 text-white/58" />
-          <h3 className="font-semibold text-white">{title}</h3>
+          <h3 className="font-semibold text-white">
+            <InlineMarkdown content={title} />
+          </h3>
         </div>
-        <p className="mt-2 text-sm leading-6 text-white/48">{body}</p>
+        <p className="mt-2 text-sm leading-6 text-white/48">
+          <InlineMarkdown content={body} />
+        </p>
       </div>
     </div>
   );
@@ -771,8 +780,12 @@ function LinkPanel({
         <Icon className="size-5 text-white/72" />
         <ExternalLink className="size-4 text-white/35 transition group-hover:text-white/70" />
       </div>
-      <h3 className="mt-8 text-xl font-semibold text-white">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-white/52">{body}</p>
+      <h3 className="mt-8 text-xl font-semibold text-white">
+        <InlineMarkdown content={title} />
+      </h3>
+      <p className="mt-3 text-sm leading-6 text-white/52">
+        <InlineMarkdown content={body} />
+      </p>
     </a>
   );
 }
@@ -805,8 +818,12 @@ function DocLink({
           <ArrowRight className="size-4 text-white/32 transition group-hover:translate-x-0.5 group-hover:text-white/70" />
         )}
       </div>
-      <h3 className="mt-8 font-semibold text-white">{title}</h3>
-      <p className="mt-3 text-sm leading-6 text-white/48">{body}</p>
+      <h3 className="mt-8 font-semibold text-white">
+        <InlineMarkdown content={title} />
+      </h3>
+      <p className="mt-3 text-sm leading-6 text-white/48">
+        <InlineMarkdown content={body} />
+      </p>
     </a>
   );
 }

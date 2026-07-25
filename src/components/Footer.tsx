@@ -48,7 +48,7 @@ export default function Footer() {
         <div className="grid gap-10 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,2fr)]">
           <div>
             <Link
-              href="/#top"
+              href="/"
               className="inline-flex items-center transition hover:opacity-80"
               aria-label="Jolter home"
             >
@@ -66,7 +66,7 @@ export default function Footer() {
           >
             {linkGroups.map((group) => (
               <div key={group.title}>
-                <h2 className="font-mono text-xs font-semibold tracking-normal text-white/35 uppercase">
+                <h2 className="font-mono text-xs font-semibold tracking-normal text-white/35">
                   {group.title}
                 </h2>
                 <ul className="mt-4 space-y-3">
@@ -81,21 +81,24 @@ export default function Footer() {
           </nav>
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-white/[0.08] pt-6 text-sm text-white/38 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 flex flex-col items-center gap-4 border-t border-white/[0.08] pt-6 text-sm text-white/38 sm:flex-row sm:justify-between">
           <p>© 2026 Jolter. Built for reproducible toolchains.</p>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link href="/docs/security/reporting" className="hover:text-white">
+            <Link
+              href="/docs/security/reporting"
+              className="transition hover:text-white"
+            >
               Security
             </Link>
             <Link
               href="/docs/reference/environment"
-              className="hover:text-white"
+              className="transition hover:text-white"
             >
               Environment
             </Link>
             <Link
               href="/docs/operations/diagnostics"
-              className="hover:text-white"
+              className="transition hover:text-white"
             >
               Diagnostics
             </Link>
