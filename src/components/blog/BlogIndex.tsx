@@ -54,17 +54,6 @@ export default function BlogIndex({
 
       <section>
         <div className={`${pageRailClass} py-12 lg:py-16`}>
-          {activeCategoryMeta && (
-            <div className="mb-8 border-l border-white/[0.16] pl-4">
-              <p className="font-mono text-xs font-semibold tracking-normal text-white/34 uppercase">
-                {activeCategoryMeta.label}
-              </p>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-white/48">
-                {activeCategoryMeta.description}
-              </p>
-            </div>
-          )}
-
           {featured ? (
             <FeaturedPost post={featured} />
           ) : (

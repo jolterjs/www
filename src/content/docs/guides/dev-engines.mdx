@@ -1,0 +1,101 @@
+---
+title: "devEngines Support"
+description: "How Jolter provides first-class support for the package.json#devEngines standard field."
+---
+
+The `devEngines` field in `package.json` is a standard introduced in npm v12 to declare developer tooling requirements directly within `package.json`.
+
+Jolter provides 100% first-class support for `devEngines`. When a repository declares runtime, package manager, operating system, or CPU architecture requirements using `devEngines`, Jolter automatically discovers, resolves, syncs, and validates them across your development environments and CI pipelines.
+
+## Declaring `devEngines`
+
+Add a `devEngines` block to your project's `package.json`:
+
+```json package.json
+{
+  "name": "my-app",
+  "version": "1.0.0",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^20.0.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.17.0",
+      "onFail": "download"
+    }
+  }
+}
+```
+
+## Supported properties
+
+`devEngines` supports the following properties:
+
+| Property         | Description                                                                  | Supported by Jolter                |
+| ---------------- | ---------------------------------------------------------------------------- | ---------------------------------- |
+| `runtime`        | Declares required JavaScript runtime(s) (e.g. `node`, `bun`, `deno`).        | Yes (automatic resolution & sync)  |
+| `packageManager` | Declares required package manager(s) (e.g. `pnpm`, `npm`, `yarn`).           | Yes (automatic resolution & sync)  |
+| `cpu`            | Declares supported CPU architecture(s) (e.g. `x64`, `arm64`, `ia32`).        | Yes (validated by `jolter doctor`) |
+| `os`             | Declares supported operating system(s) (e.g. `win32`, `darwin`, `linux`).    | Yes (validated by `jolter doctor`) |
+| `libc`           | Declares required C standard library implementations (e.g. `glibc`, `musl`). | Yes (validated by `jolter doctor`) |
+
+## Object and array shapes
+
+Each property under `devEngines` can be declared as either a **single object** or an **array of objects**.
+
+### Single object
+
+```json package.json
+{
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "24.x",
+      "onFail": "error"
+    }
+  }
+}
+```
+
+### Array of objects
+
+Use arrays when your repository supports multiple runtimes or package managers:
+
+```json package.json
+{
+  "devEngines": {
+    "packageManager": [
+      {
+        "name": "pnpm",
+        "version": "10.12.1",
+        "onFail": "error"
+      },
+      {
+        "name": "yarn",
+        "version": "4.0.0",
+        "onFail": "warn"
+      }
+    ]
+  }
+}
+```
+
+## The `onFail` Directive
+
+Each object within `devEngines` can specify an optional `onFail` property controlling how failures are handled:
+
+| Directive  | Behavior                                                                                       |
+| ---------- | ---------------------------------------------------------------------------------------------- |
+| `error`    | Treats a missing or non-matching version as a hard failure (Default).                          |
+| `warn`     | Emits a warning diagnostic without failing builds or commands.                                 |
+| `ignore`   | Ignores requirement mismatches for this engine property.                                       |
+| `download` | Instructs Jolter to automatically download and sync the matching version during `jolter sync`. |
+
+## How Jolter handles `devEngines`
+
+1. **Resolution & Automatic Syncing**: When you run `jolter sync` in a project containing `devEngines`, Jolter parses `runtime` and `packageManager` entries and fetches the matching toolchain automatically.
+2. **Diagnostics via `jolter doctor`**: Running `jolter doctor` evaluates `devEngines.runtime`, `devEngines.packageManager`, `devEngines.cpu`, and `devEngines.os`. It verifies version satisfaction against installed runtimes and verifies that your machine platform matches specified `cpu` and `os` requirements.
+3. **Precedence**: `jolter.json` takes priority if present. If no `jolter.json` exists, Jolter seamlessly resolves requirements from `devEngines` before checking legacy files like `.node-version`, `.nvmrc`, or string-valued `packageManager`.

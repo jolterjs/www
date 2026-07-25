@@ -1,24 +1,4 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "name": "Jolter",
-  "description": "Fast, reliable JavaScript runtime and toolchain management for local development and CI.",
-  "colors": {
-    "primary": "#5B46F8",
-    "light": "#8B6EFF",
-    "dark": "#2B8FFF"
-  },
-  "favicon": "/favicon.svg",
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg",
-    "href": "https://jolter.dev"
-  },
-  "appearance": {
-    "default": "system"
-  },
-  "icons": {
-    "library": "lucide"
-  },
   "navigation": {
     "pages": [
       {
@@ -37,6 +17,7 @@
           "guides/runtimes",
           "guides/tools",
           "guides/project-pinning",
+          "guides/dev-engines",
           "guides/automatic-switching",
           "guides/monorepos",
           "guides/updating-toolchains",
@@ -97,59 +78,6 @@
           "maintainers/releasing"
         ]
       }
-    ],
-    "global": {
-      "anchors": [
-        {
-          "anchor": "GitHub",
-          "href": "https://github.com/jolterjs/jolter",
-          "icon": "github"
-        },
-        {
-          "anchor": "Install",
-          "href": "/installation",
-          "icon": "download"
-        }
-      ]
-    }
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "GitHub",
-        "href": "https://github.com/jolterjs/jolter"
-      },
-      {
-        "label": "Security",
-        "href": "/security/reporting"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Install Jolter",
-      "href": "/installation"
-    }
-  },
-  "contextual": {
-    "options": [
-      "copy",
-      "view",
-      "chatgpt",
-      "claude",
-      "perplexity",
-      "mcp",
-      "cursor",
-      "vscode"
     ]
-  },
-  "footer": {
-    "socials": {
-      "github": "https://github.com/jolterjs/jolter"
-    }
-  },
-  "feedback": {
-    "thumbsRating": true,
-    "suggestEdit": true,
-    "raiseIssue": true
   }
 }

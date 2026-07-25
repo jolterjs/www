@@ -1,0 +1,112 @@
+---
+title: "First-Class Support for package.json#devEngines"
+description: "Why npm introduced devEngines in v12, how Jolter brings 100% first-class support for it today, and what it means for JavaScript development teams."
+date: "2026-07-26"
+category: "updates"
+authors:
+  - name: "Jonas"
+    avatarUrl: "https://avatars.githubusercontent.com/u/81481526?v=4"
+    link: "https://github.com/builtbyjonas"
+featured: false
+---
+
+If you've spent any time working on a JavaScript team, you've almost certainly run into the classic toolchain mismatch problem: someone installs a new package using `pnpm 10`, someone else is on `pnpm 8`, CI is using `Node 22`, and a teammate on a Mac M2 gets subtle native build errors because their local `Node` version doesn't match the team's baseline.
+
+For years, the JavaScript ecosystem tried to patch this over with separate config files—`.nvmrc`, `.node-version`, or `packageManager` strings in `package.json`. But each had limitations.
+
+With npm v12, the CLI team introduced `devEngines`—a new, structured field in `package.json` specifically designed to align developer tooling across team codebases. Today, we're excited to announce **100% first-class support for `devEngines` in Jolter**.
+
+## What is `devEngines`?
+
+`engines` in `package.json` was originally created to warn consumers when a published npm package was installed on an incompatible Node.js version. It was never quite right for developer toolchains working on the source repository itself.
+
+`devEngines` fills that exact gap. It allows repository authors to declare requirements for:
+
+- **`runtime`**: Node.js, Bun, Deno
+- **`packageManager`**: pnpm, npm, Yarn
+- **`cpu`**: `x64`, `arm64`, `ia32`
+- **`os`**: `darwin`, `linux`, `win32`
+- **`libc`**: `glibc`, `musl`
+
+Here's how a modern `devEngines` block looks:
+
+```json package.json
+{
+  "name": "our-monorepo",
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": "^20.0.0",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "pnpm",
+      "version": "^11.17.0",
+      "onFail": "download"
+    }
+  }
+}
+```
+
+Notice the `onFail` directive! You can specify whether a mismatch should produce an `error`, a `warn`, be `ignore`d, or trigger an automatic `download`.
+
+## How Jolter supports `devEngines`
+
+We designed Jolter so you don't have to change your habits or learn a new CLI workflow. Jolter integrates with `devEngines` transparently at every level of the toolchain:
+
+### 1. Automatic resolution & sync
+
+When you run `jolter sync` inside any repository containing `devEngines`, Jolter automatically reads the `runtime` and `packageManager` declarations. If `onFail: "download"` or default resolution is used, Jolter fetches the exact matching runtime and package manager versions into Jolter's isolated cache.
+
+No manual `jolter pin` required if your project already uses standard `devEngines`.
+
+### 2. Comprehensive health checks with `jolter doctor`
+
+Jolter's diagnostic command, `jolter doctor`, now inspects your project's `devEngines` declarations and validates your environment:
+
+```text
+✓ storage: using /Users/jonas/.jolter
+✓ configuration: project requirements resolved from /Users/jonas/projects/app
+✓ devEngines: runtime node@24.1.0 satisfies devEngines requirement `node` `^20.0.0`
+✓ devEngines: cpu system architecture `x64` satisfies devEngines cpu requirement `x64`
+✓ devEngines: os operating system `darwin` satisfies devEngines os requirement `darwin`
+```
+
+If an engineer on your team runs `jolter doctor` on an incompatible machine architecture or with an outdated runtime, Jolter provides clear diagnostic messages and actionable remediation steps.
+
+### 3. Smart fallbacks and precedence
+
+Jolter respects existing configurations while bringing in modern standard fields:
+
+1. `jolter.json` (if present in the repository)
+2. `.node-version` / `.nvmrc`
+3. `package.json#devEngines`
+4. `package.json#packageManager` (legacy string)
+
+This means you can start adding `devEngines` to your projects today without breaking older workflows or existing Jolter configurations.
+
+## Try it out today
+
+`devEngines` support is available in Jolter starting today. Upgrade Jolter:
+
+```bash
+jolter upgrade
+```
+
+or install it with:
+
+<CodeGroup>
+
+```powershell Windows
+irm https://get.jolter.dev/install.ps1 | iex
+```
+
+```bash Linux and macOS
+curl -fsSL https://get.jolter.dev/install.sh | sh
+```
+
+</CodeGroup>
+
+Once installed, add `devEngines` to your `package.json` and run `jolter sync`. Your entire team will automatically pick up the exact right tooling on their next command.
+
+For full details, check out the [devEngines documentation guide](/docs/guides/dev-engines).
