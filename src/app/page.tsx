@@ -231,10 +231,10 @@ const projectDeclarationCode = [
 
 const shimResolutionCode = [
   "$ node --version",
-  "resolve current project upward",
-  "select complete local installation",
-  "fall back to global active version",
-  "launch selected node executable",
+  "# 1. resolve current project upward",
+  "# 2. select complete local installation",
+  "# 3. fall back to global active version",
+  "# 4. launch selected node executable",
 ].join("\n");
 
 const automationCode = [
