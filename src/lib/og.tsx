@@ -9,7 +9,6 @@ export const ogImageSize = {
 
 type OgImageOptions = {
   description?: string;
-  eyebrow: string;
   title: string;
 };
 
@@ -17,11 +16,7 @@ const logoDataUrl = `data:image/png;base64,${fs
   .readFileSync(path.join(process.cwd(), "public/jnbg.png"))
   .toString("base64")}`;
 
-export function createJolterOgImage({
-  description,
-  eyebrow,
-  title,
-}: OgImageOptions) {
+export function createJolterOgImage({ description, title }: OgImageOptions) {
   const titleFontSize = title.length > 68 ? 56 : title.length > 42 ? 64 : 72;
   const titleLineHeight = 1.03;
   const titleLineEstimate = Math.min(
@@ -58,36 +53,11 @@ export function createJolterOgImage({
     >
       <GridLine orientation="horizontal" x={64} y={topRule} width={1072} />
       <GridLine orientation="horizontal" x={64} y={bottomRule} width={1072} />
-      <GridLine height={topRule - 64} orientation="vertical" x={600} y={64} />
       <GridLine
         height={566 - bottomRule}
         orientation="vertical"
         x={600}
         y={bottomRule}
-      />
-      <GridLine
-        height={bottomRule - topRule}
-        orientation="vertical"
-        x={64}
-        y={topRule}
-      />
-      <GridLine
-        height={bottomRule - topRule}
-        orientation="vertical"
-        x={1136}
-        y={topRule}
-      />
-      <GridLine
-        orientation="horizontal"
-        width={220}
-        x={64}
-        y={contentTop + 92}
-      />
-      <GridLine
-        orientation="horizontal"
-        width={220}
-        x={916}
-        y={contentTop + 92}
       />
       <div
         style={{
@@ -146,18 +116,6 @@ export function createJolterOgImage({
             width: "100%",
           }}
         >
-          <div
-            style={{
-              color: "rgba(255,255,255,0.46)",
-              fontSize: 18,
-              fontWeight: 700,
-              letterSpacing: 0,
-              marginBottom: 24,
-              textTransform: "uppercase",
-            }}
-          >
-            {eyebrow}
-          </div>
           <div
             style={{
               fontSize: titleFontSize,

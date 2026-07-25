@@ -4,8 +4,9 @@ import React from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { CornerDownLeft, ExternalLink, Search, X } from "lucide-react";
+import { CornerDownLeft, ExternalLink, Menu, Search, X } from "lucide-react";
 import type { DocSearchItem } from "@/lib/docs-types";
+import { useMobileDrawer } from "./MobileDrawerProvider";
 
 const items = [
   { name: "Features", href: "/#features" },
@@ -26,6 +27,8 @@ export default function Header({
 }: {
   docsSearchIndex: DocSearchItem[];
 }) {
+  const { toggleDrawer } = useMobileDrawer();
+
   return (
     <header className="fixed top-0 z-50 w-full border-b border-white/[0.08] bg-black/82 backdrop-blur-xl">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-5 sm:px-8">
@@ -74,6 +77,14 @@ export default function Header({
           >
             Learn
           </Link>
+          <button
+            type="button"
+            onClick={toggleDrawer}
+            className="flex size-9 items-center justify-center rounded-lg border border-white/10 bg-white/[0.04] text-white/70 transition hover:bg-white/[0.08] hover:text-white lg:hidden"
+            aria-label="Toggle mobile menu"
+          >
+            <Menu className="size-4.5" />
+          </button>
         </div>
       </div>
     </header>

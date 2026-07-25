@@ -3,8 +3,10 @@ title: "Project-aware shims explained"
 description: "How Jolter keeps command dispatch simple while still switching runtimes and tools per project."
 date: "2026-07-11"
 category: "engineering"
-authorName: "Jolter Team"
-authorAvatarUrl: "https://github.com/jolterjs.png"
+authors:
+  - name: "Jonas"
+    avatarUrl: "https://avatars.githubusercontent.com/u/81481526?v=4"
+    link: "https://github.com/builtbyjonas"
 ---
 
 Directory-change hooks are fragile in editors, subshells, CI runners, and task executors. Jolter avoids that class of problem by putting the decision at command dispatch time.

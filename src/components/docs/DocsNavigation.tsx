@@ -2,7 +2,9 @@
 
 import React from "react";
 import Link from "next/link";
+import { ChevronRight } from "lucide-react";
 import type { DocHeading, DocNavGroup, DocNavItem } from "@/lib/docs-types";
+import { useMobileDrawer } from "@/components/MobileDrawerProvider";
 
 export function DocsSidebarNav({
   nav,
@@ -56,37 +58,39 @@ export function DocsMobileNav({
   nav: DocNavGroup[];
   currentHref: string;
 }) {
+  const { setDocsNav, setCurrentDocsHref, openDrawer } = useMobileDrawer();
+
+  React.useEffect(() => {
+    setDocsNav(nav);
+    setCurrentDocsHref(currentHref);
+
+    return () => {
+      setDocsNav(null);
+      setCurrentDocsHref("");
+    };
+  }, [nav, currentHref, setDocsNav, setCurrentDocsHref]);
+
   const current = nav
     .flatMap((group) => group.pages)
     .find((item) => item.href === currentHref);
 
   return (
-    <details
-      className="docs-mobile-nav mb-8 border border-white/[0.09] bg-[#050505] lg:hidden"
-      data-lenis-prevent
+    <button
+      type="button"
+      onClick={openDrawer}
+      className="docs-mobile-nav mb-8 flex w-full items-center justify-between rounded-xl border border-white/[0.1] bg-[#050505] px-4 py-3 text-left text-sm font-medium text-white transition hover:border-white/20 hover:bg-white/[0.04] lg:hidden"
     >
-      <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-white marker:text-white/40">
-        {current?.title ?? "Browse docs"}
-      </summary>
-      <nav className="max-h-[70vh] overflow-y-auto border-t border-white/[0.09] p-3">
-        {nav.map((group) => (
-          <div key={group.group} className="py-2">
-            <p className="mb-2 px-2 font-mono text-[11px] font-semibold tracking-normal text-white/32 uppercase">
-              {group.group}
-            </p>
-            <div className="space-y-1">
-              {group.pages.map((item) => (
-                <DocsNavLink
-                  key={item.href}
-                  item={item}
-                  active={item.href === currentHref}
-                />
-              ))}
-            </div>
-          </div>
-        ))}
-      </nav>
-    </details>
+      <div className="flex items-center gap-2.5">
+        <span className="font-mono text-xs text-white/40 uppercase">Docs:</span>
+        <span className="font-medium text-white">
+          {current?.title ?? "Browse docs"}
+        </span>
+      </div>
+      <div className="flex items-center gap-1.5 text-xs text-white/50">
+        <span>Menu</span>
+        <ChevronRight className="size-4" />
+      </div>
+    </button>
   );
 }
 

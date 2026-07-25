@@ -19,7 +19,6 @@ export default async function Image({ params }: BlogPostImageProps) {
   const post = getBlogPost(slug);
 
   return createJolterOgImage({
-    eyebrow: post ? getBlogCategoryLabel(post.category) : "Jolter Blog",
     title: post?.title ?? "Jolter Blog",
     description: post?.description,
   });

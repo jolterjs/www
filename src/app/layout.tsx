@@ -94,6 +94,9 @@ const siteJsonLd = [
   },
 ];
 
+import MobileDrawer from "@/components/MobileDrawer";
+import { MobileDrawerProvider } from "@/components/MobileDrawerProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -104,21 +107,26 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} h-full antialiased selection:bg-white selection:text-black`}
+      className={`${outfit.variable} h-full bg-black antialiased selection:bg-white selection:text-black`}
     >
-      <body className="flex min-h-full flex-col">
+      <body className="bg-black text-white antialiased">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
-        <SmoothScrollProvider>
-          <ScrollRevealProvider>
-            <Header docsSearchIndex={docsSearchIndex} />
-            {children}
-            <Footer />
-            <ToastViewport />
-          </ScrollRevealProvider>
-        </SmoothScrollProvider>
+        <MobileDrawerProvider>
+          <div className="app-scale-wrapper flex min-h-screen flex-col bg-black">
+            <SmoothScrollProvider>
+              <ScrollRevealProvider>
+                <Header docsSearchIndex={docsSearchIndex} />
+                {children}
+                <Footer />
+                <ToastViewport />
+              </ScrollRevealProvider>
+            </SmoothScrollProvider>
+          </div>
+          <MobileDrawer />
+        </MobileDrawerProvider>
       </body>
     </html>
   );

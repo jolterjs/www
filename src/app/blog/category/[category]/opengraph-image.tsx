@@ -19,7 +19,6 @@ export default async function Image({ params }: BlogCategoryImageProps) {
   const categoryMeta = getBlogCategory(category);
 
   return createJolterOgImage({
-    eyebrow: "Jolter Blog",
     title: categoryMeta ? `${categoryMeta.label} posts` : "Jolter Blog",
     description:
       categoryMeta?.description ??

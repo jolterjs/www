@@ -10,9 +10,16 @@ export type BlogCategory = {
   slug: BlogCategorySlug;
 };
 
+export type BlogAuthor = {
+  avatarUrl: string;
+  link?: string;
+  name: string;
+};
+
 export type BlogPost = {
   authorAvatarUrl: string;
   authorName: string;
+  authors: BlogAuthor[];
   body: string;
   category: BlogCategorySlug;
   content: string;

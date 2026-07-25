@@ -349,29 +349,39 @@ function Hero() {
 }
 
 function ToolchainStrip() {
+  const marqueeItems = [
+    ...toolchainLogos,
+    ...toolchainLogos,
+    ...toolchainLogos,
+    ...toolchainLogos,
+  ];
+
   return (
     <section className="border-b border-white/[0.08]">
-      <div className={`${pageRailClass} flex flex-col gap-7 py-12`}>
+      <div className={`${pageRailClass} flex flex-col gap-8 py-12`}>
         <p className="text-center text-xs font-medium tracking-normal text-white/35 uppercase">
           Built for the runtime and package-manager drift that breaks builds
         </p>
-        <div className="grid grid-cols-2 gap-x-8 gap-y-5 text-center sm:grid-cols-4 lg:grid-cols-7">
-          {toolchainLogos.map((item) => (
-            <div
-              key={item.name}
-              className="group flex cursor-default flex-row items-center justify-center gap-2 font-mono text-sm font-semibold text-white/62 transition duration-300 hover:text-white"
-            >
-              {item.logo && (
-                <img
-                  src={item.logo}
-                  className={`${item.name !== "Plugin tools" ? "size-8" : "size-6.5"} opacity-50 grayscale transition duration-300 select-none group-hover:opacity-100 group-hover:grayscale-0`}
-                  draggable={false}
-                  alt=""
-                />
-              )}
-              {item.name}
-            </div>
-          ))}
+
+        <div className="marquee-container relative w-full overflow-hidden before:pointer-events-none before:absolute before:top-0 before:bottom-0 before:left-0 before:z-10 before:w-16 before:bg-gradient-to-r before:from-black before:to-transparent after:pointer-events-none after:absolute after:top-0 after:right-0 after:bottom-0 after:z-10 after:w-16 after:bg-gradient-to-l after:from-black after:to-transparent sm:before:w-28 sm:after:w-28">
+          <div className="animate-marquee-left flex w-max flex-row items-center gap-10 sm:gap-16">
+            {marqueeItems.map((item, index) => (
+              <div
+                key={`${item.name}-${index}`}
+                className="group flex shrink-0 cursor-default flex-row items-center justify-center gap-2.5 font-mono text-sm font-semibold text-white/62 transition duration-300 hover:text-white"
+              >
+                {item.logo && (
+                  <img
+                    src={item.logo}
+                    className={`${item.name !== "Plugin tools" ? "size-8" : "size-6.5"} opacity-50 grayscale transition duration-300 select-none group-hover:opacity-100 group-hover:grayscale-0`}
+                    draggable={false}
+                    alt=""
+                  />
+                )}
+                {item.name}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
@@ -589,10 +599,37 @@ function HeroGrid() {
   return (
     <div className="pointer-events-none absolute inset-0">
       <div className="absolute inset-x-0 top-24 bottom-16">
-        <div className={`${pageRailClass} h-full`}>
-          <div className="h-full border-x border-white/[0.08]" />
+        <div className={`${pageRailClass} relative h-full`}>
+          <div className="relative h-full border-x border-white/[0.08]">
+            {/* 4 Main Frame Corner Nodes */}
+            <div className="absolute top-0 left-0 size-2 -translate-x-1/2 -translate-y-1/2 border border-white/[0.22] bg-black" />
+            <div className="absolute top-0 right-0 size-2 translate-x-1/2 -translate-y-1/2 border border-white/[0.22] bg-black" />
+            <div className="absolute bottom-0 left-0 size-2 -translate-x-1/2 translate-y-1/2 border border-white/[0.22] bg-black" />
+            <div className="absolute right-0 bottom-0 size-2 translate-x-1/2 translate-y-1/2 border border-white/[0.22] bg-black" />
+
+            {/* Inner Vertical Sub-Rails */}
+            <div className="absolute top-0 bottom-0 left-12 w-px bg-white/[0.05] sm:left-24 lg:left-36" />
+            <div className="absolute top-0 right-12 bottom-0 w-px bg-white/[0.05] sm:right-24 lg:right-36" />
+
+            {/* Left Side Extension Lines & Nodes (shooting outward) */}
+            <div className="absolute top-[28%] left-0 h-px w-16 -translate-x-full bg-white/[0.08] sm:w-28 md:w-36">
+              <div className="absolute top-1/2 left-0 size-2 -translate-x-1/2 -translate-y-1/2 border border-white/[0.2] bg-black" />
+            </div>
+            <div className="absolute bottom-[28%] left-0 h-px w-20 -translate-x-full bg-white/[0.08] sm:w-32 md:w-44">
+              <div className="absolute top-1/2 left-0 size-2 -translate-x-1/2 -translate-y-1/2 border border-white/[0.2] bg-black" />
+            </div>
+
+            {/* Right Side Extension Lines & Nodes (shooting outward) */}
+            <div className="absolute top-[28%] right-0 h-px w-16 translate-x-full bg-white/[0.08] sm:w-28 md:w-36">
+              <div className="absolute top-1/2 right-0 size-2 translate-x-1/2 -translate-y-1/2 border border-white/[0.2] bg-black" />
+            </div>
+            <div className="absolute right-0 bottom-[28%] h-px w-20 translate-x-full bg-white/[0.08] sm:w-32 md:w-44">
+              <div className="absolute top-1/2 right-0 size-2 translate-x-1/2 -translate-y-1/2 border border-white/[0.2] bg-black" />
+            </div>
+          </div>
         </div>
       </div>
+
       <div className="absolute inset-x-0 top-24">
         <div className={pageRailClass}>
           <div className="border-t border-white/[0.07]" />
@@ -603,19 +640,10 @@ function HeroGrid() {
           <div className="border-b border-white/[0.07]" />
         </div>
       </div>
-      <div className="absolute top-24 bottom-16 left-[18%] hidden w-px bg-white/[0.07] xl:block" />
-      <div className="absolute top-24 right-[18%] bottom-16 hidden w-px bg-white/[0.07] xl:block" />
-      <div className="absolute top-24 left-1/2 h-28 w-px bg-white/[0.09]" />
-      <div className="absolute bottom-16 left-1/2 h-28 w-px bg-white/[0.09]" />
-      <div className="absolute top-[28%] left-[12%] hidden h-px w-28 bg-white/[0.08] md:block" />
-      <div className="absolute top-[28%] right-[12%] hidden h-px w-28 bg-white/[0.08] md:block" />
-      <div className="absolute bottom-[25%] left-[12%] hidden h-px w-36 bg-white/[0.08] md:block" />
-      <div className="absolute right-[12%] bottom-[25%] hidden h-px w-36 bg-white/[0.08] md:block" />
-      <div className="absolute top-[28%] left-[12%] hidden size-2 -translate-x-1/2 -translate-y-1/2 border border-white/[0.18] bg-black md:block" />
-      <div className="absolute top-[28%] right-[12%] hidden size-2 translate-x-1/2 -translate-y-1/2 border border-white/[0.18] bg-black md:block" />
-      <div className="absolute bottom-[25%] left-[12%] hidden size-2 -translate-x-1/2 translate-y-1/2 border border-white/[0.18] bg-black md:block" />
-      <div className="absolute right-[12%] bottom-[25%] hidden size-2 translate-x-1/2 translate-y-1/2 border border-white/[0.18] bg-black md:block" />
-      <div className="absolute inset-x-0 top-1/2 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08)_18%,transparent_35%,transparent_65%,rgba(255,255,255,0.08)_82%,transparent)]" />
+
+      <div className="absolute top-24 left-1/2 h-28 w-px -translate-x-1/2 bg-white/[0.09]" />
+      <div className="absolute bottom-16 left-1/2 h-28 w-px -translate-x-1/2 bg-white/[0.09]" />
+      <div className="absolute inset-x-0 top-1/2 h-px -translate-y-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08)_20%,transparent_35%,transparent_65%,rgba(255,255,255,0.08)_80%,transparent)]" />
     </div>
   );
 }

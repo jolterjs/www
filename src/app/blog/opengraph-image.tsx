@@ -9,7 +9,6 @@ export const size = {
 
 export default function Image() {
   return createJolterOgImage({
-    eyebrow: "Jolter Blog",
     title: "Notes on reliable JavaScript toolchains",
     description:
       "Product updates, release context, engineering notes, and security guidance from the Jolter team.",

@@ -10,7 +10,6 @@ export const size = {
 
 export default function Image() {
   return createJolterOgImage({
-    eyebrow: "Jolter",
     title: "Reliable JavaScript toolchain management",
     description: siteConfig.description,
   });

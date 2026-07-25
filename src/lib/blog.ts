@@ -3,14 +3,23 @@ import path from "node:path";
 import { cache } from "react";
 import matter from "gray-matter";
 import type {
+  BlogAuthor,
   BlogCategory,
   BlogCategorySlug,
   BlogPost,
 } from "@/lib/blog-types";
 
+type BlogFrontmatterAuthor = {
+  avatarUrl?: string;
+  link?: string;
+  name?: string;
+};
+
 type BlogFrontmatter = {
   authorAvatarUrl?: string;
+  authorLink?: string;
   authorName?: string;
+  authors?: Array<BlogFrontmatterAuthor | string>;
   category?: string;
   date?: string | Date;
   description?: string;
@@ -75,6 +84,17 @@ function stripMdxForExcerpt(content: string) {
     .trim();
 }
 
+export function formatAuthorNames(authors: BlogAuthor[]): string {
+  if (!authors || authors.length === 0) return "Jolter Team";
+  if (authors.length === 1) return authors[0].name;
+  if (authors.length === 2) return `${authors[0].name} & ${authors[1].name}`;
+  const firsts = authors
+    .slice(0, authors.length - 1)
+    .map((a) => a.name)
+    .join(", ");
+  return `${firsts} & ${authors[authors.length - 1].name}`;
+}
+
 function readBlogPost(fileName: string): BlogPost {
   const slug = fileName.replace(/\.mdx$/, "");
   const raw = fs.readFileSync(path.join(contentRoot, fileName), "utf8");
@@ -88,9 +108,41 @@ function readBlogPost(fileName: string): BlogPost {
     throw new Error(`Unknown blog category "${category}" in ${fileName}`);
   }
 
+  let authors: BlogAuthor[] = [];
+
+  if (Array.isArray(data.authors) && data.authors.length > 0) {
+    authors = data.authors.map((item) => {
+      if (typeof item === "string") {
+        return {
+          name: item,
+          avatarUrl: "https://github.com/jolterjs.png",
+          link: "https://github.com/jolterjs",
+        };
+      }
+      return {
+        name: item.name ?? "Jolter Team",
+        avatarUrl: item.avatarUrl ?? "https://github.com/jolterjs.png",
+        link: item.link ?? "https://github.com/jolterjs",
+      };
+    });
+  } else {
+    authors = [
+      {
+        name: data.authorName ?? "Jolter Team",
+        avatarUrl: data.authorAvatarUrl ?? "https://github.com/jolterjs.png",
+        link: data.authorLink ?? "https://github.com/jolterjs",
+      },
+    ];
+  }
+
+  const authorName = formatAuthorNames(authors);
+  const authorAvatarUrl =
+    authors[0]?.avatarUrl ?? "https://github.com/jolterjs.png";
+
   return {
-    authorAvatarUrl: data.authorAvatarUrl ?? "https://github.com/jolterjs.png",
-    authorName: data.authorName ?? "Jolter Team",
+    authorAvatarUrl,
+    authorName,
+    authors,
     body: stripMdxForExcerpt(parsed.content),
     category,
     content: parsed.content,

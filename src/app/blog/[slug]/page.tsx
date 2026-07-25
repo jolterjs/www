@@ -8,6 +8,7 @@ import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import { ArrowLeft } from "lucide-react";
 import { blogMdxComponents } from "@/components/blog/BlogMdxComponents";
+import { BlogAuthors } from "@/components/blog/BlogAuthors";
 import {
   formatBlogDate,
   getBlogCategoryLabel,
@@ -46,14 +47,17 @@ export async function generateMetadata({
     alternates: {
       canonical: post.href,
     },
-    authors: [{ name: post.authorName }],
+    authors: post.authors.map((author) => ({
+      name: author.name,
+      url: author.link,
+    })),
     openGraph: {
       type: "article",
       title: post.title,
       description: post.description,
       url: post.href,
       publishedTime: post.date,
-      authors: [post.authorName],
+      authors: post.authors.map((author) => author.name),
       section: getBlogCategoryLabel(post.category),
       images: [
         {
@@ -147,7 +151,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <article className="mt-10">
             <header className="border-b border-white/[0.09] pb-10">
               <div className="flex flex-wrap items-center gap-3 text-sm text-white/42">
-                <span className="rounded-md border border-white/[0.1] bg-white/[0.04] px-2 py-1 font-mono text-xs uppercase">
+                <span className="rounded-md border border-white/[0.1] bg-white/[0.04] px-2 py-1 font-mono text-xs">
                   {getBlogCategoryLabel(post.category)}
                 </span>
                 <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
@@ -158,20 +162,8 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
               <p className="mt-6 max-w-2xl text-lg leading-8 text-white/52">
                 {post.description}
               </p>
-              <div className="mt-8 flex items-center gap-3">
-                <img
-                  src={post.authorAvatarUrl}
-                  alt=""
-                  className="size-10 rounded-full border border-white/[0.12] bg-white/[0.04]"
-                />
-                <div>
-                  <p className="text-sm font-medium text-white/78">
-                    {post.authorName}
-                  </p>
-                  <p className="mt-0.5 text-xs text-white/36">
-                    Published by Jolter
-                  </p>
-                </div>
+              <div className="mt-8">
+                <BlogAuthors authors={post.authors} />
               </div>
             </header>
 

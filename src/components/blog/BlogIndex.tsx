@@ -8,6 +8,7 @@ import {
   getFeaturedBlogPost,
 } from "@/lib/blog";
 import type { BlogCategorySlug, BlogPost } from "@/lib/blog-types";
+import { BlogAuthors } from "./BlogAuthors";
 
 const pageRailClass = "mx-auto max-w-7xl px-5 sm:px-8";
 
@@ -29,17 +30,14 @@ export default function BlogIndex({
   return (
     <main className="min-h-screen bg-black pt-16 text-white">
       <section className="border-b border-white/[0.08]">
-        <div className={`${pageRailClass} py-16 lg:py-20`}>
-          <p className="font-mono text-xs font-semibold tracking-normal text-white/38 uppercase">
-            Jolter Blog
-          </p>
-          <div className="mt-6 grid gap-8 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] lg:items-end">
-            <div>
-              <h1 className="max-w-3xl text-5xl leading-tight font-semibold text-balance sm:text-6xl">
-                Notes on reliable JavaScript toolchains.
-              </h1>
-            </div>
-            <p className="max-w-2xl text-lg leading-8 text-white/52">
+        <div
+          className={`${pageRailClass} flex flex-col items-center justify-center py-16 lg:py-20`}
+        >
+          <div className="mt-6 flex flex-col items-center justify-center">
+            <h1 className="text-center text-5xl leading-tight font-semibold text-balance sm:text-6xl">
+              Notes on reliable JavaScript toolchains.
+            </h1>
+            <p className="text-center text-lg leading-8 text-white/52">
               Product updates, release context, engineering notes, and security
               guidance from the Jolter team.
             </p>
@@ -88,7 +86,7 @@ function CategoryTabs({
 }) {
   return (
     <div className="mt-10 max-w-full overflow-x-auto">
-      <div className="inline-flex rounded-lg border border-white/[0.11] bg-[#050505] p-1">
+      <div className="inline-flex gap-1 rounded-lg border border-white/[0.11] bg-[#050505] p-1">
         <CategoryTab href="/blog" label="All" active={!activeCategory} />
         {blogCategories.map((category) => (
           <CategoryTab
@@ -128,17 +126,19 @@ function CategoryTab({
 
 function FeaturedPost({ post }: { post: BlogPost }) {
   return (
-    <Link
-      href={post.href}
-      className="group grid overflow-hidden border border-white/[0.09] bg-[#050505] transition hover:border-white/[0.16] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]"
-    >
+    <div className="group relative grid overflow-hidden border border-white/[0.09] bg-[#050505] transition hover:border-white/[0.16] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <Link
+        href={post.href}
+        className="absolute inset-0 z-0"
+        aria-label={post.title}
+      />
       <div className="relative min-h-72 overflow-hidden border-b border-white/[0.09] bg-black p-8 lg:border-r lg:border-b-0">
         <BlogVisual title={post.title} />
       </div>
       <div className="flex min-h-72 flex-col justify-between p-6 sm:p-8">
-        <div>
+        <div className="pointer-events-none relative z-10">
           <div className="flex flex-wrap items-center gap-3 text-sm text-white/40">
-            <span className="rounded-md border border-white/[0.1] bg-white/[0.04] px-2 py-1 font-mono text-xs uppercase">
+            <span className="rounded-md border border-white/[0.1] bg-white/[0.04] px-2 py-1 font-mono text-xs">
               {getBlogCategoryLabel(post.category)}
             </span>
             <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
@@ -150,24 +150,26 @@ function FeaturedPost({ post }: { post: BlogPost }) {
             {post.description}
           </p>
         </div>
-        <div className="mt-8 flex items-center justify-between gap-5">
-          <Author post={post} />
+        <div className="relative z-10 mt-8 flex items-center justify-between gap-5">
+          <Author post={post} compact />
           <ArrowRight className="size-5 text-white/35 transition group-hover:translate-x-0.5 group-hover:text-white" />
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 
 function BlogCard({ post }: { post: BlogPost }) {
   return (
-    <Link
-      href={post.href}
-      className="group flex min-h-72 flex-col justify-between bg-black p-6 transition hover:bg-[#050505]"
-    >
-      <div>
+    <div className="group relative flex min-h-72 flex-col justify-between bg-black p-6 transition hover:bg-[#050505]">
+      <Link
+        href={post.href}
+        className="absolute inset-0 z-0"
+        aria-label={post.title}
+      />
+      <div className="pointer-events-none relative z-10">
         <div className="flex items-center justify-between gap-4">
-          <span className="font-mono text-xs font-semibold tracking-normal text-white/35 uppercase">
+          <span className="font-mono text-xs font-semibold tracking-normal text-white/35">
             {getBlogCategoryLabel(post.category)}
           </span>
           <time className="text-sm text-white/32" dateTime={post.date}>
@@ -181,17 +183,17 @@ function BlogCard({ post }: { post: BlogPost }) {
           {post.description}
         </p>
       </div>
-      <div className="mt-8 flex items-center justify-between gap-5">
+      <div className="relative z-10 mt-8 flex items-center justify-between gap-5">
         <Author post={post} compact />
         <ArrowRight className="size-4 text-white/28 transition group-hover:translate-x-0.5 group-hover:text-white/70" />
       </div>
-    </Link>
+    </div>
   );
 }
 
 function BlogVisual({ title }: { title: string }) {
   return (
-    <div className="absolute inset-0">
+    <div className="absolute inset-0 select-none">
       <div className="absolute inset-8 border border-white/[0.08]" />
       <div className="absolute top-8 right-8 left-8 h-px bg-white/[0.08]" />
       <div className="absolute right-8 bottom-8 left-8 h-px bg-white/[0.08]" />
@@ -199,7 +201,7 @@ function BlogVisual({ title }: { title: string }) {
       <div className="absolute top-1/2 right-8 left-8 h-px bg-white/[0.08]" />
       <div className="absolute top-8 left-8 size-1.5 -translate-x-1/2 -translate-y-1/2 bg-white/50" />
       <div className="absolute right-8 bottom-8 size-1.5 translate-x-1/2 translate-y-1/2 bg-white/50" />
-      <div className="absolute inset-0 flex items-center justify-center p-10 text-center">
+      <div className="absolute inset-0 z-1 flex items-center justify-center p-10 text-center">
         <div>
           <img src="/jnbg.png" className="mx-auto size-10 opacity-80" alt="" />
           <p className="mx-auto mt-8 max-w-sm text-2xl leading-tight font-semibold text-balance text-white/80">
@@ -207,34 +209,13 @@ function BlogVisual({ title }: { title: string }) {
           </p>
         </div>
       </div>
+      <div className="absolute top-1/2 left-1/2 z-0 size-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full bg-black blur-sm" />
     </div>
   );
 }
 
-function Author({
-  compact = false,
-  post,
-}: {
-  compact?: boolean;
-  post: BlogPost;
-}) {
-  return (
-    <div className="flex min-w-0 items-center gap-3">
-      <img
-        src={post.authorAvatarUrl}
-        alt=""
-        className={`${compact ? "size-7" : "size-9"} rounded-full border border-white/[0.12] bg-white/[0.04]`}
-      />
-      <div className="min-w-0">
-        <p className="truncate text-sm font-medium text-white/72">
-          {post.authorName}
-        </p>
-        {!compact && (
-          <p className="mt-0.5 text-xs text-white/36">Published by Jolter</p>
-        )}
-      </div>
-    </div>
-  );
+function Author({ post, compact }: { post: BlogPost; compact: boolean }) {
+  return <BlogAuthors authors={post.authors} compact={compact} />;
 }
 
 function EmptyBlogState({
