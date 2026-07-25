@@ -6,6 +6,7 @@ import {
   getBlogCategory,
   getBlogCategoryLabel,
   getFeaturedBlogPost,
+  isBlogPostReleased,
 } from "@/lib/blog";
 import type { BlogCategorySlug, BlogPost } from "@/lib/blog-types";
 import { BlogAuthors } from "./BlogAuthors";
@@ -22,10 +23,14 @@ export default function BlogIndex({
   const activeCategoryMeta = activeCategory
     ? getBlogCategory(activeCategory)
     : undefined;
-  const featured = activeCategory ? posts[0] : getFeaturedBlogPost();
+  const allReleasedPosts =
+    process.env.NODE_ENV === "production"
+      ? posts.filter((post) => isBlogPostReleased(post))
+      : posts;
+  const featured = activeCategory ? allReleasedPosts[0] : getFeaturedBlogPost();
   const visiblePosts = featured
-    ? posts.filter((post) => post.slug !== featured.slug)
-    : posts;
+    ? allReleasedPosts.filter((post) => post.slug !== featured.slug)
+    : allReleasedPosts;
 
   return (
     <main className="min-h-screen bg-black pt-16 text-white">

@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { compileMDX } from "next-mdx-remote/rsc";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import { ArrowLeft } from "lucide-react";
-import { blogMdxComponents } from "@/components/blog/BlogMdxComponents";
+import { mdxComponents } from "@/components/MdxComponents";
 import { BlogAuthors } from "@/components/blog/BlogAuthors";
 import { InlineMarkdown } from "@/components/InlineMarkdown";
 import {
@@ -15,6 +14,7 @@ import {
   getBlogCategoryLabel,
   getBlogPost,
   getBlogStaticParams,
+  isBlogPostReleased,
 } from "@/lib/blog";
 import { absoluteUrl, siteConfig } from "@/lib/site";
 
@@ -38,7 +38,10 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = getBlogPost(slug);
 
-  if (!post) {
+  if (
+    !post ||
+    (process.env.NODE_ENV === "production" && !isBlogPostReleased(post))
+  ) {
     return {};
   }
 
@@ -82,13 +85,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   const { slug } = await params;
   const post = getBlogPost(slug);
 
-  if (!post) {
+  if (
+    !post ||
+    (process.env.NODE_ENV === "production" && !isBlogPostReleased(post))
+  ) {
     notFound();
   }
 
   const { content } = await compileMDX({
     source: post.content,
-    components: blogMdxComponents,
+    components: mdxComponents,
     options: {
       mdxOptions: {
         remarkPlugins: [remarkGfm],

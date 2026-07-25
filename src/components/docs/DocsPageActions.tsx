@@ -142,10 +142,11 @@ export function DocsPageActions({ slug, content, href }: DocsPageActionsProps) {
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(e.target as Node)
-      ) {
+      const target = e.target as Node;
+      const isInsideContainer = containerRef.current?.contains(target);
+      const isInsideDrawer = drawerRef.current?.contains(target);
+
+      if (!isInsideContainer && !isInsideDrawer) {
         setIsOpen(false);
       }
     };

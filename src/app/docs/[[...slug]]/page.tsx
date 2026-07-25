@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { compileMDX } from "next-mdx-remote/rsc";
-import rehypeAutolinkHeadings from "rehype-autolink-headings";
 import rehypePrettyCode from "rehype-pretty-code";
 import rehypeSlug from "rehype-slug";
 import remarkGfm from "remark-gfm";
 import { ArrowLeft, ArrowRight } from "lucide-react";
-import { docsMdxComponents } from "@/components/docs/DocsMdxComponents";
+import { mdxComponents } from "@/components/MdxComponents";
 import { DocsSidebarNav, DocsToc } from "@/components/docs/DocsNavigation";
 import { DocsFeedback } from "@/components/docs/DocsFeedback";
 import { DocsPageActions } from "@/components/docs/DocsPageActions";
@@ -82,7 +81,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
   const nav = getDocNav();
   const { content } = await compileMDX({
     source: page.content,
-    components: docsMdxComponents,
+    components: mdxComponents,
     options: {
       mdxOptions: {
         remarkPlugins: [remarkGfm],

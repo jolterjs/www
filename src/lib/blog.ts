@@ -160,7 +160,7 @@ const loadBlog = cache(() => {
     return [] as BlogPost[];
   }
 
-  return fs
+  const posts = fs
     .readdirSync(contentRoot)
     .filter((fileName) => fileName.endsWith(".mdx"))
     .map(readBlogPost)
@@ -169,6 +169,12 @@ const loadBlog = cache(() => {
 
       return byDate || a.title.localeCompare(b.title);
     });
+
+  if (process.env.NODE_ENV === "production") {
+    return posts.filter(isBlogPostReleased);
+  }
+
+  return posts;
 });
 
 export function getAllBlogPosts() {
@@ -213,4 +219,11 @@ export function getBlogStaticParams() {
 
 export function getBlogCategoryStaticParams() {
   return blogCategories.map((category) => ({ category: category.slug }));
+}
+
+export function isBlogPostReleased(post: BlogPost) {
+  const today = new Date();
+  const postDate = new Date(post.date);
+
+  return postDate.getTime() <= today.getTime();
 }

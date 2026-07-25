@@ -1,0 +1,96 @@
+---
+title: "Introducing Jolter"
+description: "Why we built a single toolchain manager for Node.js, Bun, Deno, and your package managers, and what it fixes about JavaScript development today."
+date: "2026-08-01"
+category: "updates"
+authors:
+  - name: "Jonas"
+    avatarUrl: "https://avatars.githubusercontent.com/u/81481526?v=4"
+    link: "https://github.com/builtbyjonas"
+  - name: "y4gg"
+    avatarUrl: "https://avatars.githubusercontent.com/u/119488820?v=4"
+    link: "https://github.com/y4gg"
+featured: true
+---
+
+We spent a long time not writing Jolter, because we kept hoping the problem would just go away on its own.
+
+It didn't. Every JavaScript team we've worked on eventually hits the same wall: someone's laptop has Node 20, CI is running Node 22, a teammate's `pnpm` is two majors behind everyone else's, and nobody can quite explain why the build works everywhere except the one machine that matters right now. You fix it with a Slack message, an `.nvmrc` nobody reads, or a README section that's already out of date. It always comes back.
+
+Jolter is our answer to that problem. It's one tool that manages your JavaScript runtimes (Node.js, Bun, Deno) and your package managers (npm, pnpm, Yarn), pins them per project, and switches between them automatically as you move around your filesystem. Today we're calling it done enough to announce.
+
+## What it actually does
+
+At its core, Jolter is small on purpose. There are three moving parts:
+
+- A project file, `jolter.json`, that declares what a repository needs.
+- Managed storage that holds verified, exact-version installs of everything you've used.
+- Command shims — `node`, `pnpm`, `yarn`, `bun`, `deno` — that quietly figure out which version to run every time you type a command.
+
+That last part is the piece that actually saves you time day to day. There's no `cd`-triggered shell hook, no daemon watching your terminal. Every shimmed command just resolves the current project from wherever you're standing and launches the right thing.
+
+```bash
+cd project-a
+node --version   # whatever project-a pins
+
+cd ../project-b
+node --version   # whatever project-b pins
+```
+
+If a project doesn't declare anything, Jolter falls back to whatever you've set globally with `jolter use`. If it does declare something, the project wins, every time, in every shell, in CI, and in your editor's integrated terminal.
+
+## Getting started
+
+If you want to try it right now:
+
+<CodeGroup>
+
+```powershell Windows
+irm https://get.jolter.dev/install.ps1 | iex
+jolter setup
+jolter use node@lts
+jolter use pnpm@10
+jolter doctor
+```
+
+```bash Linux and macOS
+curl -fsSL https://get.jolter.dev/install.sh | sh
+jolter setup
+jolter use node@lts
+jolter use pnpm@10
+jolter doctor
+```
+
+</CodeGroup>
+
+And to lock a project to a specific toolchain:
+
+```bash
+jolter pin node@24
+jolter pin pnpm@10
+jolter sync
+```
+
+That writes a `jolter.json` you commit alongside your code. Anyone who clones the repo and runs `jolter sync` ends up with exactly what you had, whether they're on Windows, Linux, or a Mac.
+
+## Where it goes beyond version switching
+
+A few things we think are worth calling out specifically:
+
+**Installing is a separate step from running.** `jolter sync` is the only thing that touches the network. Running `node` or `pnpm` never triggers a surprise download mid-build — it either dispatches instantly or fails with a message telling you to run `sync`.
+
+**Everything gets verified before it's trusted.** Downloaded archives are checked against registry integrity metadata (and optionally Corepack-style hashes) before they're ever published into a usable install. Nothing gets executed as part of installation.
+
+**CI uses the same file as your laptop.** `jolter setup-ci` reads the same `jolter.json` your team already committed, so there's no separate CI-only configuration to keep in sync with reality.
+
+**Plugins extend it past the built-ins.** If you need `eslint` or another ecosystem tool version-pinned the same way, Jolter plugins (WebAssembly-based, registry-hosted) bring it into the same model — same selectors, same verification, same shims.
+
+We've also shipped an MCP server (`@jolter/mcp-server`) if you want Jolter documentation and config validation available directly inside Cursor, VS Code, Claude, or Windsurf.
+
+## What's next
+
+CI story is one area we're still actively working on — `jolter setup-ci` works today, and a first-class `jolterjs/setup-jolter` GitHub Action is next up so you don't need the raw install-and-run steps in your workflow file. We'll write about that separately once it ships.
+
+For now: try the [quickstart](https://jolter.dev/docs/quickstart), read through [why teams use Jolter](https://jolter.dev/docs) if you want the fuller pitch, and if something breaks, `jolter doctor` is genuinely the first thing to run — it catches the vast majority of setup issues we hear about.
+
+Thanks for reading this far. More to come.

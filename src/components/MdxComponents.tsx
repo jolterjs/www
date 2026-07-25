@@ -76,20 +76,26 @@ const iconMap = {
   wrench: Wrench,
 };
 
-function normalizeDocsHref(href: string) {
-  if (href.startsWith("#")) {
+function normalizeHref(href: string) {
+  if (!href || href.startsWith("#") || /^[a-z][a-z0-9+.-]*:/i.test(href)) {
     return href;
   }
 
-  if (href.startsWith("http")) {
-    return href;
-  }
-
-  if (href.startsWith("/docs/")) {
+  if (
+    href === "/blog" ||
+    href.startsWith("/blog/") ||
+    href === "/docs" ||
+    href.startsWith("/docs/") ||
+    href === "/"
+  ) {
     return href;
   }
 
   if (href.startsWith("docs/")) {
+    return `/${href}`;
+  }
+
+  if (href.startsWith("blog/")) {
     return `/${href}`;
   }
 
@@ -100,13 +106,13 @@ function normalizeDocsHref(href: string) {
   return `/docs/${href}`;
 }
 
-function DocsLink({
+function UniversalLink({
   href = "",
   children,
   className = "",
   ...props
 }: AnchorHTMLAttributes<HTMLAnchorElement>) {
-  const normalizedHref = normalizeDocsHref(href);
+  const normalizedHref = normalizeHref(href);
   const external =
     normalizedHref.startsWith("http") || normalizedHref.startsWith("mailto:");
   const anchorOnly = normalizedHref.startsWith("#");
@@ -228,7 +234,7 @@ function Card({ children, title, icon, href, inCardGroup }: CardProps) {
     return <div className={baseClasses}>{content}</div>;
   }
 
-  const normalizedHref = normalizeDocsHref(href);
+  const normalizedHref = normalizeHref(href);
   const external = normalizedHref.startsWith("http");
 
   const interactiveClasses = inCardGroup
@@ -592,7 +598,7 @@ function sortCodeGroupTabs(items: CodeGroupTabItem[]) {
   );
 }
 
-function DocsPre({
+function UniversalPre({
   children,
   className = "",
   ...props
@@ -620,7 +626,7 @@ function DocsPre({
   );
 }
 
-function DocsTable({
+function UniversalTable({
   className = "",
   ...props
 }: TableHTMLAttributes<HTMLTableElement>) {
@@ -634,8 +640,8 @@ function DocsTable({
 const paragraphClassName = "my-5 leading-7 text-white/58";
 const headingBaseClassName = "scroll-mt-24 font-semibold text-white";
 
-export const docsMdxComponents = {
-  a: DocsLink,
+export const mdxComponents = {
+  a: UniversalLink,
   blockquote: ({ className = "", ...props }: HTMLAttributes<HTMLElement>) => (
     <blockquote
       className={`my-7 border-l border-white/[0.18] pl-5 text-white/60 ${className}`}
@@ -830,10 +836,10 @@ export const docsMdxComponents = {
   p: ({ className = "", ...props }: HTMLAttributes<HTMLParagraphElement>) => (
     <p className={`${paragraphClassName} ${className}`} {...props} />
   ),
-  pre: DocsPre,
+  pre: UniversalPre,
   Step,
   Steps,
-  table: DocsTable,
+  table: UniversalTable,
   tbody: ({ className = "", ...props }: HTMLAttributes<HTMLElement>) => (
     <tbody className={`divide-y divide-white/[0.08] ${className}`} {...props} />
   ),
