@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import BlogIndex from "@/components/blog/BlogIndex";
 import { getAllBlogPosts } from "@/lib/blog";
 
+export const revalidate = 60;
+
 export const metadata: Metadata = {
   title: "Blog",
   description:

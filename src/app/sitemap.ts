@@ -3,6 +3,8 @@ import { blogCategories, getAllBlogPosts } from "@/lib/blog";
 import { getAllDocPages } from "@/lib/docs";
 import { absoluteUrl } from "@/lib/site";
 
+export const revalidate = 3600;
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 

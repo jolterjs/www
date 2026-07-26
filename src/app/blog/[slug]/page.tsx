@@ -26,7 +26,8 @@ type BlogPostPageProps = {
 
 const pageRailClass = "mx-auto max-w-7xl px-5 sm:px-8";
 
-export const dynamicParams = false;
+export const revalidate = 60;
+export const dynamicParams = true;
 
 export function generateStaticParams() {
   return getBlogStaticParams();
