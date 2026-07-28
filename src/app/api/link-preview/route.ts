@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
         const host = urlObj.hostname.toLowerCase();
         if (
           host === "jolter.dev" ||
-          host.endsWith(".jolter.dev") ||
+          host === "www.jolter.dev" ||
           host === "localhost" ||
           host === "127.0.0.1"
         ) {

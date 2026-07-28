@@ -156,6 +156,7 @@ function DocsPagination({
       {previous ? (
         <Link
           href={previous.href}
+          scroll={false}
           className="group bg-black p-5 transition hover:bg-[#050505]"
         >
           <div className="flex items-center gap-2 font-mono text-xs text-white/35">
@@ -164,7 +165,7 @@ function DocsPagination({
           </div>
           <p className="mt-3 font-semibold text-white">{previous.title}</p>
           <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/45">
-            {previous.description}
+            <InlineMarkdown content={previous.description} />
           </p>
         </Link>
       ) : (
@@ -173,6 +174,7 @@ function DocsPagination({
       {next ? (
         <Link
           href={next.href}
+          scroll={false}
           className="group bg-black p-5 text-right transition hover:bg-[#050505]"
         >
           <div className="flex items-center justify-end gap-2 font-mono text-xs text-white/35">
@@ -181,7 +183,7 @@ function DocsPagination({
           </div>
           <p className="mt-3 font-semibold text-white">{next.title}</p>
           <p className="mt-2 line-clamp-2 text-sm leading-6 text-white/45">
-            {next.description}
+            <InlineMarkdown content={next.description} />
           </p>
         </Link>
       ) : (

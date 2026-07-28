@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import { useLenis } from "lenis/react";
 import type { DocHeading, DocNavGroup, DocNavItem } from "@/lib/docs-types";
 import { useMobileDrawer } from "@/components/MobileDrawerProvider";
 
@@ -62,6 +63,7 @@ export function DocsSidebarNav({
 }
 
 export function DocsToc({ headings }: { headings: DocHeading[] }) {
+  const lenis = useLenis();
   const toc = React.useMemo(
     () => headings.filter((heading) => heading.depth <= 3),
     [headings],
@@ -143,7 +145,11 @@ export function DocsToc({ headings }: { headings: DocHeading[] }) {
                 e.preventDefault();
                 const el = document.getElementById(heading.id);
                 if (el) {
-                  el.scrollIntoView({ behavior: "smooth" });
+                  if (lenis) {
+                    lenis.scrollTo(el, { offset: -84, duration: 1.2 });
+                  } else {
+                    el.scrollIntoView({ behavior: "smooth" });
+                  }
                   window.history.pushState(null, "", `#${heading.id}`);
                 }
               }}
@@ -191,9 +197,17 @@ function DocsNavGroup({
 }
 
 function DocsNavLink({ item, active }: { item: DocNavItem; active: boolean }) {
+  const lenis = useLenis();
+
   return (
     <Link
       href={item.href}
+      scroll={false}
+      onClick={() => {
+        if (lenis) {
+          lenis.scrollTo(0, { duration: 1.2 });
+        }
+      }}
       className={`block rounded-xl px-2.5 py-2 text-sm transition ${
         active
           ? "bg-white/[0.075] text-white"

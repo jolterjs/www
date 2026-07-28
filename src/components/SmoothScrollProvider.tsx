@@ -11,7 +11,37 @@ function HashScrollHandler() {
   useEffect(() => {
     if (!lenis) return;
 
-    const scrollToHash = () => {
+    const hash = window.location.hash;
+    if (hash) {
+      const id = decodeURIComponent(hash.slice(1));
+      const scrollToTarget = () => {
+        const target =
+          document.getElementById(id) || document.querySelector(hash);
+
+        if (target) {
+          lenis.scrollTo(target, { offset: -84, duration: 1.2 });
+          return true;
+        }
+        return false;
+      };
+
+      if (!scrollToTarget()) {
+        const rafId = requestAnimationFrame(() => {
+          if (!scrollToTarget()) {
+            lenis.scrollTo(0, { duration: 1.2 });
+          }
+        });
+        return () => cancelAnimationFrame(rafId);
+      }
+    } else {
+      lenis.scrollTo(0, { duration: 1.2 });
+    }
+  }, [lenis, pathname]);
+
+  useEffect(() => {
+    if (!lenis) return;
+
+    const handleHashChange = () => {
       const hash = window.location.hash;
       if (!hash) return;
 
@@ -24,24 +54,11 @@ function HashScrollHandler() {
       }
     };
 
-    scrollToHash();
-    const rafId = requestAnimationFrame(scrollToHash);
-    const timer1 = setTimeout(scrollToHash, 100);
-    const timer2 = setTimeout(scrollToHash, 300);
-
-    const handleHashChange = () => {
-      scrollToHash();
-    };
-
     window.addEventListener("hashchange", handleHashChange);
-
     return () => {
-      cancelAnimationFrame(rafId);
-      clearTimeout(timer1);
-      clearTimeout(timer2);
       window.removeEventListener("hashchange", handleHashChange);
     };
-  }, [lenis, pathname]);
+  }, [lenis]);
 
   return null;
 }

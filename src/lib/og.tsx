@@ -16,25 +16,73 @@ const logoDataUrl = `data:image/png;base64,${fs
   .readFileSync(path.join(process.cwd(), "public/jnbg.png"))
   .toString("base64")}`;
 
+function OgAuroraBackground() {
+  const auroraGradient =
+    "repeating-linear-gradient(100deg, #ffffff 10%, #e2e8f0 15%, #94a3b8 20%, #ffffff 25%, #cbd5e1 30%)";
+  const darkGradient =
+    "repeating-linear-gradient(100deg, #000 0%, #000 7%, transparent 10%, transparent 12%, #000 16%)";
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        overflow: "hidden",
+        display: "flex",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: -10,
+          left: -10,
+          right: -10,
+          bottom: -10,
+          backgroundImage: `${darkGradient}, ${auroraGradient}`,
+          backgroundSize: "300% 200%",
+          backgroundPosition: "50% 50%",
+          opacity: 0.45,
+          filter: "blur(20px)",
+          display: "flex",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: -10,
+          left: -10,
+          right: -10,
+          bottom: -10,
+          backgroundImage: `${darkGradient}, ${auroraGradient}`,
+          backgroundSize: "200% 100%",
+          backgroundPosition: "50% 50%",
+          opacity: 0.3,
+          filter: "blur(15px)",
+          display: "flex",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundImage:
+            "radial-gradient(ellipse 120% 100% at 50% 20%, transparent 30%, #000 85%)",
+          display: "flex",
+        }}
+      />
+    </div>
+  );
+}
+
 export function createJolterOgImage({ description, title }: OgImageOptions) {
-  const titleFontSize = title.length > 68 ? 56 : title.length > 42 ? 64 : 72;
-  const titleLineHeight = 1.03;
-  const titleLineEstimate = Math.min(
-    3,
-    Math.max(1, Math.ceil(title.length / (titleFontSize >= 70 ? 25 : 32))),
-  );
-  const descriptionLineEstimate = description
-    ? Math.min(2, Math.max(1, Math.ceil(description.length / 58)))
-    : 0;
-  const contentTop = 196;
-  const titleHeight = titleLineEstimate * titleFontSize * titleLineHeight;
-  const descriptionHeight = descriptionLineEstimate * 34;
-  const contentBottom = Math.min(
-    506,
-    contentTop + 34 + titleHeight + (description ? 30 + descriptionHeight : 0),
-  );
-  const topRule = contentTop - 28;
-  const bottomRule = contentBottom + 28;
+  const titleFontSize = title.length > 68 ? 64 : title.length > 42 ? 76 : 88;
+  const titleLineHeight = 1.05;
 
   return new ImageResponse(
     <div
@@ -46,43 +94,20 @@ export function createJolterOgImage({ description, title }: OgImageOptions) {
         fontFamily: "Arial, Helvetica, sans-serif",
         height: "100%",
         justifyContent: "center",
-        padding: 64,
+        padding: "48px 64px",
         position: "relative",
         width: "100%",
       }}
     >
-      <GridLine orientation="horizontal" x={64} y={topRule} width={1072} />
-      <GridLine orientation="horizontal" x={64} y={bottomRule} width={1072} />
-      <GridLine
-        height={566 - bottomRule}
-        orientation="vertical"
-        x={600}
-        y={bottomRule}
-      />
-      <div
-        style={{
-          border: "1px solid rgba(255,255,255,0.1)",
-          bottom: 64,
-          left: 64,
-          position: "absolute",
-          right: 64,
-          top: 64,
-        }}
-      />
-      <Corner x={64} y={64} />
-      <Corner x={1136} y={64} />
-      <Corner x={64} y={566} />
-      <Corner x={1136} y={566} />
-
+      <OgAuroraBackground />
       <div
         style={{
           display: "flex",
           flexDirection: "column",
-          height: "100%",
-          justifyContent: "flex-start",
-          maxWidth: 960,
-          padding: "12px 0 0",
+          justifyContent: "center",
+          maxWidth: 1072,
           position: "relative",
+          marginTop: -42,
           width: "100%",
         }}
       >
@@ -90,29 +115,27 @@ export function createJolterOgImage({ description, title }: OgImageOptions) {
           style={{
             alignItems: "center",
             display: "flex",
-            height: 86,
+            height: 80,
           }}
         >
           <img
             alt=""
-            height={68}
+            height={76}
             src={logoDataUrl}
             style={{
-              height: 68,
+              height: 76,
               objectFit: "contain",
-              width: 68,
+              width: 76,
             }}
-            width={68}
+            width={76}
           />
         </div>
 
         <div
           style={{
-            background: "#000",
             display: "flex",
             flexDirection: "column",
-            marginTop: contentTop - 64 - 98,
-            padding: "0 0 2px",
+            marginTop: 32,
             width: "100%",
           }}
         >
@@ -120,9 +143,9 @@ export function createJolterOgImage({ description, title }: OgImageOptions) {
             style={{
               fontSize: titleFontSize,
               fontWeight: 800,
-              letterSpacing: -1.2,
+              letterSpacing: -1.8,
               lineHeight: titleLineHeight,
-              maxWidth: 930,
+              maxWidth: 1072,
             }}
           >
             {title}
@@ -130,32 +153,16 @@ export function createJolterOgImage({ description, title }: OgImageOptions) {
           {description && (
             <div
               style={{
-                color: "rgba(255,255,255,0.58)",
-                fontSize: 25,
-                lineHeight: 1.4,
-                marginTop: 28,
-                maxWidth: 820,
+                color: "rgba(255,255,255,0.65)",
+                fontSize: 32,
+                lineHeight: 1.35,
+                marginTop: 24,
+                maxWidth: 1000,
               }}
             >
               {description}
             </div>
           )}
-        </div>
-
-        <div
-          style={{
-            color: "rgba(255,255,255,0.36)",
-            display: "flex",
-            fontSize: 18,
-            justifyContent: "space-between",
-            marginTop: "auto",
-            paddingBottom: 12,
-          }}
-        >
-          <span>Runtimes</span>
-          <span>Tools</span>
-          <span>Plugins</span>
-          <span>CI</span>
         </div>
       </div>
     </div>,

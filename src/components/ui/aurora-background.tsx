@@ -5,12 +5,14 @@ import React, { ReactNode } from "react";
 interface AuroraBackgroundProps extends React.HTMLProps<HTMLDivElement> {
   children?: ReactNode;
   showRadialGradient?: boolean;
+  staticMode?: boolean;
 }
 
 export const AuroraBackground = ({
   className,
   children,
   showRadialGradient = true,
+  staticMode = false,
   ...props
 }: AuroraBackgroundProps) => {
   return (
@@ -40,8 +42,8 @@ export const AuroraBackground = ({
       >
         <div
           className={cn(
-            `after:animate-aurora pointer-events-none absolute -inset-[10px] [background-image:var(--dark-gradient),var(--aurora)] [background-size:300%,_200%] [background-position:50%_50%,50%_50%] opacity-45 blur-[20px] filter will-change-transform [--aurora:repeating-linear-gradient(100deg,var(--white)_10%,var(--silver)_15%,var(--gray)_20%,var(--white)_25%,var(--silver)_30%)] [--dark-gradient:repeating-linear-gradient(100deg,var(--black)_0%,var(--black)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--black)_16%)] after:absolute after:inset-0 after:[background-image:var(--dark-gradient),var(--aurora)] after:[background-size:200%,_100%] after:[background-attachment:scroll] after:mix-blend-difference after:content-[""]`,
-
+            `pointer-events-none absolute -inset-[10px] [background-image:var(--dark-gradient),var(--aurora)] [background-size:300%,_200%] [background-position:50%_50%,50%_50%] opacity-45 blur-[20px] filter will-change-transform [--aurora:repeating-linear-gradient(100deg,var(--white)_10%,var(--silver)_15%,var(--gray)_20%,var(--white)_25%,var(--silver)_30%)] [--dark-gradient:repeating-linear-gradient(100deg,var(--black)_0%,var(--black)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--black)_16%)] after:absolute after:inset-0 after:[background-image:var(--dark-gradient),var(--aurora)] after:[background-size:200%,_100%] after:[background-attachment:scroll] after:mix-blend-difference after:content-[""]`,
+            !staticMode && "after:animate-aurora",
             showRadialGradient &&
               `[mask-image:radial-gradient(ellipse_at_50%_20%,black_30%,var(--transparent)_85%)]`,
           )}

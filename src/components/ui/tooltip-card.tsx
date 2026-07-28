@@ -113,46 +113,44 @@ export const Tooltip = ({
     return { x: finalX, y: finalY };
   };
 
+  const isMobileOrTablet = () => {
+    if (typeof window === "undefined") return false;
+    return (
+      window.innerWidth < 1024 ||
+      window.matchMedia("(max-width: 1023px)").matches ||
+      window.matchMedia("(hover: none)").matches ||
+      window.matchMedia("(pointer: coarse)").matches
+    );
+  };
+
   const handleMouseEnter = (e: React.MouseEvent<HTMLSpanElement>) => {
+    if (isMobileOrTablet()) return;
     setIsVisible(true);
     const newPosition = calculatePosition(e.clientX, e.clientY);
     setPosition(newPosition);
   };
 
   const handleMouseLeave = () => {
+    if (isMobileOrTablet()) return;
     setIsVisible(false);
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLSpanElement>) => {
-    if (!isVisible) return;
+    if (isMobileOrTablet() || !isVisible) return;
     const newPosition = calculatePosition(e.clientX, e.clientY);
     setPosition(newPosition);
   };
 
-  const handleTouchStart = (e: React.TouchEvent<HTMLSpanElement>) => {
-    const touch = e.touches[0];
-    const newPosition = calculatePosition(touch.clientX, touch.clientY);
-    setPosition(newPosition);
-    setIsVisible(true);
+  const handleTouchStart = () => {
+    // Disabled on mobile and tablet
   };
 
   const handleTouchEnd = () => {
-    setTimeout(() => {
-      setIsVisible(false);
-    }, 2000);
+    // Disabled on mobile and tablet
   };
 
-  const handleClick = (e: React.MouseEvent<HTMLSpanElement>) => {
-    if (window.matchMedia("(hover: none)").matches) {
-      e.preventDefault();
-      if (isVisible) {
-        setIsVisible(false);
-      } else {
-        const newPosition = calculatePosition(e.clientX, e.clientY);
-        setPosition(newPosition);
-        setIsVisible(true);
-      }
-    }
+  const handleClick = () => {
+    // Disabled on mobile and tablet
   };
 
   const tooltipElement = (
@@ -168,7 +166,7 @@ export const Tooltip = ({
             stiffness: 260,
             damping: 22,
           }}
-          className="pointer-events-none fixed z-[99999] block w-72 overflow-hidden rounded-xl border border-white/10 bg-neutral-900/95 text-white shadow-2xl backdrop-blur-md dark:border-white/10 dark:bg-neutral-950/95"
+          className="pointer-events-none fixed z-[99999] hidden w-72 overflow-hidden rounded-xl border border-white/10 bg-neutral-900/95 text-white shadow-2xl backdrop-blur-md lg:block dark:border-white/10 dark:bg-neutral-950/95"
           style={{
             top: position.y,
             left: position.x,
@@ -339,11 +337,11 @@ export function LinkPreviewCardContent({ href }: { href: string }) {
         </span>
 
         <span className="block">
-          <span className="line-clamp-2 block text-xs leading-snug font-semibold text-white">
+          <span className="line-clamp-2 block text-sm leading-snug font-semibold text-white">
             {title}
           </span>
           {description && (
-            <span className="mt-1 line-clamp-2 block text-[11px] leading-relaxed text-neutral-400">
+            <span className="mt-1 line-clamp-2 block text-[12px] leading-relaxed text-neutral-400">
               {description}
             </span>
           )}
