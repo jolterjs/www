@@ -9,6 +9,21 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-outfit: var(--font-outfit);
+  --animate-aurora: aurora 60s linear infinite;
+
+  @keyframes aurora {
+    from {
+      background-position:
+        50% 50%,
+        50% 50%;
+    }
+
+    to {
+      background-position:
+        350% 50%,
+        350% 50%;
+    }
+  }
 }
 
 body {
@@ -174,7 +189,7 @@ body {
   margin: 1.75rem 0;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   background: #050505;
 }
 

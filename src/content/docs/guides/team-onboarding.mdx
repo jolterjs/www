@@ -33,7 +33,7 @@ Add a short setup section:
 Install Jolter:
 
 ```bash
-curl -fsSL https://get.jolter.dev/install.sh | sh
+curl -fsSL https://jolter.dev/install.sh | sh
 jolter setup
 jolter sync
 jolter doctor
@@ -42,7 +42,7 @@ jolter doctor
 Windows users can install with:
 
 ```powershell
-irm https://get.jolter.dev/install.ps1 | iex
+irm https://jolter.dev/install.ps1 | iex
 ```
 ````
 
@@ -55,7 +55,7 @@ Add `jolter setup-ci` to CI before enforcing Jolter locally:
 ```yaml
 - name: Install Jolter
   run: |
-    curl -fsSL https://get.jolter.dev/install.sh | sh
+    curl -fsSL https://jolter.dev/install.sh | sh
     jolter setup-ci --no-progress
 ```
 

@@ -51,15 +51,19 @@ export async function POST(req: Request) {
 
     // Determine Discord Embed details
     const emojiMap: Record<string, string> = {
-      happy: "😃 Helpful",
+      yes: "👍 Yes (Helpful)",
+      no: "👎 No (Needs Work)",
+      happy: "👍 Yes (Helpful)",
       mid: "😐 Neutral",
-      sad: "🙁 Needs Work",
+      sad: "👎 No (Needs Work)",
     };
 
     const colorMap: Record<string, number> = {
-      happy: 0x5b46f8, // Purple
-      mid: 0xf59e0b, // Amber
-      sad: 0xf43f5e, // Rose
+      yes: 0x10b981, // Emerald Green
+      no: 0xf43f5e, // Rose Red
+      happy: 0x10b981,
+      mid: 0xf59e0b,
+      sad: 0xf43f5e,
     };
 
     const ratingLabel = emojiMap[rating] || rating;

@@ -100,14 +100,15 @@ export default async function DocsPage({ params }: DocsPageProps) {
   });
 
   return (
-    <main className="min-h-screen bg-black pt-16 text-white">
+    <main className="relative min-h-screen bg-transparent pt-16 text-white">
+      <div className="absolute top-0 left-1/2 z-[-1] h-screen w-screen -translate-x-1/2 bg-linear-to-t from-black via-black to-transparent" />
       <div className={`${pageRailClass} py-10 lg:py-14`}>
         <div className="grid gap-10 lg:grid-cols-[240px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,760px)_220px]">
           <DocsSidebarNav nav={nav} currentHref={page.href} />
 
           <article className="docs-article min-w-0">
             <header className="border-b border-white/[0.09] pb-10">
-              <p className="font-mono text-xs font-semibold tracking-normal text-white/38">
+              <p className="text-[12px] font-medium tracking-normal text-white/40">
                 {page.group}
               </p>
               <h1 className="mt-2.5 text-4xl leading-tight font-semibold text-balance text-white sm:text-5xl">
@@ -151,7 +152,7 @@ function DocsPagination({
   }
 
   return (
-    <nav className="docs-pagination mt-14 grid gap-px overflow-hidden rounded-lg border border-white/[0.09] bg-white/[0.09] sm:grid-cols-2">
+    <nav className="docs-pagination mt-14 grid gap-px overflow-hidden rounded-3xl border border-white/[0.09] bg-white/[0.09] sm:grid-cols-2">
       {previous ? (
         <Link
           href={previous.href}

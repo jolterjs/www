@@ -239,7 +239,7 @@ export function DocsPageActions({ slug, content, href }: DocsPageActionsProps) {
       <button
         type="button"
         onClick={handleCopy}
-        className="inline-flex cursor-default items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/80 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+        className="inline-flex cursor-default items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/80 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
       >
         {copied ? (
           <>
@@ -258,7 +258,7 @@ export function DocsPageActions({ slug, content, href }: DocsPageActionsProps) {
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="inline-flex cursor-default items-center gap-1.5 rounded-lg border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/80 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+          className="inline-flex cursor-default items-center gap-1.5 rounded-full border border-white/10 bg-white/[0.04] px-3 py-1.5 text-xs font-medium text-white/80 transition hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
           aria-expanded={isOpen}
           aria-haspopup="menu"
         >
@@ -270,7 +270,7 @@ export function DocsPageActions({ slug, content, href }: DocsPageActionsProps) {
 
         {!isMobile && (
           <div
-            className={`absolute top-full right-0 z-40 mt-2 w-56 origin-top-right rounded-xl border border-white/12 bg-[#0c0c0c]/95 p-1.5 shadow-2xl backdrop-blur-md transition-all duration-150 ease-out ${
+            className={`absolute top-full right-0 z-40 mt-2 w-56 origin-top-right rounded-2xl border border-white/12 bg-[#0c0c0c]/95 p-1.5 shadow-2xl backdrop-blur-md transition-all duration-150 ease-out ${
               isOpen
                 ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
                 : "pointer-events-none -translate-y-1 scale-95 opacity-0"
@@ -288,7 +288,7 @@ export function DocsPageActions({ slug, content, href }: DocsPageActionsProps) {
                     target="_blank"
                     rel="noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="flex cursor-default items-center justify-between rounded-lg px-2.5 py-2 text-xs font-medium text-white/75 transition hover:bg-white/[0.08] hover:text-white"
+                    className="flex cursor-default items-center justify-between rounded-xl px-2.5 py-2 text-xs font-medium text-white/75 transition hover:bg-white/[0.08] hover:text-white"
                     role="menuitem"
                     tabIndex={isOpen ? 0 : -1}
                   >

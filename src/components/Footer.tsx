@@ -42,7 +42,7 @@ const linkGroups = [
 export default function Footer() {
   return (
     <footer
-      className="border-t border-white/[0.08] bg-black text-white"
+      className="relative border-t border-white/[0.08] bg-transparent text-white"
       data-no-reveal
     >
       <div className="mx-auto max-w-7xl px-5 py-14 sm:px-8 lg:py-16">
@@ -67,7 +67,7 @@ export default function Footer() {
           >
             {linkGroups.map((group) => (
               <div key={group.title}>
-                <h2 className="font-mono text-xs font-semibold tracking-normal text-white/35">
+                <h2 className="text-[12px] font-medium tracking-normal text-white/40">
                   {group.title}
                 </h2>
                 <ul className="mt-4 space-y-3">
@@ -113,13 +113,13 @@ export default function Footer() {
 function FooterLink({ href, label }: { href: string; label: string }) {
   const external = href.startsWith("http");
   const className =
-    "flex w-fit items-center gap-1.5 text-sm leading-5 text-white/48 transition hover:text-white";
+    "flex w-fit group items-center gap-1.5 text-sm leading-5 text-white/48 transition hover:text-white";
 
   if (external) {
     return (
       <a href={href} target="_blank" rel="noreferrer" className={className}>
         {label}
-        <ExternalLink className="size-3 text-white/28" />
+        <ExternalLink className="size-3 text-white/28 transition group-hover:text-white" />
       </a>
     );
   }

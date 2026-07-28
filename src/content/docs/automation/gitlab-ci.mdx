@@ -16,7 +16,7 @@ cache:
 
 test:
   script:
-    - curl -fsSL https://get.jolter.dev/install.sh | sh
+    - curl -fsSL https://jolter.dev/install.sh | sh
     - jolter setup-ci --no-progress
     - export PATH="$JOLTER_HOME/shims:$PATH"
     - node --version
@@ -32,7 +32,7 @@ Use `--yes` only when the job is allowed to install missing project plugins:
 ```yaml
 test:
   script:
-    - curl -fsSL https://get.jolter.dev/install.sh | sh
+    - curl -fsSL https://jolter.dev/install.sh | sh
     - jolter setup-ci --yes --no-progress
     - export PATH="$JOLTER_HOME/shims:$PATH"
     - eslint .
@@ -63,7 +63,7 @@ You can capture the resolved toolchain:
 ```yaml
 test:
   script:
-    - curl -fsSL https://get.jolter.dev/install.sh | sh
+    - curl -fsSL https://jolter.dev/install.sh | sh
     - jolter setup-ci --json --no-color > jolter-setup.json
     - export PATH="$JOLTER_HOME/shims:$PATH"
 ```

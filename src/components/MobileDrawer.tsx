@@ -163,7 +163,7 @@ export default function MobileDrawer() {
           {isDocs ? (
             <div className="space-y-6">
               <div>
-                <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/34">
+                <p className="mb-3 text-[12px] font-medium tracking-normal text-white/40">
                   Quick Links
                 </p>
                 <div className="grid grid-cols-3 gap-2">
@@ -198,7 +198,7 @@ export default function MobileDrawer() {
 
               {docsNav?.map((group) => (
                 <div key={group.group} className="space-y-2">
-                  <p className="font-mono text-[11px] font-semibold tracking-normal text-white/34">
+                  <p className="text-[12px] font-medium tracking-normal text-white/40">
                     {group.group}
                   </p>
                   <div className="space-y-1">
@@ -211,7 +211,7 @@ export default function MobileDrawer() {
                           key={item.href}
                           href={item.href}
                           onClick={() => handleLinkClick(item.href)}
-                          className={`flex items-center justify-between rounded-lg px-3 py-2.5 text-sm transition ${
+                          className={`flex items-center justify-between rounded-xl px-3 py-2.5 text-sm transition ${
                             isActive
                               ? "bg-white/[0.05] font-semibold"
                               : "text-white/65 hover:bg-white/[0.05] hover:text-white"

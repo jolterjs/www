@@ -15,9 +15,9 @@ featured: true
 
 We spent a long time not writing Jolter, because we kept hoping the problem would just go away on its own.
 
-It didn't. Every JavaScript team we've worked on eventually hits the same wall: someone's laptop has Node 20, CI is running Node 22, a teammate's `pnpm` is two majors behind everyone else's, and nobody can quite explain why the build works everywhere except the one machine that matters right now. You fix it with a Slack message, an `.nvmrc` nobody reads, or a README section that's already out of date. It always comes back.
+It didn't. Every JavaScript team we've worked with eventually hits the same wall: someone's laptop has Node 20, CI is running Node 22, a teammate's `pnpm` is two major versions behind everyone else's, and nobody can quite explain why the build works everywhere except on the most important machiene. You fix it with a Slack message, an `.nvmrc` nobody reads, or a README section that's already out of date. It always comes back.
 
-Jolter is our answer to that problem. It's one tool that manages your JavaScript runtimes (Node.js, Bun, Deno) and your package managers (npm, pnpm, Yarn), pins them per project, and switches between them automatically as you move around your filesystem. Today we're calling it done enough to announce.
+Jolter is our answer to that problem. It's the tool that manages your JavaScript runtimes (Node.js, Bun, Deno) and your package managers (npm, pnpm, Yarn), pins them per project, and switches between them automatically as you move around your filesystem. And today we're judging it polished enough to be announce.
 
 ## What it actually does
 
@@ -37,7 +37,7 @@ cd ../project-b
 node --version   # whatever project-b pins
 ```
 
-If a project doesn't declare anything, Jolter falls back to whatever you've set globally with `jolter use`. If it does declare something, the project wins, every time, in every shell, in CI, and in your editor's integrated terminal.
+If a project doesn't declare anything, Jolter falls back to whatever you've set globally with `jolter use`. If it does declare something, the project wins every time, in every shell, in CI, and in your editor's integrated terminal.
 
 ## Getting started
 
@@ -46,7 +46,7 @@ If you want to try it right now:
 <CodeGroup>
 
 ```powershell Windows
-irm https://get.jolter.dev/install.ps1 | iex
+irm https://jolter.dev/install.ps1 | iex
 jolter setup
 jolter use node@lts
 jolter use pnpm@10
@@ -54,7 +54,7 @@ jolter doctor
 ```
 
 ```bash Linux and macOS
-curl -fsSL https://get.jolter.dev/install.sh | sh
+curl -fsSL https://jolter.dev/install.sh | sh
 jolter setup
 jolter use node@lts
 jolter use pnpm@10

@@ -30,7 +30,7 @@ export default function WorkflowSection({
     <div className="grid gap-8 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.55fr)] lg:items-start">
       <div className="lg:max-w-[420px]">
         <div className="max-w-xl">
-          <p className="font-mono text-xs font-semibold tracking-normal text-white/38">
+          <p className="-mb-2 text-[14px] font-medium tracking-wide text-white/40">
             Install and pin
           </p>
           <h2 className="mt-5 text-4xl leading-tight font-semibold text-balance sm:text-5xl lg:text-4xl xl:text-5xl">
@@ -42,7 +42,7 @@ export default function WorkflowSection({
           </p>
         </div>
 
-        <div className="mt-8 max-w-[420px] rounded-lg border border-white/[0.12] bg-[#050505] p-1">
+        <div className="mt-8 max-w-[420px] rounded-full border border-white/[0.12] bg-[#050505] p-1">
           <div className="grid grid-cols-2 gap-1">
             <OsButton
               active={osSelected === "unix"}
@@ -70,7 +70,7 @@ export default function WorkflowSection({
         />
       </div>
 
-      <div className="grid gap-px overflow-hidden rounded-xl border border-white/[0.09] bg-white/[0.09] sm:grid-cols-2">
+      <div className="grid gap-px overflow-hidden rounded-3xl border border-white/[0.09] bg-white/[0.09] sm:grid-cols-2">
         {workflowSteps.map((step, index) => (
           <article
             key={step.command}
@@ -107,9 +107,9 @@ function OsButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex min-h-10 items-center justify-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition ${
+      className={`flex min-h-10 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm font-medium transition ${
         active
-          ? "bg-white text-black"
+          ? "bg-white/[0.06] text-white"
           : "text-white/52 hover:bg-white/[0.06] hover:text-white"
       }`}
     >

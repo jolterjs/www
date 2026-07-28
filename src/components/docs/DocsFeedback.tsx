@@ -2,9 +2,8 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import {
-  Smile,
-  Meh,
-  Frown,
+  ThumbsUp,
+  ThumbsDown,
   Send,
   CheckCircle2,
   AlertCircle,
@@ -12,7 +11,7 @@ import {
 } from "lucide-react";
 import GitHubIcon from "@/icons/github";
 
-type RatingType = "happy" | "mid" | "sad";
+type RatingType = "yes" | "no";
 type TurnstileStatus = "idle" | "verifying" | "success" | "error";
 
 interface DocsFeedbackProps {
@@ -220,44 +219,33 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
           <span className="text-xs font-medium text-white/60">
             Was this page helpful?
           </span>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => handleRatingClick("happy")}
-              title="Helpful (Happy)"
-              className={`group relative flex size-9 items-center justify-center rounded-lg border transition ${
-                selectedRating === "happy"
-                  ? "border-white/60 bg-white/20 text-white shadow-[0_0_12px_rgba(255,255,255,0.1)]"
-                  : "border-white/10 bg-white/[0.03] text-white/60 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+              onClick={() => handleRatingClick("yes")}
+              aria-label="Yes, this page was helpful"
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                selectedRating === "yes"
+                  ? "border-white/60 bg-white/15 text-white shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                  : "border-white/10 bg-white/[0.04] text-white/70 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
               }`}
             >
-              <Smile className="size-5 transition group-hover:scale-110" />
+              <ThumbsUp className="size-3.5" />
+              <span>Yes</span>
             </button>
 
             <button
               type="button"
-              onClick={() => handleRatingClick("mid")}
-              title="Neutral (Mid)"
-              className={`group relative flex size-9 items-center justify-center rounded-lg border transition ${
-                selectedRating === "mid"
-                  ? "border-amber-500/60 bg-amber-500/20 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.1)]"
-                  : "border-white/10 bg-white/[0.03] text-white/60 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
+              onClick={() => handleRatingClick("no")}
+              aria-label="No, this page was not helpful"
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                selectedRating === "no"
+                  ? "border-white/60 bg-white/15 text-white shadow-[0_0_12px_rgba(255,255,255,0.15)]"
+                  : "border-white/10 bg-white/[0.04] text-white/70 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
               }`}
             >
-              <Meh className="size-5 transition group-hover:scale-110" />
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleRatingClick("sad")}
-              title="Needs Improvement (Sad)"
-              className={`group relative flex size-9 items-center justify-center rounded-lg border transition ${
-                selectedRating === "sad"
-                  ? "border-rose-500/60 bg-rose-500/20 text-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.1)]"
-                  : "border-white/10 bg-white/[0.03] text-white/60 hover:border-white/20 hover:bg-white/[0.08] hover:text-white"
-              }`}
-            >
-              <Frown className="size-5 transition group-hover:scale-110" />
+              <ThumbsDown className="size-3.5" />
+              <span>No</span>
             </button>
           </div>
         </div>
@@ -267,11 +255,9 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
         <form onSubmit={handleSubmit} className="mt-6 transition-all">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-semibold text-white">
-              {selectedRating === "happy"
+              {selectedRating === "yes"
                 ? "Glad to hear it! Anything to add?"
-                : selectedRating === "mid"
-                  ? "How can we make this page better?"
-                  : "Sorry about that! What was confusing or missing?"}
+                : "Sorry about that! What was confusing or missing?"}
             </h4>
             <button
               type="button"
@@ -289,12 +275,12 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             placeholder={
-              selectedRating === "happy"
+              selectedRating === "yes"
                 ? "Optional: Tell us what worked well..."
                 : "Describe what could be improved or fixed..."
             }
             rows={3}
-            className="focus:ring-none mt-3 w-full rounded-lg border border-white/10 bg-black/60 p-3 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none"
+            className="focus:ring-none mt-3 w-full rounded-2xl border border-white/10 bg-black/60 p-3 text-sm text-white placeholder:text-white/30 focus:border-white/30 focus:outline-none"
           />
 
           <div className="hidden" aria-hidden="true">
@@ -305,7 +291,7 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
             <button
               type="submit"
               disabled={isSubmitting || isTurnstileDisabledSession}
-              className="text-background inline-flex cursor-pointer items-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-semibold transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="text-background inline-flex cursor-pointer items-center gap-2 rounded-full bg-white px-4 py-2.5 text-xs font-semibold transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {isSubmitting ? (
                 <>
@@ -327,7 +313,7 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
           </div>
 
           {errorMessage && (
-            <div className="mt-3 flex items-center gap-2 rounded-md border border-rose-500/20 bg-rose-500/10 p-2.5 text-xs text-rose-400">
+            <div className="mt-3 flex items-center gap-2 rounded-2xl border border-rose-500/20 bg-rose-500/10 p-2.5 text-xs text-rose-400">
               <AlertCircle className="size-4 shrink-0" />
               <span>{errorMessage}</span>
             </div>
@@ -336,7 +322,7 @@ export function DocsFeedback({ slug, title }: DocsFeedbackProps) {
       )}
 
       {isSubmitted && (
-        <div className="mt-6 flex items-center gap-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-300">
+        <div className="mt-6 flex items-center gap-3 rounded-2xl border border-emerald-500/20 bg-emerald-500/10 p-4 text-emerald-300">
           <CheckCircle2 className="size-5 shrink-0 text-emerald-400" />
           <p className="text-xs font-medium">
             Thank you for your feedback! Your response has been submitted to the

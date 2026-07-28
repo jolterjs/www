@@ -128,7 +128,7 @@ export function DocsToc({ headings }: { headings: DocHeading[] }) {
       data-lenis-prevent
       data-no-reveal
     >
-      <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/32">
+      <p className="mb-3 text-[12px] font-medium tracking-normal text-white/40">
         On this page
       </p>
       <nav className="space-y-1 border-l border-white/[0.08] pl-4">
@@ -174,7 +174,7 @@ function DocsNavGroup({
 }) {
   return (
     <div>
-      <p className="mb-3 font-mono text-[11px] font-semibold tracking-normal text-white/32">
+      <p className="mb-3 text-[12px] font-medium tracking-normal text-white/40">
         {group.group}
       </p>
       <div className="space-y-1">
@@ -194,7 +194,7 @@ function DocsNavLink({ item, active }: { item: DocNavItem; active: boolean }) {
   return (
     <Link
       href={item.href}
-      className={`block rounded-md px-2.5 py-2 text-sm transition ${
+      className={`block rounded-xl px-2.5 py-2 text-sm transition ${
         active
           ? "bg-white/[0.075] text-white"
           : "text-white/45 hover:bg-white/[0.04] hover:text-white/75"

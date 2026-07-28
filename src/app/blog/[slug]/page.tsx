@@ -132,11 +132,12 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
   };
 
   return (
-    <main className="min-h-screen bg-black pt-16 text-white">
+    <main className="relative min-h-screen bg-transparent pt-16 text-white">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleJsonLd) }}
       />
+      <div className="absolute top-0 left-1/2 z-[-1] h-full w-screen -translate-x-1/2 bg-linear-to-t from-black via-black to-transparent" />
       <div className={`${pageRailClass} py-10 lg:py-16`}>
         <div className="mx-auto max-w-3xl">
           <Link
@@ -150,10 +151,15 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <article className="mt-10">
             <header className="border-b border-white/[0.09] pb-10">
               <div className="flex flex-wrap items-center gap-3 text-sm text-white/42">
-                <span className="rounded-md border border-white/[0.1] bg-white/[0.04] px-2 py-1 font-mono text-xs">
+                <span className="rounded-full border border-white/[0.1] bg-white/[0.04] px-3 py-1 text-[12px] font-medium tracking-normal text-white/40">
                   {getBlogCategoryLabel(post.category)}
                 </span>
-                <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
+                <time
+                  dateTime={post.date}
+                  className="text-[13px] font-medium tracking-normal text-white/40"
+                >
+                  {formatBlogDate(post.date)}
+                </time>
               </div>
               <h1 className="mt-6 text-4xl leading-tight font-semibold text-balance text-white sm:text-6xl">
                 {post.title}

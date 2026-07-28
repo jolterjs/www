@@ -16,7 +16,7 @@ Jolter's design keeps that boundary visible. Installer scripts are convenience e
 One-line installers are convenient, but security-sensitive environments should inspect the script first.
 
 ```bash
-curl -fsSL https://get.jolter.dev/install.sh -o install-jolter.sh
+curl -fsSL https://jolter.dev/install.sh -o install-jolter.sh
 less install-jolter.sh
 sh install-jolter.sh
 ```
@@ -24,7 +24,7 @@ sh install-jolter.sh
 On Windows, use the PowerShell installer with the same review-first policy.
 
 ```powershell
-Invoke-WebRequest https://get.jolter.dev/install.ps1 -OutFile install-jolter.ps1
+Invoke-WebRequest https://jolter.dev/install.ps1 -OutFile install-jolter.ps1
 Get-Content .\install-jolter.ps1
 .\install-jolter.ps1
 ```

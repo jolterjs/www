@@ -20,9 +20,6 @@ export default function BlogIndex({
   activeCategory?: BlogCategorySlug;
   posts: BlogPost[];
 }) {
-  const activeCategoryMeta = activeCategory
-    ? getBlogCategory(activeCategory)
-    : undefined;
   const allReleasedPosts =
     process.env.NODE_ENV === "production"
       ? posts.filter((post) => isBlogPostReleased(post))
@@ -33,7 +30,8 @@ export default function BlogIndex({
     : allReleasedPosts;
 
   return (
-    <main className="min-h-screen bg-black pt-16 text-white">
+    <main className="relative min-h-screen bg-transparent pt-16 text-white">
+      <div className="absolute top-0 left-1/2 z-[-1] h-full w-screen -translate-x-1/2 bg-linear-to-t from-black via-black to-transparent" />
       <section className="border-b border-white/[0.08]">
         <div
           className={`${pageRailClass} flex flex-col items-center justify-center py-16 lg:py-20`}
@@ -61,7 +59,7 @@ export default function BlogIndex({
           )}
 
           {visiblePosts.length > 0 && (
-            <div className="mt-10 grid gap-px overflow-hidden rounded-xl border border-white/[0.09] bg-white/[0.09] md:grid-cols-2 xl:grid-cols-3">
+            <div className="mt-10 grid gap-px overflow-hidden rounded-3xl border border-white/[0.09] bg-white/[0.09] md:grid-cols-2 xl:grid-cols-3">
               {visiblePosts.map((post) => (
                 <BlogCard key={post.slug} post={post} />
               ))}
@@ -80,7 +78,7 @@ function CategoryTabs({
 }) {
   return (
     <div className="mt-10 max-w-full overflow-x-auto">
-      <div className="inline-flex gap-1 rounded-lg border border-white/[0.11] bg-[#050505] p-1">
+      <div className="inline-flex gap-1 rounded-full border border-white/[0.11] bg-[#050505]/15 p-1 backdrop-blur-sm">
         <CategoryTab href="/blog" label="All" active={!activeCategory} />
         {blogCategories.map((category) => (
           <CategoryTab
@@ -107,7 +105,7 @@ function CategoryTab({
   return (
     <Link
       href={href}
-      className={`flex h-9 items-center rounded-md px-3 text-sm font-medium transition ${
+      className={`flex h-9 items-center rounded-full px-6 text-sm font-medium transition ${
         active
           ? "bg-white text-black"
           : "text-white/48 hover:bg-white/[0.06] hover:text-white"
@@ -120,7 +118,7 @@ function CategoryTab({
 
 function FeaturedPost({ post }: { post: BlogPost }) {
   return (
-    <div className="group relative grid overflow-hidden rounded-xl border border-white/[0.09] bg-[#050505] transition hover:border-white/[0.16] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+    <div className="group relative grid overflow-hidden rounded-3xl border border-white/[0.09] bg-[#050505] transition hover:border-white/[0.16] lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
       <Link
         href={post.href}
         className="absolute inset-0 z-2"
@@ -132,7 +130,7 @@ function FeaturedPost({ post }: { post: BlogPost }) {
       <div className="flex min-h-72 flex-col justify-between p-6 sm:p-8">
         <div className="pointer-events-none relative z-10">
           <div className="flex flex-wrap items-center gap-3 text-sm text-white/40">
-            <span className="rounded-md border border-white/[0.1] bg-white/[0.04] px-2 py-1 font-mono text-xs">
+            <span className="rounded-full border border-white/[0.1] bg-white/[0.04] px-3 py-1 text-[12px] font-medium tracking-normal text-white/40">
               {getBlogCategoryLabel(post.category)}
             </span>
             <time dateTime={post.date}>{formatBlogDate(post.date)}</time>
@@ -163,7 +161,7 @@ function BlogCard({ post }: { post: BlogPost }) {
       />
       <div className="pointer-events-none relative z-10">
         <div className="flex items-center justify-between gap-4">
-          <span className="font-mono text-xs font-semibold tracking-normal text-white/35">
+          <span className="text-[12px] font-medium tracking-normal text-white/40">
             {getBlogCategoryLabel(post.category)}
           </span>
           <time className="text-sm text-white/32" dateTime={post.date}>
@@ -218,7 +216,7 @@ function EmptyBlogState({
   activeCategory?: BlogCategorySlug;
 }) {
   return (
-    <div className="border border-white/[0.09] bg-[#050505] p-8 text-center">
+    <div className="rounded-3xl border border-white/[0.09] bg-[#050505] p-8 text-center">
       <p className="text-lg font-semibold text-white">No posts yet</p>
       <p className="mx-auto mt-3 max-w-md text-sm leading-6 text-white/48">
         {activeCategory

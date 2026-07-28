@@ -86,7 +86,10 @@ function normalizeHref(href: string) {
     href.startsWith("/blog/") ||
     href === "/docs" ||
     href.startsWith("/docs/") ||
-    href === "/"
+    href === "/" ||
+    href === "/llms.txt" ||
+    href === "/llms-full.txt" ||
+    href.startsWith("/api/")
   ) {
     return href;
   }
@@ -106,6 +109,8 @@ function normalizeHref(href: string) {
   return `/docs/${href}`;
 }
 
+import { LinkPreview } from "@/components/ui/tooltip-card";
+
 function UniversalLink({
   href = "",
   children,
@@ -120,29 +125,11 @@ function UniversalLink({
     ? `text-inherit no-underline ${className}`
     : `docs-link ${className}`;
 
-  if (!normalizedHref) {
-    return (
-      <a className={linkClassName} {...props}>
-        {children}
-      </a>
-    );
-  }
-
-  if (anchorOnly) {
-    return (
-      <a href={normalizedHref} className={linkClassName} {...props}>
-        {children}
-      </a>
-    );
-  }
-
-  if (external) {
+  if (!normalizedHref || anchorOnly) {
     return (
       <a
-        href={normalizedHref}
+        href={normalizedHref || undefined}
         className={linkClassName}
-        target="_blank"
-        rel="noreferrer"
         {...props}
       >
         {children}
@@ -151,9 +138,14 @@ function UniversalLink({
   }
 
   return (
-    <Link href={normalizedHref} className={linkClassName} {...props}>
+    <LinkPreview
+      href={normalizedHref}
+      external={external}
+      className={linkClassName}
+      {...props}
+    >
       {children}
-    </Link>
+    </LinkPreview>
   );
 }
 
@@ -204,7 +196,7 @@ function CardGroup({ children, cols = 2 }: CardGroupProps) {
 
   return (
     <div
-      className={`docs-card-grid my-8 grid gap-px overflow-hidden rounded-lg border border-white/[0.09] bg-white/[0.09] ${gridClassName}`}
+      className={`docs-card-grid my-8 grid gap-px overflow-hidden rounded-3xl border border-white/[0.09] bg-white/[0.09] ${gridClassName}`}
     >
       {formattedChildren}
     </div>
@@ -228,7 +220,7 @@ function Card({ children, title, icon, href, inCardGroup }: CardProps) {
 
   const baseClasses = inCardGroup
     ? "docs-card bg-black p-5"
-    : "docs-card my-6 rounded-lg border border-white/[0.09] bg-white/[0.05] p-5";
+    : "docs-card my-6 rounded-2xl border border-white/[0.09] bg-white/[0.05] p-5";
 
   if (!href) {
     return <div className={baseClasses}>{content}</div>;
@@ -239,7 +231,7 @@ function Card({ children, title, icon, href, inCardGroup }: CardProps) {
 
   const interactiveClasses = inCardGroup
     ? "docs-card group block bg-black p-5 transition hover:bg-[#050505]"
-    : "docs-card group block my-6 rounded-lg border border-white/[0.08] bg-white/[0.025] p-5 transition hover:border-white/20 hover:bg-white/[0.05]";
+    : "docs-card group block my-6 rounded-2xl border border-white/[0.08] bg-white/[0.025] p-5 transition hover:border-white/20 hover:bg-white/[0.05]";
 
   if (external) {
     return (
@@ -289,6 +281,51 @@ function Step({ children, title }: StepProps) {
   );
 }
 
+function renderChildrenWithLinkPreview(node: ReactNode): ReactNode {
+  if (
+    node === null ||
+    node === undefined ||
+    typeof node === "boolean" ||
+    typeof node === "number"
+  ) {
+    return node;
+  }
+
+  if (typeof node === "string") {
+    return node;
+  }
+
+  if (Array.isArray(node)) {
+    return node.map((child, index) => {
+      const transformed = renderChildrenWithLinkPreview(child);
+      if (isValidElement(transformed) && !transformed.key) {
+        return cloneElement(transformed, { key: `node-${index}` });
+      }
+      return transformed;
+    });
+  }
+
+  if (isValidElement(node)) {
+    if (node.type === "a") {
+      const props = node.props as AnchorHTMLAttributes<HTMLAnchorElement>;
+      return (
+        <UniversalLink {...props} key={node.key ?? undefined}>
+          {renderChildrenWithLinkPreview(props.children)}
+        </UniversalLink>
+      );
+    }
+
+    const props = node.props as { children?: ReactNode };
+    if (props && "children" in props && props.children) {
+      return cloneElement(node, {
+        children: renderChildrenWithLinkPreview(props.children),
+      } as any);
+    }
+  }
+
+  return node;
+}
+
 function Callout({
   children,
   tone,
@@ -323,7 +360,7 @@ function Callout({
 
   return (
     <div
-      className={`docs-callout relative my-7 flex overflow-hidden rounded-md border p-4 text-sm leading-6 text-white/62 ${config.className}`}
+      className={`docs-callout relative my-7 flex overflow-hidden rounded-2xl border p-4 text-sm leading-6 text-white/62 ${config.className}`}
     >
       <div
         className={`absolute inset-y-0 left-0 w-px ${config.accentClassName}`}
@@ -332,7 +369,9 @@ function Callout({
         className={`mt-1.25 size-4 shrink-0 ${config.iconClassName}`}
         aria-hidden="true"
       />
-      <div className="ml-1 min-w-0 space-y-3">{children}</div>
+      <div className="ml-1 min-w-0 space-y-3">
+        {renderChildrenWithLinkPreview(children)}
+      </div>
     </div>
   );
 }
@@ -610,7 +649,7 @@ function UniversalPre({
       : "code";
 
   return (
-    <div className="docs-code-body group relative">
+    <div className="docs-code-body group relative overflow-hidden rounded-2xl">
       <CopyButton
         code={rawCode}
         label={`${language} code block`}
@@ -631,7 +670,7 @@ function UniversalTable({
   ...props
 }: TableHTMLAttributes<HTMLTableElement>) {
   return (
-    <div className="my-8 overflow-x-auto rounded-lg border border-white/[0.09]">
+    <div className="my-8 overflow-x-auto rounded-2xl border border-white/[0.09]">
       <table className={`w-full text-left text-sm ${className}`} {...props} />
     </div>
   );

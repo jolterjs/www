@@ -38,7 +38,7 @@ export default function CodeGroupTabs({
 
   return (
     <div
-      className="docs-code-tabs my-7 overflow-hidden rounded-lg border border-white/[0.1] bg-[#050505]"
+      className="docs-code-tabs my-7 overflow-hidden rounded-2xl border border-white/[0.1] bg-[#050505]"
       data-code-group-tabs
     >
       <div
@@ -53,9 +53,9 @@ export default function CodeGroupTabs({
               key={`${item.label}-${index}`}
               type="button"
               onClick={() => setSelectedIndex(index)}
-              className={`flex min-h-9 shrink-0 items-center gap-2 rounded-md px-3 text-sm font-medium transition ${
+              className={`flex min-h-9 shrink-0 items-center gap-2 rounded-xl px-3 text-sm font-medium transition ${
                 active
-                  ? "bg-white text-black"
+                  ? "bg-white/[0.06] text-white"
                   : "text-white/48 hover:bg-white/[0.06] hover:text-white"
               }`}
               aria-selected={active}

@@ -36,7 +36,7 @@ jobs:
         env:
           JOLTER_HOME: ${{ runner.temp }}/jolter-home
         run: |
-          curl -fsSL https://get.jolter.dev/install.sh | sh
+          curl -fsSL https://jolter.dev/install.sh | sh
           jolter setup-ci --no-progress
 
       - name: Test
@@ -69,7 +69,7 @@ jobs:
         env:
           JOLTER_HOME: ${{ runner.temp }}\jolter-home
         run: |
-          irm https://get.jolter.dev/install.ps1 | iex
+          irm https://jolter.dev/install.ps1 | iex
           jolter setup-ci --no-progress
 
       - name: Test
@@ -111,7 +111,7 @@ Allow CI to install missing declared plugins:
   env:
     JOLTER_HOME: ${{ runner.temp }}/jolter-home
   run: |
-    curl -fsSL https://get.jolter.dev/install.sh | sh
+    curl -fsSL https://jolter.dev/install.sh | sh
     jolter setup-ci --yes --no-progress
 ```
 

@@ -49,7 +49,7 @@ export default function CopyButton({
     <button
       type="button"
       onClick={handleCopy}
-      className={`flex size-8 items-center justify-center rounded-md text-white/35 transition hover:bg-white/[0.05] hover:text-white/75 ${
+      className={`flex size-8 items-center justify-center rounded-lg text-white/35 transition hover:bg-white/[0.05] hover:text-white/75 ${
         copied ? "scale-105 text-emerald-300" : ""
       } ${className}`}
       aria-label={`Copy ${label}`}

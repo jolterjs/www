@@ -96,6 +96,7 @@ const siteJsonLd = [
 
 import MobileDrawer from "@/components/MobileDrawer";
 import { MobileDrawerProvider } from "@/components/MobileDrawerProvider";
+import { GlobalAuroraBackground } from "@/components/GlobalAuroraBackground";
 
 export default function RootLayout({
   children,
@@ -115,13 +116,17 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteJsonLd) }}
         />
         <MobileDrawerProvider>
-          <div className="app-scale-wrapper flex min-h-screen flex-col bg-black">
+          <div className="app-scale-wrapper relative flex min-h-screen flex-col bg-black">
+            <GlobalAuroraBackground />
+
             <SmoothScrollProvider>
               <ScrollRevealProvider>
-                <Header docsSearchIndex={docsSearchIndex} />
-                {children}
-                <Footer />
-                <ToastViewport />
+                <div className="relative z-10 flex min-h-screen flex-col">
+                  <Header docsSearchIndex={docsSearchIndex} />
+                  {children}
+                  <Footer />
+                  <ToastViewport />
+                </div>
               </ScrollRevealProvider>
             </SmoothScrollProvider>
           </div>

@@ -20,7 +20,7 @@ export default function CopyableCodePanel({
 }: CopyableCodePanelProps) {
   return (
     <div
-      className={`min-w-0 overflow-hidden rounded-md border border-white/[0.11] bg-[#050505] ${className}`}
+      className={`min-w-0 overflow-hidden rounded-2xl border border-white/[0.11] bg-[#050505] ${className}`}
       data-copy-panel={title}
     >
       <div className="flex h-11 items-center justify-between border-b border-white/[0.09] px-4">

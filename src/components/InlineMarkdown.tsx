@@ -1,12 +1,11 @@
 import React from "react";
-import Link from "next/link";
+import { LinkPreview } from "@/components/ui/tooltip-card";
 
 export function InlineMarkdown({ content }: { content?: string }) {
   if (!content) return null;
 
-  // Split pattern for <code>...</code>, inline code `...`, bold **...**, links [...](...), italic *...*
   const pattern =
-    /(<code>[^<]+<\/code>|`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\)|\*[^*]+\*)/g;
+    /(<a\s+href=["'][^"']+["'][^>]*>[\s\S]+?<\/a>|<code>[^<]+<\/code>|`[^`]+`|\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\)|\*[^*]+\*)/g;
   const parts = content.split(pattern);
 
   return (
@@ -14,7 +13,6 @@ export function InlineMarkdown({ content }: { content?: string }) {
       {parts.map((part, i) => {
         if (!part) return null;
 
-        // HTML code tag: <code>code</code>
         if (
           part.startsWith("<code>") &&
           part.endsWith("</code>") &&
@@ -31,7 +29,6 @@ export function InlineMarkdown({ content }: { content?: string }) {
           );
         }
 
-        // Inline code: `code`
         if (part.startsWith("`") && part.endsWith("`") && part.length > 2) {
           const codeText = part.slice(1, -1);
           return (
@@ -44,7 +41,6 @@ export function InlineMarkdown({ content }: { content?: string }) {
           );
         }
 
-        // Bold: **text**
         if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
           const boldText = part.slice(2, -2);
           return (
@@ -54,33 +50,40 @@ export function InlineMarkdown({ content }: { content?: string }) {
           );
         }
 
-        // Link: [label](url)
         const linkMatch = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
         if (linkMatch) {
           const [, label, url] = linkMatch;
           const isExternal = url.startsWith("http");
-          return isExternal ? (
-            <a
+          return (
+            <LinkPreview
               key={i}
               href={url}
-              target="_blank"
-              rel="noreferrer"
+              external={isExternal}
               className="text-underline-offset-2 [overflow-wrap:anywhere] [word-break:break-word] text-white underline transition hover:text-white/80"
             >
               {label}
-            </a>
-          ) : (
-            <Link
-              key={i}
-              href={url}
-              className="text-underline-offset-2 [overflow-wrap:anywhere] [word-break:break-word] text-white underline transition hover:text-white/80"
-            >
-              {label}
-            </Link>
+            </LinkPreview>
           );
         }
 
-        // Italic: *text*
+        const htmlLinkMatch = part.match(
+          /^<a\s+href=["']([^"']+)["'][^>]*>([\s\S]+)<\/a>$/i,
+        );
+        if (htmlLinkMatch) {
+          const [, url, rawLabel] = htmlLinkMatch;
+          const isExternal = url.startsWith("http");
+          return (
+            <LinkPreview
+              key={i}
+              href={url}
+              external={isExternal}
+              className="text-underline-offset-2 [overflow-wrap:anywhere] [word-break:break-word] text-white underline transition hover:text-white/80"
+            >
+              <InlineMarkdown content={rawLabel} />
+            </LinkPreview>
+          );
+        }
+
         if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
           const italicText = part.slice(1, -1);
           return <em key={i}>{italicText}</em>;

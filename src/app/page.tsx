@@ -23,6 +23,7 @@ import {
 import CopyableCodePanel from "@/components/CopyableCodePanel";
 import WorkflowSection from "@/components/WorkflowSection";
 import { AutomationClient } from "@/components/AutomationClient";
+import { HeroInstallLink } from "@/components/HeroInstallLink";
 import {
   highlightCode,
   type HighlightedSnippet,
@@ -30,28 +31,22 @@ import {
 } from "@/lib/highlight";
 import GitHubIcon from "@/icons/github";
 import { InlineMarkdown } from "@/components/InlineMarkdown";
-
-const GitHubIconForDocsMap = (className: string) => {
-  return <GitHubIcon className={`${className} opacity-70 invert`} />;
-};
+import { TextHoverEffect } from "@/components/ui/text-hover-effect";
+import { AuroraBackground } from "@/components/ui/aurora-background";
 
 type OsChoice = "unix" | "windows";
 type IconComponent = ComponentType<{ className?: string }>;
 
-// const JolterPlugin = ({ className = "" }: { className?: string }) => (
-//   <img src="/jnbg.png" className={`size-4 ${className}`} alt="Jolter plugin" />
-// );
-
 const installCommands: Record<OsChoice, string[]> = {
   unix: [
-    "curl -fsSL https://get.jolter.dev/install.sh | sh",
+    "curl -fsSL https://jolter.dev/install.sh | sh",
     "jolter setup",
     "jolter use node@lts",
     "jolter use pnpm@10",
     "jolter doctor",
   ],
   windows: [
-    "irm https://get.jolter.dev/install.ps1 | iex",
+    "irm https://jolter.dev/install.ps1 | iex",
     "jolter setup",
     "jolter use node@lts",
     "jolter use pnpm@10",
@@ -242,7 +237,7 @@ const automationCode = [
   "  env:",
   "    JOLTER_HOME: ${{ runner.temp }}/jolter-home",
   "  run: |",
-  "    curl -fsSL https://get.jolter.dev/install.sh | sh",
+  "    curl -fsSL https://jolter.dev/install.sh | sh",
   "    jolter setup-ci --no-progress",
   "",
   "- run: |",
@@ -278,7 +273,7 @@ const mcpToolCode = [
 
 const pageRailClass = "mx-auto max-w-7xl px-5 sm:px-8";
 const framedGridClass =
-  "grid rounded-xl overflow-hidden gap-px border border-white/[0.09] bg-white/[0.09]";
+  "grid rounded-3xl overflow-hidden gap-px border border-white/[0.09] bg-white/[0.09]";
 
 export default async function Home() {
   const [
@@ -304,7 +299,7 @@ export default async function Home() {
   ]);
 
   return (
-    <main className="bg-black text-white">
+    <main className="bg-transparent text-white">
       <Hero />
       <ToolchainStrip />
       <SupportedToolchains />
@@ -338,19 +333,20 @@ function Hero() {
       id="top"
       className="relative isolate overflow-hidden border-b border-white/[0.08]"
     >
-      <HeroGrid />
       <div
-        className={`${pageRailClass} relative flex min-h-screen flex-col items-center justify-center pt-28 pb-20 text-center`}
+        className={`${pageRailClass} relative flex min-h-screen flex-col items-center justify-end pb-20 text-center`}
       >
-        <div className="relative w-full max-w-6xl border-y border-white/[0.1] py-10 sm:py-12 lg:py-14">
-          <div className="absolute top-0 left-0 size-1.5 -translate-x-1/2 -translate-y-1/2 bg-white/55" />
-          <div className="absolute top-0 right-0 size-1.5 translate-x-1/2 -translate-y-1/2 bg-white/55" />
-          <div className="absolute bottom-0 left-0 size-1.5 -translate-x-1/2 translate-y-1/2 bg-white/55" />
-          <div className="absolute right-0 bottom-0 size-1.5 translate-x-1/2 translate-y-1/2 bg-white/55" />
+        <TextHoverEffect
+          text="Jolter"
+          className="absolute top-[-15.5%] z-[-3] h-full w-screen"
+        />
+        <div className="absolute top-0 left-1/2 z-[-1] h-full w-screen -translate-x-1/2 bg-linear-to-t from-black via-black to-transparent" />
+        <AuroraBackground className="pointer-events-none absolute top-0 left-1/2 z-[-2] h-full w-screen -translate-x-1/2 bg-transparent opacity-80" />
+        <div className="relative w-full max-w-6xl py-10 sm:py-12 lg:py-14">
           <h1 className="mx-auto max-w-6xl text-5xl leading-[1.02] font-semibold tracking-normal text-balance sm:text-7xl lg:text-8xl">
             The toolchain manager for JavaScript projects
           </h1>
-          <p className="mx-auto mt-8 max-w-3xl text-lg leading-8 text-white/55 sm:text-xl">
+          <p className="mx-auto mt-8 max-w-2xl text-lg leading-8 text-white/55 sm:text-xl">
             Keep{" "}
             <span className="text-white">
               Node.js, Bun, Deno, npm, pnpm, Yarn, and plugin-provided tools
@@ -360,17 +356,11 @@ function Hero() {
           </p>
         </div>
 
-        <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
+        <div className="mt-2 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <PrimaryLink href="/docs/quickstart">Get Started</PrimaryLink>
         </div>
 
-        <a
-          href="/docs/installation"
-          className="mt-7 inline-flex max-w-full items-center gap-2 overflow-x-auto px-3 py-2 font-mono text-sm text-white/45 transition hover:text-white/70"
-        >
-          <span className="text-white/28">$</span>
-          curl -fsSL https://get.jolter.dev/install.sh | sh
-        </a>
+        <HeroInstallLink />
       </div>
     </section>
   );
@@ -539,7 +529,7 @@ function McpServerSection({
               return (
                 <div
                   key={item.title}
-                  className="flex gap-4 rounded-xl border border-white/[0.09] bg-black p-5 transition"
+                  className="flex gap-4 rounded-2xl border border-white/[0.09] bg-black p-5 transition"
                 >
                   <Icon className="mt-0.5 size-5 shrink-0 text-white" />
                   <div>
@@ -560,6 +550,7 @@ function McpServerSection({
             </PrimaryLink>
             <SecondaryLink href="https://www.npmjs.com/package/@jolter/mcp-server">
               View on npm
+              <ExternalLink size={14} className="ml-2 text-white/60" />
             </SecondaryLink>
           </div>
         </div>
@@ -676,7 +667,7 @@ function FinalCta() {
     <section>
       <div className={`${pageRailClass} py-24`}>
         <div className="mx-auto max-w-4xl text-center">
-          <div className="inline-flex h-9 items-center gap-2 rounded-lg border border-white/[0.12] bg-white/[0.03] px-3 text-sm text-white/58">
+          <div className="inline-flex h-9 items-center gap-2 rounded-full border border-white/[0.12] bg-white/[0.03] px-4 text-sm text-white/58">
             <LockKeyhole className="size-4" />
             Project declarations belong in source control.
           </div>
@@ -776,7 +767,7 @@ function FramedGridBlock({
   children: ReactNode;
 }) {
   return (
-    <div className="overflow-hidden rounded-xl border border-white/[0.09] bg-white/[0.09]">
+    <div className="overflow-hidden rounded-3xl border border-white/[0.09] bg-white/[0.09]">
       <div className="bg-black p-7 sm:p-8 lg:p-10">{intro}</div>
       <div
         className={`grid gap-px border-t border-white/[0.09] bg-white/[0.09] ${gridClassName}`}
@@ -798,7 +789,7 @@ function SectionHeading({
 }) {
   return (
     <div className="max-w-3xl">
-      <p className="font-mono text-xs font-semibold tracking-normal text-white/38">
+      <p className="-mb-2 text-[14px] font-medium tracking-wide text-white/40">
         <InlineMarkdown content={eyebrow} />
       </p>
       <h2 className="mt-5 text-4xl leading-tight font-semibold text-balance sm:text-5xl">
@@ -849,7 +840,7 @@ function ProcessRow({
 }) {
   return (
     <div className="grid grid-cols-[44px_minmax(0,1fr)] gap-4 border-t border-white/[0.09] py-5">
-      <div className="flex size-10 items-center justify-center rounded-md border border-white/[0.12] font-mono text-xs text-white/48">
+      <div className="flex size-10 items-center justify-center rounded-xl border border-white/[0.12] font-mono text-xs text-white/48">
         {String(index).padStart(2, "0")}
       </div>
       <div>
@@ -883,7 +874,7 @@ function LinkPanel({
       href={href}
       target="_blank"
       rel="noreferrer"
-      className="group rounded-xl border border-white/[0.09] p-6 transition hover:bg-white/[0.025]"
+      className="group rounded-3xl border border-white/[0.09] p-6 transition hover:bg-white/[0.025]"
     >
       <div className="flex items-start justify-between gap-5">
         <Icon className="size-5 text-white/72" />
@@ -946,7 +937,7 @@ function HighlightedCodeBlock({
 }) {
   return (
     <div
-      className={`overflow-hidden rounded-lg border border-white/[0.1] bg-white/[0.03] ${className}`}
+      className={`overflow-hidden rounded-2xl border border-white/[0.1] bg-white/[0.03] ${className}`}
     >
       <div
         className="overflow-x-auto p-4 text-sm leading-6 text-white/68 [&_.shiki]:!m-0 [&_.shiki]:!bg-transparent [&_.shiki]:!p-0 [&_.shiki]:font-mono [&_.shiki]:text-sm [&_.shiki]:leading-6 [&_.shiki]:whitespace-pre-wrap [&_code]:font-mono"
@@ -970,7 +961,7 @@ function PrimaryLink({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-medium text-black transition hover:bg-white/90"
+      className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-white px-5 text-sm font-medium text-black transition hover:bg-white/90"
     >
       {children}
       <ArrowRight className="size-4" />
@@ -992,7 +983,7 @@ function SecondaryLink({
       href={href}
       target={external ? "_blank" : undefined}
       rel={external ? "noreferrer" : undefined}
-      className="inline-flex h-11 items-center justify-center rounded-lg border border-white/[0.16] bg-black px-5 text-sm font-medium text-white transition hover:border-white/30 hover:bg-white/[0.04]"
+      className="inline-flex h-11 items-center justify-center rounded-full border border-white/[0.16] bg-black px-5 text-sm font-medium text-white transition hover:border-white/30 hover:bg-white/[0.04]"
     >
       {children}
     </a>
