@@ -1,4 +1,3 @@
-"use client";
 import { cn } from "@/lib/utils";
 import React, { ReactNode } from "react";
 
@@ -8,46 +7,106 @@ interface AuroraBackgroundProps extends React.HTMLProps<HTMLDivElement> {
   staticMode?: boolean;
 }
 
+const AURORA_GRADIENT =
+  "repeating-linear-gradient(100deg, #ffffff 10%, #e2e8f0 15%, #94a3b8 20%, #ffffff 25%, #cbd5e1 30%)";
+const DARK_GRADIENT =
+  "repeating-linear-gradient(100deg, #000000 0%, #000000 7%, transparent 10%, transparent 12%, #000000 16%)";
+
 export const AuroraBackground = ({
   className,
   children,
   showRadialGradient = true,
   staticMode = false,
+  style,
   ...props
 }: AuroraBackgroundProps) => {
+  const isTransparentBg = className?.includes("bg-transparent");
+
   return (
     <div
       className={cn(
         "relative flex flex-col items-center justify-center bg-black text-white",
         className,
       )}
+      style={{
+        position: "relative",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: isTransparentBg ? "transparent" : "#000000",
+        color: "#ffffff",
+        ...style,
+      }}
       {...props}
     >
       <div
         className="pointer-events-none absolute inset-0 overflow-hidden"
-        style={
-          {
-            "--aurora":
-              "repeating-linear-gradient(100deg,#ffffff_10%,#e2e8f0_15%,#94a3b8_20%,#ffffff_25%,#cbd5e1_30%)",
-            "--dark-gradient":
-              "repeating-linear-gradient(100deg,#000_0%,#000_7%,transparent_10%,transparent_12%,#000_16%)",
-
-            "--white": "#ffffff",
-            "--silver": "#e2e8f0",
-            "--gray": "#94a3b8",
-            "--black": "#000000",
-            "--transparent": "transparent",
-          } as React.CSSProperties
-        }
+        style={{
+          position: "absolute",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          overflow: "hidden",
+          pointerEvents: "none",
+          display: "flex",
+        }}
       >
         <div
           className={cn(
-            `pointer-events-none absolute -inset-[10px] [background-image:var(--dark-gradient),var(--aurora)] [background-size:300%,_200%] [background-position:50%_50%,50%_50%] opacity-45 blur-[20px] filter will-change-transform [--aurora:repeating-linear-gradient(100deg,var(--white)_10%,var(--silver)_15%,var(--gray)_20%,var(--white)_25%,var(--silver)_30%)] [--dark-gradient:repeating-linear-gradient(100deg,var(--black)_0%,var(--black)_7%,var(--transparent)_10%,var(--transparent)_12%,var(--black)_16%)] after:absolute after:inset-0 after:[background-image:var(--dark-gradient),var(--aurora)] after:[background-size:200%,_100%] after:[background-attachment:scroll] after:mix-blend-difference after:content-[""]`,
-            !staticMode && "after:animate-aurora",
+            "pointer-events-none absolute -inset-[10px] opacity-45 blur-[20px] filter will-change-transform",
             showRadialGradient &&
-              `[mask-image:radial-gradient(ellipse_at_50%_20%,black_30%,var(--transparent)_85%)]`,
+              "[mask-image:radial-gradient(ellipse_at_50%_20%,black_30%,var(--transparent)_85%)]",
           )}
-        ></div>
+          style={{
+            position: "absolute",
+            top: "-10px",
+            right: "-10px",
+            bottom: "-10px",
+            left: "-10px",
+            backgroundImage: `${DARK_GRADIENT}, ${AURORA_GRADIENT}`,
+            backgroundSize: "300% 200%",
+            backgroundPosition: "50% 50%",
+            opacity: 0.45,
+            filter: "blur(20px)",
+            pointerEvents: "none",
+            display: "flex",
+          }}
+        >
+          <div
+            className={cn(
+              "absolute inset-0 mix-blend-difference",
+              !staticMode && "animate-aurora",
+            )}
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              backgroundImage: `${DARK_GRADIENT}, ${AURORA_GRADIENT}`,
+              backgroundSize: "200% 100%",
+              mixBlendMode: "difference",
+              display: "flex",
+            }}
+          />
+        </div>
+        {showRadialGradient && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              right: 0,
+              bottom: 0,
+              left: 0,
+              backgroundImage:
+                "radial-gradient(ellipse at 50% 20%, transparent 30%, #000000 85%)",
+              pointerEvents: "none",
+              display: "flex",
+            }}
+          />
+        )}
       </div>
       {children}
     </div>

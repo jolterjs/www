@@ -1,8 +1,16 @@
 @import "tailwindcss";
 
+html {
+  scrollbar-width: none;
+}
+
 :root {
   --background: #0a0a0a;
   --foreground: #ededed;
+}
+
+::-webkit-scrollbar {
+  display: none;
 }
 
 @theme inline {
@@ -30,6 +38,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-outfit);
+  -ms-overflow-style: none;
 }
 
 .scroll-reveal {
