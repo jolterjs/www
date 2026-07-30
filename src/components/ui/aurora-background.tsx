@@ -57,7 +57,7 @@ export const AuroraBackground = ({
           className={cn(
             "pointer-events-none absolute -inset-[10px] opacity-45 blur-[20px] filter will-change-transform",
             showRadialGradient &&
-              "[mask-image:radial-gradient(ellipse_at_50%_20%,black_30%,var(--transparent)_85%)]",
+            "[mask-image:radial-gradient(ellipse_at_50%_20%,black_30%,var(--transparent)_85%)]",
           )}
           style={{
             position: "absolute",
