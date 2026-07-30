@@ -101,20 +101,21 @@ body {
 
 /* App Scale-Back Effect when Mobile Drawer is Open */
 .app-scale-wrapper {
+  overflow: hidden;
   transition:
     transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
     border-radius 0.4s cubic-bezier(0.32, 0.72, 0, 1),
-    filter 0.4s ease,
+    opacity 0.4s ease,
     box-shadow 0.4s ease;
   transform-origin: center top;
-  will-change: transform, border-radius;
+  will-change: transform, border-radius, opacity;
+  backface-visibility: hidden;
 }
 
 [data-drawer-open="true"] .app-scale-wrapper {
   transform: scale(0.94) translateY(12px);
   border-radius: 1.5rem;
-  overflow: hidden;
-  filter: brightness(0.85);
+  opacity: 0.85;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
 }
 

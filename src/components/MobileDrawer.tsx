@@ -84,12 +84,8 @@ export default function MobileDrawer() {
     setDragOffsetY(0);
   };
 
-  const handleLinkClick = (href: string) => {
-    const targetPath = href.split("#")[0];
-    const isSamePage = targetPath === "" || targetPath === pathname;
-    if (isSamePage) {
-      closeDrawer();
-    }
+  const handleLinkClick = (_href: string) => {
+    closeDrawer();
   };
 
   if (!mounted) return null;
@@ -105,7 +101,7 @@ export default function MobileDrawer() {
       }`}
     >
       <div
-        className="absolute inset-0 bg-black/82.5 transition-all"
+        className="absolute inset-0 bg-black/82.5 transition-opacity duration-300"
         onClick={closeDrawer}
       />
 
@@ -116,7 +112,7 @@ export default function MobileDrawer() {
             ? `translateY(${dragOffsetY}px)`
             : "translateY(100%)",
         }}
-        className="absolute inset-x-0 bottom-0 mx-2 flex max-h-[88vh] flex-col rounded-t-[28px] border-x border-t border-white/12 bg-[#080808] shadow-[0_-12px_40px_rgba(0,0,0,0.9)] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
+        className="absolute inset-x-0 bottom-0 mx-2 flex max-h-[88vh] flex-col rounded-t-[28px] border-x border-t border-white/12 bg-[#080808] shadow-[0_-12px_40px_rgba(0,0,0,0.9)] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform"
       >
         <div
           className="flex w-full cursor-grab items-center justify-center pt-3 pb-2 active:cursor-grabbing"

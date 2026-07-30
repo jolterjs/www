@@ -52,7 +52,7 @@ export function BlogAuthors({
               title={author.name}
               onClick={(e) => e.stopPropagation()}
               className={`relative inline-block transition-all duration-200 ease-out hover:z-20 ${
-                index > 0 ? "-ml-2.5 group-hover/avatars:ml-1" : ""
+                index > 0 ? "-ml-2.5 group-hover/avatars:ml-0.25" : ""
               }`}
             >
               <img

@@ -316,7 +316,7 @@ export function DocsPageActions({ slug, content, href }: DocsPageActionsProps) {
             }`}
           >
             <div
-              className="absolute inset-0 bg-black/82.5 transition-all"
+              className="absolute inset-0 bg-black/82.5 transition-opacity duration-300"
               onClick={() => setIsOpen(false)}
             />
 
@@ -327,7 +327,7 @@ export function DocsPageActions({ slug, content, href }: DocsPageActionsProps) {
                   ? `translateY(${dragOffsetY}px)`
                   : "translateY(100%)",
               }}
-              className="absolute inset-x-0 bottom-0 mx-2 flex max-h-[88vh] flex-col rounded-t-[28px] border-x border-t border-white/12 bg-[#080808] shadow-[0_-12px_40px_rgba(0,0,0,0.9)] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
+              className="absolute inset-x-0 bottom-0 mx-2 flex max-h-[88vh] flex-col rounded-t-[28px] border-x border-t border-white/12 bg-[#080808] shadow-[0_-12px_40px_rgba(0,0,0,0.9)] transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform"
             >
               <div
                 className="flex w-full cursor-grab items-center justify-center pt-3 pb-2 active:cursor-grabbing"
@@ -368,10 +368,10 @@ export function DocsPageActions({ slug, content, href }: DocsPageActionsProps) {
                         target="_blank"
                         rel="noreferrer"
                         onClick={() => setIsOpen(false)}
-                        className="flex items-center justify-between rounded-xl border border-transparent px-3.5 py-3 text-base font-medium text-white/70 transition hover:border-white/10 hover:bg-white/[0.05] hover:text-white"
+                        className="flex items-center justify-between rounded-xl border border-transparent px-3.5 py-3 text-base font-medium tracking-normal text-white/70 transition hover:border-white/10 hover:bg-white/[0.05] hover:text-white"
                       >
                         <div className="flex items-center gap-3">
-                          <Icon className="size-4.5 text-white/40" />
+                          <Icon className="size-4.5 text-white/75" />
                           <span>{item.name}</span>
                         </div>
                         <ExternalLink className="size-4 text-white/30" />

@@ -11,7 +11,6 @@ export function GlobalAuroraBackground() {
     return null;
   }
 
-
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 z-0 h-[700px] overflow-hidden opacity-75">
       <AuroraBackground className="h-full w-full bg-transparent" />

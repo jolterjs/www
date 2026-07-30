@@ -20,12 +20,8 @@ const auroraDataUrl = `data:image/png;base64,${fs
   .readFileSync(path.join(process.cwd(), "public/og-aurora.png"))
   .toString("base64")}`;
 
-export function createJolterOgImage({
-  title,
-  description,
-}: OgImageOptions) {
-  const titleFontSize =
-    title.length > 68 ? 64 : title.length > 42 ? 76 : 88;
+export function createJolterOgImage({ title, description }: OgImageOptions) {
+  const titleFontSize = title.length > 68 ? 64 : title.length > 42 ? 76 : 88;
 
   return new ImageResponse(
     <div

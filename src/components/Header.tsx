@@ -218,10 +218,11 @@ function Navigation() {
           tabRefs.current["product"] = el;
         }}
         onMouseEnter={() => handleMouseEnterTab("product")}
-        className={`relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 ${activeTab === "product"
-          ? "text-white"
-          : "text-white/60 hover:text-white"
-          }`}
+        className={`relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 ${
+          activeTab === "product"
+            ? "text-white"
+            : "text-white/60 hover:text-white"
+        }`}
       >
         {hoveredTab === "product" && (
           <motion.div
@@ -233,10 +234,11 @@ function Navigation() {
         <span className="relative z-10 flex items-center gap-1.5">
           Product
           <ChevronDown
-            className={`size-3.5 transition-transform duration-200 ${activeTab === "product"
-              ? "rotate-180 text-white"
-              : "text-white/40"
-              }`}
+            className={`size-3.5 transition-transform duration-200 ${
+              activeTab === "product"
+                ? "rotate-180 text-white"
+                : "text-white/40"
+            }`}
           />
         </span>
       </button>
@@ -247,10 +249,11 @@ function Navigation() {
           tabRefs.current["ecosystem"] = el;
         }}
         onMouseEnter={() => handleMouseEnterTab("ecosystem")}
-        className={`relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 ${activeTab === "ecosystem"
-          ? "text-white"
-          : "text-white/60 hover:text-white"
-          }`}
+        className={`relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 ${
+          activeTab === "ecosystem"
+            ? "text-white"
+            : "text-white/60 hover:text-white"
+        }`}
       >
         {hoveredTab === "ecosystem" && (
           <motion.div
@@ -262,10 +265,11 @@ function Navigation() {
         <span className="relative z-10 flex items-center gap-1.5">
           Ecosystem
           <ChevronDown
-            className={`size-3.5 transition-transform duration-200 ${activeTab === "ecosystem"
-              ? "rotate-180 text-white"
-              : "text-white/40"
-              }`}
+            className={`size-3.5 transition-transform duration-200 ${
+              activeTab === "ecosystem"
+                ? "rotate-180 text-white"
+                : "text-white/40"
+            }`}
           />
         </span>
       </button>
@@ -276,10 +280,11 @@ function Navigation() {
           tabRefs.current["resources"] = el;
         }}
         onMouseEnter={() => handleMouseEnterTab("resources")}
-        className={`relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 ${activeTab === "resources"
-          ? "text-white"
-          : "text-white/60 hover:text-white"
-          }`}
+        className={`relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors duration-150 ${
+          activeTab === "resources"
+            ? "text-white"
+            : "text-white/60 hover:text-white"
+        }`}
       >
         {hoveredTab === "resources" && (
           <motion.div
@@ -291,10 +296,11 @@ function Navigation() {
         <span className="relative z-10 flex items-center gap-1.5">
           Resources
           <ChevronDown
-            className={`size-3.5 transition-transform duration-200 ${activeTab === "resources"
-              ? "rotate-180 text-white"
-              : "text-white/40"
-              }`}
+            className={`size-3.5 transition-transform duration-200 ${
+              activeTab === "resources"
+                ? "rotate-180 text-white"
+                : "text-white/40"
+            }`}
           />
         </span>
       </button>
@@ -840,11 +846,20 @@ function DocsSearchModal({
 
   React.useEffect(() => {
     if (!rendered) {
-      document.documentElement.style.overflow = "";
+      document.documentElement.removeAttribute("data-drawer-open");
+      document.body.style.overflow = "";
       return;
     }
 
-    document.documentElement.style.overflow = "hidden";
+    if (window.innerWidth < 768) {
+      document.documentElement.setAttribute("data-drawer-open", "true");
+    }
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.documentElement.removeAttribute("data-drawer-open");
+      document.body.style.overflow = "";
+    };
   }, [rendered]);
 
   React.useEffect(() => {
@@ -890,89 +905,91 @@ function DocsSearchModal({
 
   const modal = rendered
     ? createPortal(
-      <div
-        className={`fixed inset-0 z-[9999] transition-opacity duration-300 ${open
-          ? "pointer-events-auto opacity-100"
-          : "pointer-events-none opacity-0"
+        <div
+          className={`fixed inset-0 z-[9999] transition-opacity duration-300 ${
+            open
+              ? "pointer-events-auto opacity-100"
+              : "pointer-events-none opacity-0"
           }`}
-        onKeyDown={handleModalKeyDown}
-        data-docs-search-modal
-        data-lenis-prevent
-        data-no-reveal
-        data-state={open ? "open" : "closed"}
-      >
-        <div
-          className="absolute inset-0 bg-black/82.5 transition-opacity duration-300"
-          onClick={closeSearch}
-        />
-
-        <div
-          style={{
-            transform:
-              open && dragOffsetY > 0
-                ? `translateY(${dragOffsetY}px)`
-                : undefined,
-          }}
-          className={`absolute inset-x-0 bottom-0 mx-2 flex max-h-[85vh] flex-col rounded-t-[28px] border-x border-t border-white/12 bg-[#080808] shadow-[0_-12px_40px_rgba(0,0,0,0.9)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] sm:top-24 sm:bottom-auto sm:left-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:rounded-2xl sm:border sm:border-white/12 sm:shadow-2xl sm:shadow-black/70 ${open
-            ? "translate-y-0 sm:scale-100 sm:opacity-100"
-            : "translate-y-full sm:translate-y-0 sm:scale-95 sm:opacity-0"
-            }`}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Search documentation"
-          onMouseDown={(event) => event.stopPropagation()}
+          onKeyDown={handleModalKeyDown}
+          data-docs-search-modal
+          data-lenis-prevent
+          data-no-reveal
+          data-state={open ? "open" : "closed"}
         >
           <div
-            className="flex w-full cursor-grab items-center justify-center pt-3 pb-1 active:cursor-grabbing sm:hidden"
-            onTouchStart={handleTouchStart}
-            onTouchMove={handleTouchMove}
-            onTouchEnd={handleTouchEnd}
-          >
-            <div className="h-1.5 w-12 rounded-full bg-white/20 transition hover:bg-white/40" />
-          </div>
-
-          <div className="flex h-14 items-center gap-3 border-b border-white/[0.09] px-4">
-            <Search className="size-4 shrink-0 text-white/40" />
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              className="h-full min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-white/28"
-              placeholder="Search Jolter docs..."
-              autoComplete="off"
-              data-docs-search-input
-            />
-            <button
-              type="button"
-              onClick={closeSearch}
-              className="flex size-8 items-center justify-center rounded-full bg-white/[0.06] text-white/60 transition hover:bg-white/[0.12] hover:text-white"
-              aria-label="Close search"
-            >
-              <X className="size-4" />
-            </button>
-          </div>
+            className="absolute inset-0 bg-black/82.5 transition-opacity duration-300"
+            onClick={closeSearch}
+          />
 
           <div
-            className="max-h-[60vh] flex-1 overflow-y-auto overscroll-contain p-2 sm:max-h-[55vh]"
-            data-lenis-prevent
-            data-no-reveal
+            style={{
+              transform:
+                open && dragOffsetY > 0
+                  ? `translateY(${dragOffsetY}px)`
+                  : undefined,
+            }}
+            className={`absolute inset-x-0 bottom-0 mx-2 flex max-h-[85vh] flex-col rounded-t-[28px] border-x border-t border-white/12 bg-[#080808] shadow-[0_-12px_40px_rgba(0,0,0,0.9)] transition-all duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] will-change-transform sm:top-24 sm:bottom-auto sm:left-1/2 sm:w-full sm:max-w-2xl sm:-translate-x-1/2 sm:rounded-2xl sm:border sm:border-white/12 sm:shadow-2xl sm:shadow-black/70 ${
+              open
+                ? "translate-y-0 sm:scale-100 sm:opacity-100"
+                : "translate-y-full sm:translate-y-0 sm:scale-95 sm:opacity-0"
+            }`}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Search documentation"
+            onMouseDown={(event) => event.stopPropagation()}
           >
-            {results.length > 0 ? (
-              <SearchResults
-                results={results}
-                selectedIndex={selectedIndex}
-                onSelect={navigateToResult}
+            <div
+              className="flex w-full cursor-grab items-center justify-center pt-3 pb-1 active:cursor-grabbing sm:hidden"
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+            >
+              <div className="h-1.5 w-12 rounded-full bg-white/20 transition hover:bg-white/40" />
+            </div>
+
+            <div className="flex h-14 items-center gap-3 border-b border-white/[0.09] px-4">
+              <Search className="size-4 shrink-0 text-white/40" />
+              <input
+                ref={inputRef}
+                value={query}
+                onChange={(event) => setQuery(event.target.value)}
+                className="h-full min-w-0 flex-1 bg-transparent text-base text-white outline-none placeholder:text-white/28"
+                placeholder="Search Jolter docs..."
+                autoComplete="off"
+                data-docs-search-input
               />
-            ) : (
-              <div className="px-4 py-12 text-center text-sm text-white/45">
-                No matching docs were found.
-              </div>
-            )}
+              <button
+                type="button"
+                onClick={closeSearch}
+                className="flex size-8 items-center justify-center rounded-full bg-white/[0.06] text-white/60 transition hover:bg-white/[0.12] hover:text-white"
+                aria-label="Close search"
+              >
+                <X className="size-4" />
+              </button>
+            </div>
+
+            <div
+              className="max-h-[60vh] flex-1 overflow-y-auto overscroll-contain p-2 sm:max-h-[55vh]"
+              data-lenis-prevent
+              data-no-reveal
+            >
+              {results.length > 0 ? (
+                <SearchResults
+                  results={results}
+                  selectedIndex={selectedIndex}
+                  onSelect={navigateToResult}
+                />
+              ) : (
+                <div className="px-4 py-12 text-center text-sm text-white/45">
+                  No matching docs were found.
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </div>,
-      document.body,
-    )
+        </div>,
+        document.body,
+      )
     : null;
 
   return (
@@ -1026,17 +1043,18 @@ function SearchResults({
         return (
           <React.Fragment key={result.href}>
             {showGroup && (
-              <div className="px-2 pt-4 pb-1 font-mono text-[11px] font-semibold tracking-normal text-white/30 uppercase first:pt-1">
+              <div className="px-2 pt-4 pb-1 text-[12px] font-medium tracking-normal text-white/40 first:pt-1">
                 {result.group}
               </div>
             )}
             <button
               type="button"
               onClick={() => onSelect(result)}
-              className={`block w-full rounded-md px-3 py-3 text-left transition ${selectedIndex === index
-                ? "bg-white/[0.08]"
-                : "hover:bg-white/[0.04]"
-                }`}
+              className={`block w-full rounded-md px-3 py-3 text-left transition ${
+                selectedIndex === index
+                  ? "bg-white/[0.08]"
+                  : "hover:bg-white/[0.04]"
+              }`}
               data-docs-search-result={result.href}
             >
               <div className="flex items-start justify-between gap-4">
