@@ -162,28 +162,28 @@ const ecosystem: Array<{
   command: string;
   language: HighlightLanguage;
 }> = [
-    {
-      icon: Code,
-      title: "@jolter/jdt",
-      body: "Initialize, run, build, validate, and pack WebAssembly plugin providers.",
-      command: "npx @jolter/jdt init\nnpx @jolter/jdt pack --version 0.1.0",
-      language: "shellscript",
-    },
-    {
-      icon: Plug,
-      title: "Registry-backed tools",
-      body: "Install a provider, then use plugin commands like any other managed tool.",
-      command: "jolter plugin install eslint\njolter use eslint@8",
-      language: "shellscript",
-    },
-    {
-      icon: Workflow,
-      title: "Release registration",
-      body: "GitHub releases stay the artifact source while the registry stores metadata and URLs.",
-      command: "uses: jolterjs/register-release-action@v1",
-      language: "yaml",
-    },
-  ];
+  {
+    icon: Code,
+    title: "@jolter/jdt",
+    body: "Initialize, run, build, validate, and pack WebAssembly plugin providers.",
+    command: "npx @jolter/jdt init\nnpx @jolter/jdt pack --version 0.1.0",
+    language: "shellscript",
+  },
+  {
+    icon: Plug,
+    title: "Registry-backed tools",
+    body: "Install a provider, then use plugin commands like any other managed tool.",
+    command: "jolter plugin install eslint\njolter use eslint@8",
+    language: "shellscript",
+  },
+  {
+    icon: Workflow,
+    title: "Release registration",
+    body: "GitHub releases stay the artifact source while the registry stores metadata and URLs.",
+    command: "uses: jolterjs/register-release-action@v1",
+    language: "yaml",
+  },
+];
 
 const docsMap = [
   {
@@ -715,7 +715,7 @@ function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
           </div>
         </div>
 
-        <div className="mt-12 flex w-full max-w-5xl flex-row items-center justify-center flex-wrap gap-y-2.5">
+        <div className="mt-12 flex w-full max-w-5xl flex-row flex-wrap items-center justify-center gap-y-2.5">
           {items.map((item, rowIndex) => {
             if (item.type === "sponsor") {
               return (

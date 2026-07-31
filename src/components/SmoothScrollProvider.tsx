@@ -11,7 +11,10 @@ function HashScrollHandler() {
   useEffect(() => {
     if (!lenis) return;
 
-    if (typeof window !== "undefined" && "scrollRestoration" in window.history) {
+    if (
+      typeof window !== "undefined" &&
+      "scrollRestoration" in window.history
+    ) {
       window.history.scrollRestoration = "manual";
     }
 

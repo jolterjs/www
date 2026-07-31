@@ -126,7 +126,11 @@ function FooterLink({ href, label }: { href: string; label: string }) {
   }
 
   return (
-    <Link href={href} scroll={href.includes("#") ? false : undefined} className={className}>
+    <Link
+      href={href}
+      scroll={href.includes("#") ? false : undefined}
+      className={className}
+    >
       {label}
     </Link>
   );

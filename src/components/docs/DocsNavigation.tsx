@@ -164,11 +164,13 @@ export function DocsToc({
                       window.history.pushState(null, "", `#${heading.id}`);
                     }
                   }}
-                  className={`block border-l py-1.5 text-sm leading-5 transition ${heading.depth === 3 ? "pl-4" : "pl-3"
-                    } ${active
+                  className={`block border-l py-1.5 text-sm leading-5 transition ${
+                    heading.depth === 3 ? "pl-4" : "pl-3"
+                  } ${
+                    active
                       ? "-ml-4 border-white text-white"
                       : "-ml-4 border-transparent text-white/42 hover:text-white/78"
-                    }`}
+                  }`}
                   data-docs-toc-active={active ? "true" : "false"}
                 >
                   {heading.text}
@@ -234,7 +236,7 @@ export function DocsToc({
                 href="https://github.com/sponsors/jolterjs"
                 target="_blank"
                 rel="noreferrer"
-                className="flex size-9 flex-row border-2 border-transparent items-center justify-center rounded-full bg-white/7.5 p-2 backdrop-blur-md transition hover:bg-white/15 hover:border-white"
+                className="flex size-9 flex-row items-center justify-center rounded-full border-2 border-transparent bg-white/7.5 p-2 backdrop-blur-md transition hover:border-white hover:bg-white/15"
               >
                 <PlusIcon className="size-4 text-white/60" />
               </Link>
@@ -283,10 +285,11 @@ function DocsNavLink({ item, active }: { item: DocNavItem; active: boolean }) {
           lenis.scrollTo(0, { duration: 1.2 });
         }
       }}
-      className={`block rounded-xl px-2.5 py-2 text-sm transition ${active
-        ? "bg-white/[0.075] text-white"
-        : "text-white/45 hover:bg-white/[0.04] hover:text-white/75"
-        }`}
+      className={`block rounded-xl px-2.5 py-2 text-sm transition ${
+        active
+          ? "bg-white/[0.075] text-white"
+          : "text-white/45 hover:bg-white/[0.04] hover:text-white/75"
+      }`}
       data-docs-nav-active={active ? "true" : "false"}
     >
       {item.title}
