@@ -8,6 +8,7 @@ const linkGroups = [
       { label: "Features", href: "/#features" },
       { label: "Workflow", href: "/#workflow" },
       { label: "Plugins", href: "/#plugins" },
+      { label: "Sponsors", href: "/#sponsors" },
       { label: "Blog", href: "/blog" },
       { label: "MCP Server", href: "/docs/automation/mcp-server" },
     ],
@@ -125,7 +126,7 @@ function FooterLink({ href, label }: { href: string; label: string }) {
   }
 
   return (
-    <Link href={href} className={className}>
+    <Link href={href} scroll={href.includes("#") ? false : undefined} className={className}>
       {label}
     </Link>
   );

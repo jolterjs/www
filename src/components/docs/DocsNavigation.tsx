@@ -3,8 +3,11 @@
 import React from "react";
 import Link from "next/link";
 import { useLenis } from "lenis/react";
+import { Heart, ArrowRight, PlusIcon } from "lucide-react";
 import type { DocHeading, DocNavGroup, DocNavItem } from "@/lib/docs-types";
+import type { Sponsor } from "@/lib/sponsors";
 import { useMobileDrawer } from "@/components/MobileDrawerProvider";
+import { a } from "motion/react-client";
 
 export function DocsSidebarNav({
   nav,
@@ -62,7 +65,13 @@ export function DocsSidebarNav({
   );
 }
 
-export function DocsToc({ headings }: { headings: DocHeading[] }) {
+export function DocsToc({
+  headings,
+  sponsors = [],
+}: {
+  headings: DocHeading[];
+  sponsors?: Sponsor[];
+}) {
   const lenis = useLenis();
   const toc = React.useMemo(
     () => headings.filter((heading) => heading.depth <= 3),
@@ -120,7 +129,7 @@ export function DocsToc({ headings }: { headings: DocHeading[] }) {
     };
   }, [toc]);
 
-  if (toc.length === 0) {
+  if (toc.length === 0 && sponsors.length === 0) {
     return <div className="hidden xl:block" data-no-reveal />;
   }
 
@@ -130,43 +139,109 @@ export function DocsToc({ headings }: { headings: DocHeading[] }) {
       data-lenis-prevent
       data-no-reveal
     >
-      <p className="mb-3 text-[12px] font-medium tracking-normal text-white/40">
-        On this page
-      </p>
-      <nav className="space-y-1 border-l border-white/[0.08] pl-4">
-        {toc.map((heading) => {
-          const active = heading.id === activeId;
+      {toc.length > 0 && (
+        <>
+          <p className="mb-3 text-[12px] font-medium tracking-normal text-white/40">
+            On this page
+          </p>
+          <nav className="space-y-1 border-l border-white/[0.08] pl-4">
+            {toc.map((heading) => {
+              const active = heading.id === activeId;
 
-          return (
-            <a
-              key={heading.id}
-              href={`#${heading.id}`}
+              return (
+                <a
+                  key={heading.id}
+                  href={`#${heading.id}`}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const el = document.getElementById(heading.id);
+                    if (el) {
+                      if (lenis) {
+                        lenis.scrollTo(el, { offset: -84, duration: 1.2 });
+                      } else {
+                        el.scrollIntoView({ behavior: "smooth" });
+                      }
+                      window.history.pushState(null, "", `#${heading.id}`);
+                    }
+                  }}
+                  className={`block border-l py-1.5 text-sm leading-5 transition ${heading.depth === 3 ? "pl-4" : "pl-3"
+                    } ${active
+                      ? "-ml-4 border-white text-white"
+                      : "-ml-4 border-transparent text-white/42 hover:text-white/78"
+                    }`}
+                  data-docs-toc-active={active ? "true" : "false"}
+                >
+                  {heading.text}
+                </a>
+              );
+            })}
+          </nav>
+        </>
+      )}
+
+      {sponsors.length > 0 && (
+        <div
+          className={
+            toc.length > 0 ? "mt-8 border-t border-white/[0.08] pt-6" : ""
+          }
+        >
+          <div className="flex items-center justify-between">
+            <p className="flex items-center justify-center gap-1.5 text-[12px] font-medium tracking-normal text-white/40">
+              <Heart className="size-3.5 fill-pink-400 text-pink-400" />
+              Sponsors
+            </p>
+            <Link
+              href="/#sponsors"
+              scroll={false}
               onClick={(e) => {
-                e.preventDefault();
-                const el = document.getElementById(heading.id);
-                if (el) {
+                const target = document.getElementById("sponsors");
+                if (window.location.pathname === "/" && target) {
+                  e.preventDefault();
                   if (lenis) {
-                    lenis.scrollTo(el, { offset: -84, duration: 1.2 });
+                    lenis.scrollTo(target, { offset: -84, duration: 1.2 });
                   } else {
-                    el.scrollIntoView({ behavior: "smooth" });
+                    target.scrollIntoView({ behavior: "smooth" });
                   }
-                  window.history.pushState(null, "", `#${heading.id}`);
+                  window.history.pushState(null, "", "/#sponsors");
                 }
               }}
-              className={`block border-l py-1.5 text-sm leading-5 transition ${
-                heading.depth === 3 ? "pl-4" : "pl-3"
-              } ${
-                active
-                  ? "-ml-4 border-white text-white"
-                  : "-ml-4 border-transparent text-white/42 hover:text-white/78"
-              }`}
-              data-docs-toc-active={active ? "true" : "false"}
+              className="flex items-center gap-1 text-[11px] font-medium text-white/45 transition hover:text-white"
             >
-              {heading.text}
-            </a>
-          );
-        })}
-      </nav>
+              See all
+              <ArrowRight className="size-3" />
+            </Link>
+          </div>
+
+          <div className="mt-3 flex items-center gap-2">
+            <div className="flex flex-wrap -space-x-2.5 overflow-hidden py-1">
+              {sponsors.map((sponsor) => (
+                <Link
+                  key={sponsor.id}
+                  href={sponsor.profileUrl || "/#sponsors"}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={`${sponsor.name}`}
+                  className="group relative inline-block transition hover:z-10"
+                >
+                  <img
+                    src={sponsor.avatarUrl}
+                    alt={sponsor.name}
+                    className="size-9 rounded-full border-2 border-transparent object-cover transition duration-300 group-hover:border-white"
+                  />
+                </Link>
+              ))}
+              <Link
+                href="https://github.com/sponsors/jolterjs"
+                target="_blank"
+                rel="noreferrer"
+                className="flex size-9 flex-row border-2 border-transparent items-center justify-center rounded-full bg-white/7.5 p-2 backdrop-blur-md transition hover:bg-white/15 hover:border-white"
+              >
+                <PlusIcon className="size-4 text-white/60" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }
@@ -208,11 +283,10 @@ function DocsNavLink({ item, active }: { item: DocNavItem; active: boolean }) {
           lenis.scrollTo(0, { duration: 1.2 });
         }
       }}
-      className={`block rounded-xl px-2.5 py-2 text-sm transition ${
-        active
-          ? "bg-white/[0.075] text-white"
-          : "text-white/45 hover:bg-white/[0.04] hover:text-white/75"
-      }`}
+      className={`block rounded-xl px-2.5 py-2 text-sm transition ${active
+        ? "bg-white/[0.075] text-white"
+        : "text-white/45 hover:bg-white/[0.04] hover:text-white/75"
+        }`}
       data-docs-nav-active={active ? "true" : "false"}
     >
       {item.title}

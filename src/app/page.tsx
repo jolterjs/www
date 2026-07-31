@@ -11,14 +11,20 @@ import {
   Download,
   ExternalLink,
   FileCode,
+  Gem,
+  Heart,
   LockKeyhole,
   PackageCheck,
   Plug,
+  Rocket,
   SearchCheck,
   Server,
   ShieldCheck,
+  Sparkles,
+  Star,
   Terminal,
   Zap,
+  PlusIcon,
 } from "lucide-react";
 import CopyableCodePanel from "@/components/CopyableCodePanel";
 import WorkflowSection from "@/components/WorkflowSection";
@@ -33,6 +39,8 @@ import GitHubIcon from "@/icons/github";
 import { InlineMarkdown } from "@/components/InlineMarkdown";
 import { TextHoverEffect } from "@/components/ui/text-hover-effect";
 import { AuroraBackground } from "@/components/ui/aurora-background";
+import { getSponsors, type Sponsor } from "@/lib/sponsors";
+import Link from "next/link";
 
 type OsChoice = "unix" | "windows";
 type IconComponent = ComponentType<{ className?: string }>;
@@ -154,28 +162,28 @@ const ecosystem: Array<{
   command: string;
   language: HighlightLanguage;
 }> = [
-  {
-    icon: Code,
-    title: "@jolter/jdt",
-    body: "Initialize, run, build, validate, and pack WebAssembly plugin providers.",
-    command: "npx @jolter/jdt init\nnpx @jolter/jdt pack --version 0.1.0",
-    language: "shellscript",
-  },
-  {
-    icon: Plug,
-    title: "Registry-backed tools",
-    body: "Install a provider, then use plugin commands like any other managed tool.",
-    command: "jolter plugin install eslint\njolter use eslint@8",
-    language: "shellscript",
-  },
-  {
-    icon: Workflow,
-    title: "Release registration",
-    body: "GitHub releases stay the artifact source while the registry stores metadata and URLs.",
-    command: "uses: jolterjs/register-release-action@v1",
-    language: "yaml",
-  },
-];
+    {
+      icon: Code,
+      title: "@jolter/jdt",
+      body: "Initialize, run, build, validate, and pack WebAssembly plugin providers.",
+      command: "npx @jolter/jdt init\nnpx @jolter/jdt pack --version 0.1.0",
+      language: "shellscript",
+    },
+    {
+      icon: Plug,
+      title: "Registry-backed tools",
+      body: "Install a provider, then use plugin commands like any other managed tool.",
+      command: "jolter plugin install eslint\njolter use eslint@8",
+      language: "shellscript",
+    },
+    {
+      icon: Workflow,
+      title: "Release registration",
+      body: "GitHub releases stay the artifact source while the registry stores metadata and URLs.",
+      command: "uses: jolterjs/register-release-action@v1",
+      language: "yaml",
+    },
+  ];
 
 const docsMap = [
   {
@@ -277,6 +285,7 @@ const framedGridClass =
 
 export default async function Home() {
   const [
+    sponsors,
     projectSnippet,
     shimSnippet,
     installUnixSnippet,
@@ -287,6 +296,7 @@ export default async function Home() {
     mcpToolSnippet,
     ...ecosystemSnippets
   ] = await Promise.all([
+    getSponsors(),
     highlightCode(projectDeclarationCode, "json"),
     highlightCode(shimResolutionCode, "shellscript"),
     highlightCode(installCommands.unix.join("\n"), "shellscript"),
@@ -322,6 +332,7 @@ export default async function Home() {
       </GridSection>
       <DiagnosticsAndSecurity healthSnippet={healthSnippet} />
       <PluginEcosystem snippets={ecosystemSnippets} />
+      <SponsorsSection sponsors={sponsors} />
       <FinalCta />
     </main>
   );
@@ -659,6 +670,89 @@ function PluginEcosystem({ snippets }: { snippets: HighlightedSnippet[] }) {
         />
       </div>
     </GridSection>
+  );
+}
+
+function SponsorsSection({ sponsors }: { sponsors: Sponsor[] }) {
+  type SponsorItem = { type: "sponsor"; data: Sponsor } | { type: "plus" };
+
+  const items: SponsorItem[] = [
+    ...sponsors.map((s) => ({ type: "sponsor" as const, data: s })),
+    { type: "plus" as const },
+  ];
+
+  return (
+    <section
+      id="sponsors"
+      className="relative scroll-mt-20 border-y border-white/[0.08] py-24"
+    >
+      <div className="pointer-events-none absolute inset-0 z-[-1] bg-linear-to-br from-black via-pink-500/12.5 to-black" />
+      <div
+        className={`${pageRailClass} flex flex-col items-center text-center`}
+      >
+        <div className="mx-auto max-w-3xl text-center">
+          <p className="text-[14px] font-medium tracking-wide text-white/40">
+            Community & Support
+          </p>
+          <h2 className="mt-4 text-4xl leading-tight font-semibold text-balance sm:text-5xl">
+            Project Sponsors
+          </h2>
+          <p className="mt-4 text-base leading-7 text-white/52 sm:text-lg">
+            Jolter is free, open-source, and community-driven. Special thanks to
+            all individuals and organizations supporting the project's
+            development.
+          </p>
+          <div className="mt-8 flex justify-center">
+            <a
+              href="https://github.com/sponsors/jolterjs"
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex h-11 items-center justify-center gap-2 rounded-full bg-linear-to-br from-white via-pink-200 to-white px-6 text-sm font-medium text-black transition select-none hover:opacity-80"
+            >
+              <Heart className="size-4 fill-pink-500 text-pink-500" />
+              Sponsor Jolter on GitHub
+            </a>
+          </div>
+        </div>
+
+        <div className="mt-12 flex w-full max-w-5xl flex-row items-center justify-center flex-wrap gap-y-2.5">
+          {items.map((item, rowIndex) => {
+            if (item.type === "sponsor") {
+              return (
+                <Link
+                  key={`${item.data.id}-${rowIndex}`}
+                  href={item.data.profileUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative -ml-4.5 rounded-full transition-transform duration-200 first:ml-0 hover:z-20"
+                  title={item.data.name}
+                >
+                  <img
+                    src={item.data.avatarUrl}
+                    alt={item.data.name}
+                    draggable="false"
+                    className="size-13.5 rounded-full border-2 border-transparent object-cover transition group-hover:border-white"
+                  />
+                </Link>
+              );
+            } else {
+              return (
+                <a
+                  key="plus-sponsor"
+                  href="https://github.com/sponsors/jolterjs"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="relative -ml-4.5 flex size-13.5 items-center justify-center rounded-full border-2 border-transparent bg-white/7.5 text-white/60 backdrop-blur-md transition duration-200 first:ml-0 hover:z-20 hover:border-white/50 hover:bg-white/15 hover:text-white"
+                  title="Become a sponsor"
+                >
+                  <PlusIcon className="size-5.5" />
+                </a>
+              );
+            }
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
 

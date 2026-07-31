@@ -101,7 +101,6 @@ body {
 
 /* App Scale-Back Effect when Mobile Drawer is Open */
 .app-scale-wrapper {
-  overflow: hidden;
   transition:
     transform 0.4s cubic-bezier(0.32, 0.72, 0, 1),
     border-radius 0.4s cubic-bezier(0.32, 0.72, 0, 1),
@@ -113,6 +112,7 @@ body {
 }
 
 [data-drawer-open="true"] .app-scale-wrapper {
+  overflow: hidden;
   transform: scale(0.94) translateY(12px);
   border-radius: 1.5rem;
   opacity: 0.85;

@@ -12,6 +12,7 @@ import { DocsFeedback } from "@/components/docs/DocsFeedback";
 import { DocsPageActions } from "@/components/docs/DocsPageActions";
 import { InlineMarkdown } from "@/components/InlineMarkdown";
 import { getDocNav, getDocPage, getDocStaticParams } from "@/lib/docs";
+import { getSponsors } from "@/lib/sponsors";
 import type { DocNavItem } from "@/lib/docs-types";
 
 type DocsPageProps = {
@@ -79,25 +80,29 @@ export default async function DocsPage({ params }: DocsPageProps) {
   }
 
   const nav = getDocNav();
-  const { content } = await compileMDX({
-    source: page.content,
-    components: mdxComponents,
-    options: {
-      mdxOptions: {
-        remarkPlugins: [remarkGfm],
-        rehypePlugins: [
-          rehypeSlug,
-          [
-            rehypePrettyCode,
-            {
-              theme: "github-dark",
-              keepBackground: false,
-            },
+  const [sponsors, mdx] = await Promise.all([
+    getSponsors(),
+    compileMDX({
+      source: page.content,
+      components: mdxComponents,
+      options: {
+        mdxOptions: {
+          remarkPlugins: [remarkGfm],
+          rehypePlugins: [
+            rehypeSlug,
+            [
+              rehypePrettyCode,
+              {
+                theme: "github-dark",
+                keepBackground: false,
+              },
+            ],
           ],
-        ],
+        },
       },
-    },
-  });
+    }),
+  ]);
+  const content = mdx.content;
 
   return (
     <main className="relative min-h-screen bg-transparent pt-16 text-white">
@@ -133,7 +138,7 @@ export default async function DocsPage({ params }: DocsPageProps) {
             <DocsPagination previous={page.previous} next={page.next} />
           </article>
 
-          <DocsToc headings={page.headings} />
+          <DocsToc headings={page.headings} sponsors={sponsors} />
         </div>
       </div>
     </main>
