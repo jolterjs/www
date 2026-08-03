@@ -1,0 +1,17 @@
+import React from "react";
+
+export default function NpmIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 600 600"
+      {...props}
+    >
+      <path
+        fill="currentColor"
+        d="M0 0v600h600V0zm487.5 112.5v375h-75v-300H300v300H112.5v-375z"
+      />
+    </svg>
+  );
+}

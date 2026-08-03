@@ -7,19 +7,41 @@ This guide takes a new machine from no Jolter installation to a project that aut
 
 <Steps>
   <Step title="Install Jolter">
-    Run the installer for your operating system.
+    Run the installer script for your operating system.
 
     <CodeGroup>
 
-    ```powershell Windows
+    ```powershell Windows (script)
     irm https://jolter.dev/install.ps1 | iex
     ```
 
-    ```bash Linux and macOS
+    ```bash Linux / macOS (script)
     curl -fsSL https://jolter.dev/install.sh | sh
     ```
 
     </CodeGroup>
+
+    Or alternatively install via npm, bun, pnpm, or yarn:
+
+    <CodeGroup>
+
+```bash npm
+npm install -g jolter
+```
+
+```bash Bun
+bun install -g jolter
+```
+
+```bash pnpm
+pnpm add -g jolter
+```
+
+```bash Yarn
+yarn global add jolter
+```
+
+</CodeGroup>
 
   </Step>
 

@@ -1,0 +1,91 @@
+---
+title: "Announcing the Official Jolter NPM Package"
+description: "You can now install and run Jolter directly using npm, Bun, pnpm, Yarn, or npx. Learn how our official bootstrap package brings effortless toolchain management to any JS workflow."
+date: "2026-08-03"
+category: "releases"
+authors:
+  - name: "Jonas"
+    avatarUrl: "https://avatars.githubusercontent.com/u/81481526?v=4"
+    link: "https://github.com/builtbyjonas"
+---
+
+Today we are excited to release the official `jolter` npm package (`v1.1.0`).
+
+Until now, setting up Jolter meant running our standalone shell scripts (`curl -fsSL https://jolter.dev/install.sh | sh` or PowerShell `irm https://jolter.dev/install.ps1 | iex`), downloading verified release archives manually, or building from source with Rust. While shell installers remain great for clean system setups, JavaScript developers frequently asked for a familiar way to install and invoke Jolter using their existing JavaScript package manager or executor.
+
+Starting today, you can install Jolter globally using **npm**, **Bun**, **pnpm**, or **Yarn**, or execute it instantly via **`npx`** or **`bunx`**.
+
+## Quick Start with NPM & Package Managers
+
+To install Jolter globally using your package manager of choice:
+
+<CodeGroup>
+
+```bash npm
+npm install -g jolter
+```
+
+```bash Bun
+bun install -g jolter
+```
+
+```bash pnpm
+pnpm add -g jolter
+```
+
+```bash Yarn
+yarn global add jolter
+```
+
+</CodeGroup>
+
+Prefer one-shot execution without global installation? You can run Jolter directly:
+
+<CodeGroup>
+
+```bash npx
+npx jolter --version
+npx jolter setup
+```
+
+```bash bunx
+bunx jolter --version
+bunx jolter setup
+```
+
+</CodeGroup>
+
+After installation, complete your setup as usual:
+
+```bash
+jolter setup
+jolter use node@lts
+jolter doctor
+```
+
+## How the NPM Package Works
+
+The `jolter` npm package acts as a lightweight, cross-platform launcher and bootstrap installer. Here is what happens when you run `npm install -g jolter` or launch `npx jolter`:
+
+1. **Platform & Architecture Detection**: Jolter inspects `process.platform` and `process.arch` to determine your target platform (Windows x64/arm64, macOS Apple Silicon/Intel, Linux x64/arm64).
+2. **Binary Verification & Caching**: If the native Jolter binary is not already installed locally, the launcher securely downloads the corresponding release archive from GitHub Releases along with its published SHA-256 checksum file.
+3. **Cryptographic Checksum Validation**: The installer verifies the SHA-256 digest of the downloaded archive before extracting it to your local binary folder (`%LOCALAPPDATA%\Programs\Jolter` on Windows or `~/.local/bin` on Unix).
+4. **Transparent Execution**: The command shim forwards all arguments, standard streams, and exit codes directly to the high-performance native Rust executable.
+
+Because the package fetches precompiled native binaries, installation is near-instantaneous and requires **no local C++ or Rust build toolchain**.
+
+## Security & Resilience
+
+We built the npm installer with the same security and reliability standards as the rest of Jolter:
+
+- **Strict Checksum Matching**: Every binary download is verified against published `SHA-256` digests prior to extraction. Compromised or incomplete downloads are rejected immediately.
+- **GitHub API Rate Limit Protection**: If `GITHUB_TOKEN` or `GH_TOKEN` is present in your environment, the installer will use it to bypass unauthenticated API rate limits. If a token returns an authorization error, it gracefully falls back to public release endpoints.
+- **Offline & Re-run Performance**: Once installed, subsequent invocations launch the native executable directly without network overhead.
+
+## What's Next
+
+The npm package source code is available on GitHub at [`jolterjs/npm-jolter`](https://github.com/jolterjs/npm-jolter).
+
+Check out the updated [Installation Guide](/docs/installation) and our new [NPM Package Documentation](/docs/npm-package) for detailed usage instructions, environment configuration, and CI options.
+
+Give `npm install -g jolter` a try and let us know what you think on GitHub!

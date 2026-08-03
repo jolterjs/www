@@ -3,8 +3,12 @@
 import React from "react";
 import { Code2 } from "lucide-react";
 import AppleIcon from "@/icons/apple";
+import BunIcon from "@/icons/bun";
 import LinuxIcon from "@/icons/linux";
+import NpmIcon from "@/icons/npm";
+import PnpmIcon from "@/icons/pnpm";
 import WindowsIcon from "@/icons/windows";
+import YarnIcon from "@/icons/yarn";
 
 export type CodeGroupTabItem = {
   content: React.ReactNode;
@@ -20,7 +24,11 @@ export type CodeGroupTabItem = {
     | "perplexity"
     | "vscode"
     | "windsurf"
-    | "github";
+    | "github"
+    | "npm"
+    | "bun"
+    | "pnpm"
+    | "yarn";
   label: string;
 };
 
@@ -223,6 +231,22 @@ function TabIcon({ icon }: { icon: CodeGroupTabItem["icon"] }) {
         <LinuxIcon className="size-4 fill-current" />
       </span>
     );
+  }
+
+  if (icon === "npm") {
+    return <NpmIcon className="size-4 fill-current" />;
+  }
+
+  if (icon === "bun") {
+    return <BunIcon className="size-4 fill-current" />;
+  }
+
+  if (icon === "pnpm") {
+    return <PnpmIcon className="size-4 fill-current" />;
+  }
+
+  if (icon === "yarn") {
+    return <YarnIcon className="size-4 fill-current" />;
   }
 
   return <Code2 className="size-4" />;

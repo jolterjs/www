@@ -1,0 +1,119 @@
+---
+title: "NPM Package"
+description: "Install and run Jolter using npm, Bun, pnpm, Yarn, or npx with automatic binary bootstrapping and checksum verification."
+---
+
+The official [`jolter`](https://www.npmjs.com/package/jolter) npm package provides a cross-platform launcher and installer for the Jolter CLI. It allows developers and CI environments to install, update, and execute Jolter using Node.js package managers without writing custom shell scripts.
+
+## Global Installation
+
+You can install Jolter globally using any major JavaScript package manager:
+
+<CodeGroup>
+
+```bash npm
+npm install -g jolter
+```
+
+```bash Bun
+bun install -g jolter
+```
+
+```bash pnpm
+pnpm add -g jolter
+```
+
+```bash Yarn
+yarn global add jolter
+```
+
+</CodeGroup>
+
+After installing globally, run the standard setup command to enable command shims and set up your environment:
+
+```bash
+jolter setup
+jolter doctor
+```
+
+## One-Shot Execution (npx / bunx)
+
+If you prefer not to install Jolter globally, you can invoke Jolter directly using `npx` or `bunx`:
+
+<CodeGroup>
+
+```bash npx
+npx jolter --version
+npx jolter sync
+```
+
+```bash bunx
+bunx jolter --version
+bunx jolter sync
+```
+
+</CodeGroup>
+
+The runner will automatically download and verify the native executable on its first run and cache it for subsequent calls.
+
+## How it Works
+
+The `jolter` npm package is a lightweight wrapper around the precompiled native Jolter binaries. When executed, it performs the following steps:
+
+1. **Platform Detection**: Identifies host operating system (Windows, macOS, Linux) and processor architecture (`x64`, `arm64`).
+2. **Installation Check**: Checks whether the target native executable is already present in your local installation directory:
+   - **Windows**: `%LOCALAPPDATA%\Programs\Jolter\jolter.exe`
+   - **macOS / Linux**: `~/.local/bin/jolter`
+3. **Release Download & Verification**: If the binary is missing, it fetches the corresponding release archive and published `.sha256` checksum file from GitHub Releases.
+4. **Cryptographic Validation**: Computes the SHA-256 hash of the downloaded archive locally and verifies it against the published release signature. If the hash does not match, installation aborts immediately.
+5. **Execution**: Extracts the binary to the local installation folder and spawns the native executable, piping `stdio`, arguments, and exit codes transparently.
+
+## Environment Variables
+
+The npm package respects the following environment variables:
+
+| Variable                     | Description                                                                                          |
+| ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `GITHUB_TOKEN` or `GH_TOKEN` | Optional GitHub Personal Access Token used to authenticate release API calls and bypass rate limits. |
+| `NO_COLOR`                   | Suppresses ANSI color output in launcher output logs.                                                |
+| `LOCALAPPDATA`               | (Windows) Custom path for application data directory where Jolter binaries are placed.               |
+| `HOME`                       | (Unix) Home directory used to locate `~/.local/bin`.                                                 |
+
+<Info>
+  Authentication tokens are only used for GitHub API metadata resolution.
+  Downloaded release archives are fetched over HTTPS directly from release
+  assets.
+</Info>
+
+## CI and Automation
+
+To use Jolter via npm in CI workflows:
+
+```yaml
+- name: Install Jolter via npm
+  run: npm install -g jolter
+
+- name: Sync project toolchain
+  run: jolter sync
+```
+
+For dedicated GitHub Actions workflows, you can also use our official [`jolterjs/setup-jolter`](/automation/setup-jolter-action) action.
+
+## Troubleshooting
+
+### EACCES Permission Errors
+
+If `npm install -g jolter` fails with a permission error on Unix systems:
+
+- Avoid running `sudo npm install -g`.
+- Configure npm to use a user-owned global directory (e.g. `npm config set prefix '~/.npm-global'`).
+- Alternatively, use the standalone shell installer: `curl -fsSL https://jolter.dev/install.sh | sh`.
+
+### Rate Limiting (HTTP 403 / 429)
+
+If your environment triggers GitHub API rate limits during automated installs, set the `GITHUB_TOKEN` environment variable in your pipeline:
+
+```bash
+export GITHUB_TOKEN="github_pat_..."
+npm install -g jolter
+```

@@ -3,21 +3,45 @@ title: "Installation"
 description: "Install Jolter with the public scripts, verified release archives, or a source build."
 ---
 
-Jolter ships as a native executable. The installer places the binary on your machine; `jolter setup` then creates command shims and prints shell-specific PATH instructions.
+Jolter ships as a native executable. You can install it using our official npm package, standalone shell scripts, verified release archives, or a source build.
 
 ## Quick install
 
 <CodeGroup>
 
-```powershell Windows
-irm https://jolter.dev/install.ps1 | iex
+    ```powershell Windows (script)
+    irm https://jolter.dev/install.ps1 | iex
+    ```
+
+    ```bash Linux / macOS (script)
+    curl -fsSL https://jolter.dev/install.sh | sh
+    ```
+
+    </CodeGroup>
+
+    Or alternatively install via npm, bun, pnpm, or yarn:
+
+    <CodeGroup>
+
+```bash npm
+npm install -g jolter
 ```
 
-```bash Linux and macOS
-curl -fsSL https://jolter.dev/install.sh | sh
+```bash Bun
+bun install -g jolter
+```
+
+```bash pnpm
+pnpm add -g jolter
+```
+
+```bash Yarn
+yarn global add jolter
 ```
 
 </CodeGroup>
+
+For detailed `npm`, `bun`, `pnpm`, `yarn`, or one-shot `npx` / `bunx` execution, read the [NPM Package documentation](/docs/npm-package).
 
 After installation:
 
@@ -28,9 +52,9 @@ jolter doctor
 ```
 
 <Warning>
-  One-line installers execute remote code. Security-sensitive environments
-  should download and review the script first or install a checksum-verified
-  release archive.
+  One-line installers execute remote code or download release artifacts.
+  Security-sensitive environments should review installation scripts first or
+  install a checksum-verified release archive.
 </Warning>
 
 ## Inspect before running

@@ -407,18 +407,43 @@ function createCodeGroupTab(
     string,
     unknown
   >;
+  const codeNode = isValidElement<{ children?: ReactNode }>(props.children)
+    ? props.children
+    : null;
+  const codeProps = (
+    codeNode && isValidElement(codeNode) ? codeNode.props : {}
+  ) as Record<string, unknown>;
 
   const rawTitle =
     (typeof childProps["data-title"] === "string"
       ? childProps["data-title"]
       : "") ||
     (typeof childProps.title === "string" ? childProps.title : "") ||
+    (typeof childProps["data-meta"] === "string"
+      ? childProps["data-meta"]
+      : "") ||
+    (typeof childProps.meta === "string" ? childProps.meta : "") ||
+    (typeof childProps.raw === "string" ? childProps.raw : "") ||
     (typeof props["data-title"] === "string" ? props["data-title"] : "") ||
+    (typeof props.title === "string" ? props.title : "") ||
     (typeof props["data-meta"] === "string" ? props["data-meta"] : "") ||
-    (typeof props.title === "string" ? props.title : "");
+    (typeof props.meta === "string" ? props.meta : "") ||
+    (typeof props.raw === "string" ? props.raw : "") ||
+    (typeof codeProps["data-title"] === "string"
+      ? codeProps["data-title"]
+      : "") ||
+    (typeof codeProps.title === "string" ? codeProps.title : "") ||
+    (typeof codeProps["data-meta"] === "string"
+      ? codeProps["data-meta"]
+      : "") ||
+    (typeof codeProps.meta === "string" ? codeProps.meta : "");
 
   const language =
-    typeof props["data-language"] === "string" ? props["data-language"] : "";
+    typeof props["data-language"] === "string"
+      ? props["data-language"]
+      : typeof codeProps["data-language"] === "string"
+        ? codeProps["data-language"]
+        : "";
   const code = extractTextFromNode(props.children as ReactNode);
   const label = inferCodeGroupLabel(language, code, index, rawTitle);
 
@@ -465,11 +490,33 @@ function inferCodeGroupLabel(
     if (parts.length > 1 && parts[0].toLowerCase() === language.toLowerCase()) {
       clean = parts.slice(1).join(" ");
     }
+    clean = clean
+      .replace(/^(title|label)=["']?([^"']+)["']?$/i, "$2")
+      .replace(/^["'](.*)["']$/, "$1")
+      .trim();
     if (clean) return clean;
   }
 
   const normalizedLanguage = language.toLowerCase();
-  const normalizedCode = code.toLowerCase();
+  const normalizedCode = code.toLowerCase().trim();
+  const firstLine = normalizedCode.split("\n")[0] || "";
+  const firstWord = firstLine.trim().split(/\s+/)[0] || "";
+
+  if (firstWord === "npm" || firstWord === "npx") {
+    return "npm";
+  }
+
+  if (firstWord === "bun" || firstWord === "bunx") {
+    return "Bun";
+  }
+
+  if (firstWord === "pnpm" || firstWord === "pnpx") {
+    return "pnpm";
+  }
+
+  if (firstWord === "yarn") {
+    return "Yarn";
+  }
 
   if (
     normalizedCode.includes(".cursor/") ||
@@ -559,6 +606,22 @@ function inferCodeGroupLabel(
 
 function inferCodeGroupIcon(label: string): CodeGroupTabItem["icon"] {
   const normalizedLabel = label.toLowerCase();
+
+  if (normalizedLabel === "pnpm" || normalizedLabel.includes("pnpm")) {
+    return "pnpm";
+  }
+
+  if (normalizedLabel === "npm" || normalizedLabel.includes("npm")) {
+    return "npm";
+  }
+
+  if (normalizedLabel === "bun" || normalizedLabel.includes("bun")) {
+    return "bun";
+  }
+
+  if (normalizedLabel === "yarn" || normalizedLabel.includes("yarn")) {
+    return "yarn";
+  }
 
   if (normalizedLabel.includes("cursor")) {
     return "cursor";
